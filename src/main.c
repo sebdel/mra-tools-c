@@ -252,7 +252,7 @@ void main(int argc, char **argv)
     if (verbose)
     {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);
-        if (zip_dir) {
+        if (*zip_dir) {
             printf("ROMS zip dir: %s\n", zip_dir);
         }
     }
@@ -290,7 +290,7 @@ void main(int argc, char **argv)
     } else 
     {
         char *zip_filename;
-        if (zip_dir) {
+        if (*zip_dir) {
             int length = strnlen(zip_dir, 1024) + strnlen(rom.zip, 1024);
             zip_filename = (char *)malloc(sizeof(char) * (length + 2));
 
