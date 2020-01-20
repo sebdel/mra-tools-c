@@ -203,36 +203,36 @@ void main(int argc, char **argv)
     int verbose = 0;
 
     // Parse command line
-   int opt; 
-    // put ':' in the starting of the 
-    // string so that program can  
-    //distinguish between '?' and ':'  
-    while((opt = getopt(argc, argv, ":vlhz:")) != -1)
+    int opt;
+    // put ':' in the starting of the
+    // string so that program can
+    //distinguish between '?' and ':'
+    while ((opt = getopt(argc, argv, ":vlhz:")) != -1)
     {
-        switch(opt)
-        {  
-            case 'v':
-                verbose = -1;
-                break;
-            case 'l':
-                mra_dump = -1;
-                break;
-            case 'z':
-                zip_dir = strndup(optarg, 1024);
-                break;
-            case 'h':
-                print_usage();
-                exit(0);
+        switch (opt)
+        {
+        case 'v':
+            verbose = -1;
+            break;
+        case 'l':
+            mra_dump = -1;
+            break;
+        case 'z':
+            zip_dir = strndup(optarg, 1024);
+            break;
+        case 'h':
+            print_usage();
+            exit(0);
 
-            case ':':
-                printf("option needs a value\n");
-                print_usage();
-                exit(-1);
-                
-            case '?':
-                printf("unknown option: %c\n", optopt); 
-                print_usage();
-                exit(-1);
+        case ':':
+            printf("option needs a value\n");
+            print_usage();
+            exit(-1);
+
+        case '?':
+            printf("unknown option: %c\n", optopt);
+            print_usage();
+            exit(-1);
         }
     }
 
@@ -243,7 +243,8 @@ void main(int argc, char **argv)
     }
 
     mra_filename = strndup(argv[optind], 1024);
-    if (trace > 0) printf("mra: %s\n", mra_filename);
+    if (trace > 0)
+        printf("mra: %s\n", mra_filename);
 
     rom_filename = strndup(mra_filename, 1024);
     rom_filename[strnlen(rom_filename, 1024) - 4] = 0;
@@ -252,7 +253,8 @@ void main(int argc, char **argv)
     if (verbose)
     {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);
-        if (*zip_dir) {
+        if (*zip_dir)
+        {
             printf("ROMS zip dir: %s\n", zip_dir);
         }
     }
@@ -287,18 +289,23 @@ void main(int argc, char **argv)
         {
             printf("%s\n", files.file_names[i]);
         }
-    } else 
+    }
+    else
     {
         char *zip_filename;
-        if (*zip_dir) {
+        if (*zip_dir)
+        {
             int length = strnlen(zip_dir, 1024) + strnlen(rom.zip, 1024);
             zip_filename = (char *)malloc(sizeof(char) * (length + 2));
 
             snprintf(zip_filename, 2050, "%s/%s", zip_dir, rom.zip);
-        } else {
+        }
+        else
+        {
             zip_filename = rom.zip;
         }
-        if (verbose) printf("Reading zip file: %s\n", zip_filename);
+        if (verbose)
+            printf("Reading zip file: %s\n", zip_filename);
 
         files.data = (unsigned char **)malloc(sizeof(unsigned char *) * files.n_files);
         files.data_size = (long *)malloc(sizeof(long) * files.n_files);
