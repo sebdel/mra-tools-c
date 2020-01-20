@@ -1,17 +1,23 @@
-OBJS = main.o sxmlc.o junzip.o
+OBJS = main.o unzip.o mra.o sxmlc.o junzip.o
 LIBS = -lz
-FLAGS = -O2 -DHAVE_ZLIB
+FLAGS = -O2 -DHAVE_ZLIB -Isrc/junzip -Isrc/sxmlc
 
 all: mra-tools
 
-mra-tools: main.o sxmlc.o junzip.o
+mra-tools: $(OBJS)
 	gcc -o mra-tools $(OBJS) $(LIBS)
 
-junzip.o: src/junzip.c
-	gcc -c $(FLAGS) src/junzip.c
+junzip.o: src/junzip/junzip.c
+	gcc -c $(FLAGS) src/junzip/junzip.c
 
-sxmlc.o: src/sxmlc.c
-	gcc -c $(FLAGS) src/sxmlc.c
+sxmlc.o: src/sxmlc/sxmlc.c
+	gcc -c $(FLAGS) src/sxmlc/sxmlc.c
+
+unzip.o: src/unzip.c
+	gcc -c $(FLAGS) src/unzip.c
+
+mra.o: src/mra.c
+	gcc -c $(FLAGS) src/mra.c
 
 main.o: src/main.c
 	gcc -c $(FLAGS) src/main.c
