@@ -5,7 +5,13 @@
 #include "junzip.h"
 #include "unzip.h"
 
-int processFile(JZFile *zip, t_files *files)
+struct s_callback_data
+{
+    t_file **files;
+    int *n_files;
+};
+
+int processFile(JZFile *zip, t_file *file)
 {
     JZFileHeader header;
     char filename[1024];
@@ -16,32 +22,30 @@ int processFile(JZFile *zip, t_files *files)
         return -1;
     }
 
-    // look for index of filename in files->filenames
-    int i, n;
-    for (i = 0, n = strlen(filename); i < files->n_files && strncmp(files->file_names[i], filename, n); i++)
-        ;
-    if (i < files->n_files)
+    file->name = strndup(filename, 1024);
+    file->crc32 = header.crc32;
+    file->size = header.uncompressedSize;
+    if ((file->data = (unsigned char *)malloc(header.uncompressedSize)) == NULL)
     {
-        if ((files->data[i] = (unsigned char *)malloc(header.uncompressedSize)) == NULL)
-        {
-            printf("Couldn't allocate memory!");
-            return -1;
-        }
-        files->data_size[i] = header.uncompressedSize;
+        printf("Couldn't allocate memory!");
+        return -1;
+    }
+    // look for index of filename in files->filenames
+    /*    int i, n;
+    for (i = 0, n = strlen(filename); i < files->n_files && strncmp(files->file_names[i], filename, n); i++)
+        ;*/
+    if (trace > 0)
+    {
+        printf("%s, %d / %d bytes at offset %08X\n", filename,
+               header.compressedSize, header.uncompressedSize, header.offset);
+    }
 
-        if (trace > 0)
-        {
-            printf("%s, %d / %d bytes at offset %08X\n", filename,
-                   header.compressedSize, header.uncompressedSize, header.offset);
-        }
-
-        if (jzReadData(zip, &header, files->data[i]) != Z_OK)
-        {
-            printf("Couldn't read file data!");
-            free(files->data[i]);
-            files->data[i] = NULL;
-            return -1;
-        }
+    if (jzReadData(zip, &header, file->data) != Z_OK)
+    {
+        printf("Couldn't read file data!");
+        free(file->data);
+        file->data = NULL;
+        return -1;
     }
 
     return 0;
@@ -50,6 +54,8 @@ int processFile(JZFile *zip, t_files *files)
 int recordCallback(JZFile *zip, int idx, JZFileHeader *header, char *filename, void *user_data)
 {
     long offset;
+    t_file **files = ((struct s_callback_data *)user_data)->files;
+    int *n_files = ((struct s_callback_data *)user_data)->n_files;
 
     offset = zip->tell(zip); // store current position
 
@@ -59,20 +65,23 @@ int recordCallback(JZFile *zip, int idx, JZFileHeader *header, char *filename, v
         return 0; // abort
     }
 
-    processFile(zip, (t_files *)user_data); // alters file offset
+    (*n_files)++;
+    *files = (t_file *)realloc(*files, sizeof(t_file) * (*n_files));
+
+    processFile(zip, (*files) + (*n_files) - 1); // alters file offset
 
     zip->seek(zip, offset, SEEK_SET); // return to position
 
     return 1; // continue
 }
 
-int unzip_file(char *file, t_files *files)
+int unzip_file(char *file, t_file **files, int *n_files)
 {
     FILE *fp;
     int retval = -1;
     JZEndRecord endRecord;
-
     JZFile *zip;
+    struct s_callback_data user_data = {files, n_files};
 
     if (!(fp = fopen(file, "rb")))
     {
@@ -88,7 +97,7 @@ int unzip_file(char *file, t_files *files)
         goto endClose;
     }
 
-    if (jzReadCentralDirectory(zip, &endRecord, recordCallback, files))
+    if (jzReadCentralDirectory(zip, &endRecord, recordCallback, &user_data))
     {
         printf("Couldn't read ZIP file central record.");
         goto endClose;
@@ -101,4 +110,3 @@ endClose:
 
     return retval;
 }
-
