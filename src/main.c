@@ -24,16 +24,50 @@ void print_usage()
     printf("\t-z dir\tSet directory where to look for the rom zip file\n");
 }
 
+int get_file_by_crc(t_file *files, int n_files, uint32_t crc)
+{
+    int i;
+
+    for (i = 0; i < n_files; i++)
+    {
+        if (files[i].crc32 == crc)
+        {
+            if (trace > 0)
+            {
+                printf("crc matches for file: %s\n", files[i].name);
+            }
+            return i;
+        }
+    }
+    return -1;
+}
+
+int get_file_by_name(t_file *files, int n_files, char *name)
+{
+    int i;
+
+    for (i = 0; i < n_files; i++)
+    {
+        if (strncmp(files[i].name, name, 1024) == 0)
+        {
+            if (trace > 0)
+            {
+                printf("name matches for file: %s\n", files[i].name);
+            }
+            return i;
+        }
+    }
+    return -1;
+}
+
 void main(int argc, char **argv)
 {
-    XMLDoc mra;
-    t_rom rom;
-    t_files files;
+    t_mra mra;
     char *rom_filename;
     char *mra_filename;
     char *zip_dir = "";
     int i, res;
-    int mra_dump = 0;
+    int dump_mra = 0;
     int verbose = 0;
 
     // Parse command line
@@ -49,7 +83,7 @@ void main(int argc, char **argv)
             verbose = -1;
             break;
         case 'l':
-            mra_dump = -1;
+            dump_mra = -1;
             break;
         case 'z':
             zip_dir = strndup(optarg, 1024);
@@ -93,63 +127,81 @@ void main(int argc, char **argv)
         }
     }
 
-    XMLDoc_init(&mra);
-    res = XMLDoc_parse_file(mra_filename, &mra);
-    if (res != 1)
-    {
-        printf("%s is not a valid xml file\n", mra_filename);
-        exit(-1);
-    }
-    if (mra.i_root >= 0 && strncmp(mra.nodes[mra.i_root]->tag, "misterromdescription", 20) != 0)
-    {
-        printf("%s is not a valid MRA file\n", mra_filename);
-        exit(-1);
-    }
+    mra_load(mra_filename, &mra);
 
-    memset(&rom, 0, sizeof(t_rom));
-    memset(&files, 0, sizeof(t_files));
-
-    mra_read_rom(mra.nodes[mra.i_root], &rom);
-    mra_read_files(mra.nodes[mra.i_root], &files);
-
-    if (mra_dump)
+    if (dump_mra)
     {
-        printf("rom.index = %s\n", rom.index);
-        printf("rom.md5 = %s\n", rom.md5);
-        printf("rom.type = %s\n", rom.type);
-        printf("rom.zip = %s\n", rom.zip);
-        printf("%d file parts found:\n", files.n_files);
-        for (i = 0; i < files.n_files; i++)
-        {
-            printf("%s\n", files.file_names[i]);
-        }
+#if 1 // Use that to create test files
+        mra_dump(&mra);
+#else
+        int i;
+        uint8_t buffer[16];
+
+        FILE *out;
+        out = fopen("01.dat", "wb");
+        memset(buffer, 1, 16);
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+        out = fopen("02.dat", "wb");
+        memset(buffer, 2, 16);
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+        out = fopen("03.dat", "wb");
+        memset(buffer, 3, 16);
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+        out = fopen("s16.dat", "wb");
+        for (i = 0; i < 16; i++)
+            buffer[i] = i;
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+#endif
     }
     else
     {
         char *zip_filename;
+        t_rom *rom;
+        t_file *files = NULL;
+        int n_files = 0;
+        int rom_index;
+        int i;
+
+        rom_index = mra_get_next_rom0(&mra, rom_index);
+        if (rom_index == -1)
+        {
+            printf("ROM0 not found in MRA.\n");
+            exit(-1);
+        }
+        rom = mra.roms + rom_index;
+
         if (*zip_dir)
         {
-            int length = strnlen(zip_dir, 1024) + strnlen(rom.zip, 1024);
+            int length = strnlen(zip_dir, 1024) + strnlen(rom->zip, 1024);
             zip_filename = (char *)malloc(sizeof(char) * (length + 2));
 
-            snprintf(zip_filename, 2050, "%s/%s", zip_dir, rom.zip);
+            snprintf(zip_filename, 2050, "%s/%s", zip_dir, rom->zip);
         }
         else
         {
-            zip_filename = rom.zip;
+            zip_filename = rom->zip;
         }
         if (verbose)
+        {
             printf("Reading zip file: %s\n", zip_filename);
+        }
 
-        files.data = (unsigned char **)malloc(sizeof(unsigned char *) * files.n_files);
-        files.data_size = (long *)malloc(sizeof(long) * files.n_files);
-        memset(files.data, 0, sizeof(unsigned char *) * files.n_files);
-
-        res = unzip_file(zip_filename, &files);
+        res = unzip_file(zip_filename, &files, &n_files);
         if (res != 0)
         {
-            printf("\nFailed to unzip file: %s\n", rom.zip);
+            printf("\nFailed to unzip file: %s\n", zip_filename);
             exit(-1);
+        }
+        if (trace > 0)
+        {
+            for (i = 0; i < n_files; i++)
+            {
+                printf("%s\t%d\t%X\n", files[i].name, files[i].size, files[i].crc32);
+            }
         }
 
         FILE *out;
@@ -161,15 +213,57 @@ void main(int argc, char **argv)
             exit(-1);
         }
 
-        for (i = 0; i < files.n_files; i++)
+        for (i = 0; i < rom->n_parts; i++)
         {
-            if (files.data[i])
+            int j, n;
+            t_part *part = rom->parts + i;
+
+            if (part->zip)
             {
-                fwrite(files.data[i], 1, files.data_size[i], out);
+                printf("Support of part with zip attributes is not implemented!\n");
+                exit(-1);
+            }
+
+            n = -1;
+            if (part->crc32) // First, try to identify file by crc
+            {
+                n = get_file_by_crc(files, n_files, part->crc32);
+            }
+            if (n == -1 && part->name) // then by name
+            {
+                n = get_file_by_name(files, n_files, part->name);
+            }
+            if (n == -1)
+            {
+                printf("part not found in zip: %s\n", part->name);
+                exit(-1);
+            }
+            if (trace > 0)
+            {
+                printf("file:\n");
+                printf("  name: %s\n", files[n].name);
+                printf("  size: %d\n", files[n].size);
+            }
+
+            if (files[n].data)
+            {
+                if (part->offset >= files[n].size)
+                {
+                    printf("warning: offset set past the part size, part skipped: %s\n", part->name);
+                }
+                else
+                {
+                    int n_writes = part->repeat ? part->repeat : 1;
+                    size_t length = (part->length && (part->length < (files[n].size - part->offset))) ? part->length : (files[n].size - part->offset);
+                    for (j = 0; j < n_writes; j++)
+                    {
+                        fwrite(files[n].data + part->offset, 1, length, out);
+                    }
+                }
             }
             else
             {
-                printf("%s data not found !\n", files.file_names[i]);
+                printf("%s data not found !\n", files[n].name);
                 exit(-1);
             }
         }

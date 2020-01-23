@@ -1,0 +1,17 @@
+<misterromdescription>
+	<name>Test Offset,Length</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_offset_length</rbf>
+	<rom index="0" zip="tests.zip" md5="23d0dc4b8d5c77b970e39f80576cecb4" type="merged|nonmerged">
+		<part name="s16.dat" offset="1" length="8"/>
+		<part name="01.dat" length="8"/>
+		<part name="02.dat" length="256"/>
+		<part name="03.dat" offset="14"/>
+		<part name="03.dat" offset="140"/>
+		<part name="s16.dat" repeat="1"/>
+	</rom>
+</misterromdescription>
