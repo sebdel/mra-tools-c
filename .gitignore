@@ -53,4 +53,5 @@ dkms.conf
 
 .vscode/
 roms/
-mra-tools
+*.rom
+mra

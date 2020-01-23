@@ -68,6 +68,31 @@ int get_file_by_name(t_file *files, int n_files, char *name)
     return -1;
 }
 
+int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length, int repeat, size_t offset, size_t size)
+{
+    if (data)
+    {
+        if (offset >= data_length)
+        {
+            printf("error: offset set past the part size\n");
+            return -1;
+        }
+        else
+        {
+            int i;
+            int n_writes = repeat ? repeat : 1;
+            size_t length = (size && (size < (data_length - offset))) ? size : (data_length - offset);
+            for (i = 0; i < n_writes; i++)
+            {
+                fwrite(data + offset, 1, length, out);
+                MD5_Update(md5_ctx, data + offset, length);
+            }
+        }
+    }
+
+    return 0;
+}
+
 void main(int argc, char **argv)
 {
     t_mra mra;
@@ -246,7 +271,7 @@ void main(int argc, char **argv)
             {
                 n = get_file_by_name(files, n_files, part->name);
             }
-            if (n == -1)
+            if (n == -1 && !part->data)
             {
                 printf("part not found in zip: %s\n", part->name);
                 exit(-1);
@@ -258,39 +283,36 @@ void main(int argc, char **argv)
                 printf("  size: %d\n", files[n].size);
             }
 
-            if (files[n].data)
+            if (n != -1)
             {
-                if (part->offset >= files[n].size)
+                if (write_to_rom(out, &md5_ctx, files[n].data, files[n].size, part->repeat, part->offset, part->length))
                 {
-                    printf("warning: offset set past the part size, part skipped: %s\n", part->name);
-                }
-                else
-                {
-                    int n_writes = part->repeat ? part->repeat : 1;
-                    size_t length = (part->length && (part->length < (files[n].size - part->offset))) ? part->length : (files[n].size - part->offset);
-                    for (j = 0; j < n_writes; j++)
-                    {
-                        fwrite(files[n].data + part->offset, 1, length, out);
-                        MD5_Update(&md5_ctx, files[n].data + part->offset, length);
-                    }
+                    exit(-1);
                 }
             }
             else
             {
-                printf("%s data not found !\n", files[n].name);
-                exit(-1);
+                if (write_to_rom(out, &md5_ctx, part->data, part->data_length, part->repeat, part->offset, part->length))
+                {
+                    exit(-1);
+                }
             }
         }
         fclose(out);
         MD5_Final(md5, &md5_ctx);
         sprintf_md5(md5_string, md5);
-        if (verbose) {
+        if (verbose)
+        {
             printf("%s\t%s\n", md5_string, rom_filename);
         }
-        if (rom->md5) {
-            if (strncmp(rom->md5, md5_string, 33)) {
+        if (rom->md5)
+        {
+            if (strncmp(rom->md5, md5_string, 33))
+            {
                 printf("warning: md5 mismatch! (found: %s, expected: %s)\n", md5_string, rom->md5);
-            } else if (verbose) {
+            }
+            else if (verbose)
+            {
                 printf("MD5s match! (%s)\n", rom->md5);
             }
         }

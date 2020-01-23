@@ -1,0 +1,23 @@
+<misterromdescription>
+	<name>Test Embedded Data</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_embedded_data</rbf>
+	<rom index="0" zip="tests.zip" md5="05ceff0412af6b08a562c197684c0613" type="merged|nonmerged">
+		<part name="s16.dat">00 01 02 03 04</part>
+		<part>00 01 02 03 04</part>
+		<part repeat="8">00 01</part>
+		<part repeat="8">0203</part>
+		<part repeat="8">04-05</part>
+		<part repeat="4">
+     06
+     07
+     08
+     09
+    </part>
+    <part>abcdef,ABCDEF</part>
+	</rom>
+</misterromdescription>

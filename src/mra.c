@@ -2,8 +2,9 @@
 #include <stdlib.h>
 
 #include "mra.h"
+#include "utils.h"
 
-void read_part(XMLNode *node, t_part *part)
+int read_part(XMLNode *node, t_part *part)
 {
     int j;
 
@@ -36,11 +37,19 @@ void read_part(XMLNode *node, t_part *part)
             part->length = atol(strndup(node->attributes[j].value, 256));
         }
     }
-    // TODO: read binary data
     if (node->text != NULL)
     {
-        printf("WARNING, part data decoding not suported yet!\n");
+        if (part->name) {
+            printf("warning: part %s has a name and data. Data dropped.\n", part->name);
+        } else {
+            if (parse_hex_string(node->text, &(part->data), &(part->data_length))) {
+                printf("warning: failed to decode part data. Data dropped.\n");
+            } else {
+
+            }
+        }
     }
+    return 0;
 }
 
 int read_parts(XMLNode *node, t_part **parts, int *n_parts)
@@ -213,7 +222,7 @@ int mra_dump(t_mra *mra)
             printf("    repeat: %d\n", part->repeat);
             printf("    offset: %ld\n", part->offset);
             printf("    length: %ld\n", part->length);
-            printf("    data_length: %d\n", part->data_length);
+            printf("    data_length: %lu\n", part->data_length);
         }
     }
 }

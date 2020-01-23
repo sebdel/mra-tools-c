@@ -15,7 +15,7 @@ typedef struct s_part
   long length;
 
   unsigned char *data;
-  int data_length;
+  size_t data_length;
 }t_part;
 
 typedef struct s_rom
