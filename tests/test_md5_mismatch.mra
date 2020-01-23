@@ -1,0 +1,12 @@
+<misterromdescription>
+	<name>Test MD5 Mismatch</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_md5_mismatch</rbf>
+	<rom index="0" zip="tests.zip" md5="deadbeefl337c0d3badf00dba1dbabe" type="merged|nonmerged">
+		<part name="s16.dat"/>
+	</rom>
+</misterromdescription>

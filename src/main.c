@@ -7,6 +7,7 @@
 #include "unzip.h"
 #include "mra.h"
 #include "sxmlc.h"
+#include "md5.h"
 
 // make vscode happy
 extern char *optarg;
@@ -22,6 +23,13 @@ void print_usage()
     printf("\t-v\tVerbose on (default: off)\n");
     printf("\t-l\tList MRA content instead of creating the ROM\n");
     printf("\t-z dir\tSet directory where to look for the rom zip file\n");
+}
+
+void sprintf_md5(char *dest, unsigned char *md5)
+{
+    snprintf(dest, 33, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+             md5[0], md5[1], md5[2], md5[3], md5[4], md5[5], md5[6], md5[7],
+             md5[8], md5[9], md5[10], md5[11], md5[12], md5[13], md5[14], md5[15]);
 }
 
 int get_file_by_crc(t_file *files, int n_files, uint32_t crc)
@@ -205,7 +213,12 @@ void main(int argc, char **argv)
         }
 
         FILE *out;
+        MD5_CTX md5_ctx;
+        unsigned char md5[16];
+        char md5_string[33];
+
         out = fopen(rom_filename, "wb");
+        MD5_Init(&md5_ctx);
 
         if (out == NULL)
         {
@@ -258,6 +271,7 @@ void main(int argc, char **argv)
                     for (j = 0; j < n_writes; j++)
                     {
                         fwrite(files[n].data + part->offset, 1, length, out);
+                        MD5_Update(&md5_ctx, files[n].data + part->offset, length);
                     }
                 }
             }
@@ -268,6 +282,18 @@ void main(int argc, char **argv)
             }
         }
         fclose(out);
+        MD5_Final(md5, &md5_ctx);
+        sprintf_md5(md5_string, md5);
+        if (verbose) {
+            printf("%s\t%s\n", md5_string, rom_filename);
+        }
+        if (rom->md5) {
+            if (strncmp(rom->md5, md5_string, 33)) {
+                printf("warning: md5 mismatch! (found: %s, expected: %s)\n", md5_string, rom->md5);
+            } else if (verbose) {
+                printf("MD5s match! (%s)\n", rom->md5);
+            }
+        }
     }
 
     if (verbose)
