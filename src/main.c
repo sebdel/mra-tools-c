@@ -131,7 +131,31 @@ void main(int argc, char **argv)
 
     if (dump_mra)
     {
+#if 1 // Use that to create test files
         mra_dump(&mra);
+#else
+        int i;
+        uint8_t buffer[16];
+
+        FILE *out;
+        out = fopen("01.dat", "wb");
+        memset(buffer, 1, 16);
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+        out = fopen("02.dat", "wb");
+        memset(buffer, 2, 16);
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+        out = fopen("03.dat", "wb");
+        memset(buffer, 3, 16);
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+        out = fopen("s16.dat", "wb");
+        for (i = 0; i < 16; i++)
+            buffer[i] = i;
+        fwrite(buffer, 1, 16, out);
+        fclose(out);
+#endif
     }
     else
     {
@@ -166,10 +190,6 @@ void main(int argc, char **argv)
             printf("Reading zip file: %s\n", zip_filename);
         }
 
-        // files.data = (unsigned char **)malloc(sizeof(unsigned char *) * files.n_files);
-        // files.data_size = (long *)malloc(sizeof(long) * files.n_files);
-        // memset(files.data, 0, sizeof(unsigned char *) * files.n_files);
-
         res = unzip_file(zip_filename, &files, &n_files);
         if (res != 0)
         {
@@ -195,15 +215,21 @@ void main(int argc, char **argv)
 
         for (i = 0; i < rom->n_parts; i++)
         {
-            int n;
+            int j, n;
             t_part *part = rom->parts + i;
 
+            if (part->zip)
+            {
+                printf("Support of part with zip attributes is not implemented!\n");
+                exit(-1);
+            }
+
             n = -1;
-            if (part->crc32)
+            if (part->crc32) // First, try to identify file by crc
             {
                 n = get_file_by_crc(files, n_files, part->crc32);
             }
-            if (n == -1 && part->name)
+            if (n == -1 && part->name) // then by name
             {
                 n = get_file_by_name(files, n_files, part->name);
             }
@@ -221,7 +247,19 @@ void main(int argc, char **argv)
 
             if (files[n].data)
             {
-                fwrite(files[n].data, 1, files[n].size, out);
+                if (part->offset >= files[n].size)
+                {
+                    printf("warning: offset set past the part size, part skipped: %s\n", part->name);
+                }
+                else
+                {
+                    int n_writes = part->repeat ? part->repeat : 1;
+                    size_t length = (part->length && (part->length < (files[n].size - part->offset))) ? part->length : (files[n].size - part->offset);
+                    for (j = 0; j < n_writes; j++)
+                    {
+                        fwrite(files[n].data + part->offset, 1, length, out);
+                    }
+                }
             }
             else
             {

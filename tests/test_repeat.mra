@@ -1,0 +1,16 @@
+<misterromdescription>
+	<name>Test Repeat</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_repeat</rbf>
+	<rom index="0" zip="tests.zip" md5="043460b0c8a79dbd755dfbd9e7c4f3ea" type="merged|nonmerged">
+		<part name="s16.dat"/>
+		<part name="01.dat"/>
+		<part name="02.dat" repeat="2"/>
+		<part name="03.dat" repeat="3"/>
+		<part name="s16.dat" repeat="1"/>
+	</rom>
+</misterromdescription>
