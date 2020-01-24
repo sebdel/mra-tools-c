@@ -45,71 +45,71 @@ extern "C" {
  * \brief Define this to compile unicode support.
  */
 #ifdef SXMLC_UNICODE
-	typedef wchar_t SXML_CHAR;
-	#define C2SX(c) L ## c
-	#define CEOF WEOF
-	#define sx_strcmp wcscmp
-	#define sx_strncmp wcsncmp
-	#define sx_strlen wcslen
-	#define sx_strdup wcsdup
-	#define sx_strchr wcschr
-	#define sx_strrchr wcsrchr
-	#define sx_strcpy wcscpy
-	#define sx_strncpy wcsncpy
-	#define sx_strcat wcscat
-	#define sx_printf wprintf
-	#define sx_fprintf fwprintf
-	#define sx_sprintf swprintf
-	#define sx_fgetc fgetwc
-	#define sx_fputc fputwc
-	#define sx_puts putws
-	#define sx_fputs fputws
-	#define sx_isspace iswspace
-	#if defined(WIN32) || defined(WIN64)
-		#define sx_fopen _wfopen
-	#else
-		#define sx_fopen fopen
-	#endif
-	#define sx_fclose fclose
-	#define sx_feof feof
+typedef wchar_t SXML_CHAR;
+#define C2SX(c) L##c
+#define CEOF WEOF
+#define sx_strcmp wcscmp
+#define sx_strncmp wcsncmp
+#define sx_strlen wcslen
+#define sx_strdup wcsdup
+#define sx_strchr wcschr
+#define sx_strrchr wcsrchr
+#define sx_strcpy wcscpy
+#define sx_strncpy wcsncpy
+#define sx_strcat wcscat
+#define sx_printf wprintf
+#define sx_fprintf fwprintf
+#define sx_sprintf swprintf
+#define sx_fgetc fgetwc
+#define sx_fputc fputwc
+#define sx_puts putws
+#define sx_fputs fputws
+#define sx_isspace iswspace
+#if defined(WIN32) || defined(WIN64)
+#define sx_fopen _wfopen
 #else
-	typedef char SXML_CHAR;
-	#define C2SX(c) c
-	#define CEOF EOF
-	#define sx_strcmp strcmp
-	#define sx_strncmp strncmp
-	#define sx_strlen strlen
-	#define sx_strdup __sx_strdup
-	#define sx_strchr strchr
-	#define sx_strrchr strrchr
-	#define sx_strcpy strcpy
-	#define sx_strncpy strncpy
-	#define sx_strcat strcat
-	#define sx_printf printf
-	#define sx_fprintf fprintf
-	#define sx_sprintf sprintf
-	#define sx_fgetc fgetc
-	#define sx_fputc fputc
-	#define sx_puts puts
-	#define sx_fputs fputs
-	#define sx_isspace(ch) isspace((int)ch)
-	#define sx_fopen fopen
-	#define sx_fclose fclose
-	#define sx_feof feof
+#define sx_fopen fopen
+#endif
+#define sx_fclose fclose
+#define sx_feof feof
+#else
+typedef char SXML_CHAR;
+#define C2SX(c) c
+#define CEOF EOF
+#define sx_strcmp strcmp
+#define sx_strncmp strncmp
+#define sx_strlen strlen
+#define sx_strdup __sx_strdup
+#define sx_strchr strchr
+#define sx_strrchr strrchr
+#define sx_strcpy strcpy
+#define sx_strncpy strncpy
+#define sx_strcat strcat
+#define sx_printf printf
+#define sx_fprintf fprintf
+#define sx_sprintf sprintf
+#define sx_fgetc fgetc
+#define sx_fputc fputc
+#define sx_puts puts
+#define sx_fputs fputs
+#define sx_isspace(ch) isspace((int)ch)
+#define sx_fopen fopen
+#define sx_fclose fclose
+#define sx_feof feof
 #endif
 
 #ifdef DBG_MEM
-	void* __malloc(size_t sz);
-	void* __calloc(size_t count, size_t sz);
-	void* __realloc(void* mem, size_t sz);
-	void __free(void* mem);
-	char* __sx_strdup(const char* s);
+void* __malloc(size_t sz);
+void* __calloc(size_t count, size_t sz);
+void* __realloc(void* mem, size_t sz);
+void __free(void* mem);
+char* __sx_strdup(const char* s);
 #else
-	#define __malloc malloc
-	#define __calloc calloc
-	#define __realloc realloc
-	#define __free free
-	#define __sx_strdup strdup
+#define __malloc malloc
+#define __calloc calloc
+#define __realloc realloc
+#define __free free
+#define __sx_strdup strdup
 #endif
 
 /**
@@ -117,7 +117,7 @@ extern "C" {
  * 		bytes with unicode support).
  */
 #ifndef MEM_INCR_RLA
-#define MEM_INCR_RLA (256*sizeof(SXML_CHAR)) /* Initial buffer size and increment for memory reallocations */
+#define MEM_INCR_RLA (256 * sizeof(SXML_CHAR)) /* Initial buffer size and increment for memory reallocations */
 #endif
 
 #ifndef false
@@ -135,9 +135,9 @@ extern "C" {
  * \brief Buffer data source used by 'read_line_alloc' when required. 'buf' should be 0-terminated.
  */
 typedef struct _DataSourceBuffer {
-	const SXML_CHAR* buf;
-	int buf_len;
-	int cur_pos;
+    const SXML_CHAR* buf;
+    int buf_len;
+    int cur_pos;
 } DataSourceBuffer;
 
 typedef FILE* DataSourceFile;
@@ -146,9 +146,9 @@ typedef FILE* DataSourceFile;
  * \brief Describes the type of data source used for parsing.
  */
 typedef enum _DataSourceType {
-	DATA_SOURCE_FILE = 0,
-	DATA_SOURCE_BUFFER,
-	DATA_SOURCE_MAX
+    DATA_SOURCE_FILE = 0,
+    DATA_SOURCE_BUFFER,
+    DATA_SOURCE_MAX
 } DataSourceType;
 
 /**
@@ -158,20 +158,20 @@ typedef enum _DataSourceType {
  * internally by the parser.
  */
 typedef enum _TagType {
-	TAG_ERROR = -1,
-	TAG_NONE = 0,
-	TAG_PARTIAL,	/**< Node containing a legal `>` that stopped file reading. *[N/A]* */
-	TAG_FATHER,		/**< `<tag>` - Next nodes will be children of this one. */
-	TAG_SELF,		/**< `<tag/>` - Standalone node. */
-	TAG_INSTR,		/**< `<?prolog?>` - Processing instructions, or prolog node. */
-	TAG_COMMENT,	/**< `<!--comment-->` */
-	TAG_CDATA,		/**< `<![CDATA[ ]]>` - CDATA node */
-	TAG_DOCTYPE,	/**< `<!DOCTYPE [ ]>` - DOCTYPE node */
-	TAG_END,		/**< `</tag>` - End of father node. *[N/A]* */
-	TAG_TEXT,		/**< Special node used as a text container. */
-					/**< and `node->tag` is `NULL`. */
+    TAG_ERROR = -1,
+    TAG_NONE = 0,
+    TAG_PARTIAL, /**< Node containing a legal `>` that stopped file reading. *[N/A]* */
+    TAG_FATHER,  /**< `<tag>` - Next nodes will be children of this one. */
+    TAG_SELF,    /**< `<tag/>` - Standalone node. */
+    TAG_INSTR,   /**< `<?prolog?>` - Processing instructions, or prolog node. */
+    TAG_COMMENT, /**< `<!--comment-->` */
+    TAG_CDATA,   /**< `<![CDATA[ ]]>` - CDATA node */
+    TAG_DOCTYPE, /**< `<!DOCTYPE [ ]>` - DOCTYPE node */
+    TAG_END,     /**< `</tag>` - End of father node. *[N/A]* */
+    TAG_TEXT,    /**< Special node used as a text container. */
+    /**< and `node->tag` is `NULL`. */
 
-	TAG_USER = 100	/*!<  User-defined tag start */
+    TAG_USER = 100 /*!<  User-defined tag start */
 } TagType;
 
 /* TODO: Performance improvement with some fixed-sized strings ??? (e.g. XMLAttribute.name[64], XMLNode.tag[64]).
@@ -184,9 +184,9 @@ typedef enum _TagType {
  * `XMLNode_print*()`, `XMLNode_get_attribute_count()`.
  */
 typedef struct _XMLAttribute {
-	SXML_CHAR* name;	/**< The attribute name. */
-	SXML_CHAR* value;	/**< The attribute value. */
-	int active;			/**< `true` if the attribute is active. */
+    SXML_CHAR* name;  /**< The attribute name. */
+    SXML_CHAR* value; /**< The attribute value. */
+    int active;       /**< `true` if the attribute is active. */
 } XMLAttribute;
 
 /* Constant to know whether a struct has been initialized (XMLNode or XMLDoc)
@@ -213,22 +213,22 @@ typedef struct _XMLAttribute {
  * in `node->text`*.
  */
 typedef struct _XMLNode {
-	SXML_CHAR* tag;				/**< Tag name, or text for tag types `TAG_INSTR`, `TAG_COMMENT`, `TAG_CDATA` and `TAG_DOCTYPE`. */
-	SXML_CHAR* text;			/**< Text inside the node, or `NULL` if empty. */
-	XMLAttribute* attributes;	/**< Array of attributes. */
-	int n_attributes;			/**< Number of attributes *in `attributes` array* (might not be the number of *active* attributes). */
-	
-	struct _XMLNode* father;	/**< Pointer to father node. `NULL` if root. */
-	struct _XMLNode** children; /**< Array of children nodes. */
-	int n_children;				/**< Number of nodes *in `children` array* (might not be the number of *active* children). */
-	
-	TagType tag_type;			/**< Node type. */
-	int active;					/**< 'true' to tell that node is active and should be displayed by 'XMLDoc_print_*()'. */
+    SXML_CHAR* tag;           /**< Tag name, or text for tag types `TAG_INSTR`, `TAG_COMMENT`, `TAG_CDATA` and `TAG_DOCTYPE`. */
+    SXML_CHAR* text;          /**< Text inside the node, or `NULL` if empty. */
+    XMLAttribute* attributes; /**< Array of attributes. */
+    int n_attributes;         /**< Number of attributes *in `attributes` array* (might not be the number of *active* attributes). */
 
-	void* user;	/**< Pointer for user data associated to the node. */
+    struct _XMLNode* father;    /**< Pointer to father node. `NULL` if root. */
+    struct _XMLNode** children; /**< Array of children nodes. */
+    int n_children;             /**< Number of nodes *in `children` array* (might not be the number of *active* children). */
 
-	/* Keep 'init_value' as the last member */
-	int init_value;	/**< Initialized to 'XML_INIT_DONE' to indicate that node has been initialized properly. */
+    TagType tag_type; /**< Node type. */
+    int active;       /**< 'true' to tell that node is active and should be displayed by 'XMLDoc_print_*()'. */
+
+    void* user; /**< Pointer for user data associated to the node. */
+
+    /* Keep 'init_value' as the last member */
+    int init_value; /**< Initialized to 'XML_INIT_DONE' to indicate that node has been initialized properly. */
 } XMLNode;
 
 #ifndef SXMLC_MAX_PATH
@@ -244,18 +244,18 @@ typedef struct _XMLNode {
  * N.B. that when compiled with `SXMLC_UNICODE` there are additional fields for BOM (Byte Order Mark) handling.
  */
 typedef struct _XMLDoc {
-	SXML_CHAR filename[SXMLC_MAX_PATH];
+    SXML_CHAR filename[SXMLC_MAX_PATH];
 #ifdef SXMLC_UNICODE
-	BOM_TYPE bom_type;		/**< BOM type (UTF-8, UTF-16*). */
-	unsigned char bom[5];	/**< First characters read that might be a BOM when unicode is used. */
-	int sz_bom;				/**< Number of bytes in BOM. */
+    BOM_TYPE bom_type;    /**< BOM type (UTF-8, UTF-16*). */
+    unsigned char bom[5]; /**< First characters read that might be a BOM when unicode is used. */
+    int sz_bom;           /**< Number of bytes in BOM. */
 #endif
-	XMLNode** nodes;		/* Nodes of the document, including prolog, comments and root nodes */
-	int n_nodes;			/* Number of nodes in 'nodes' */
-	int i_root;				/* Index of first root node in 'nodes', -1 if document is empty */
+    XMLNode** nodes; /* Nodes of the document, including prolog, comments and root nodes */
+    int n_nodes;     /* Number of nodes in 'nodes' */
+    int i_root;      /* Index of first root node in 'nodes', -1 if document is empty */
 
-	/* Keep 'init_value' as the last member */
-	int init_value;	/* Initialized to 'XML_INIT_DONE' to indicate that document has been initialized properly */
+    /* Keep 'init_value' as the last member */
+    int init_value; /* Initialized to 'XML_INIT_DONE' to indicate that document has been initialized properly */
 } XMLDoc;
 
 /**
@@ -296,13 +296,13 @@ int XML_get_registered_user_tag(TagType tag_type);
  * \brief The different reasons why parsing would fail.
  */
 typedef enum _ParseError {
-	PARSE_ERR_NONE = 0,					/**< Success. */
-	PARSE_ERR_MEMORY = -1,				/**< Not enough memory for an `?alloc()` call. */
-	PARSE_ERR_UNEXPECTED_TAG_END = -2,	/**< When a tag end does not match the tag start (e.g. `<a></b>`). */
-	PARSE_ERR_SYNTAX = -3,				/**< General syntax error. */
-	PARSE_ERR_EOF = -4,					/**< Unexpected EOF. */
-	PARSE_ERR_TEXT_OUTSIDE_NODE = -5,	/**< During DOM loading. */
-	PARSE_ERR_UNEXPECTED_NODE_END = -6	/**< During DOM loading. */
+    PARSE_ERR_NONE = 0,                /**< Success. */
+    PARSE_ERR_MEMORY = -1,             /**< Not enough memory for an `?alloc()` call. */
+    PARSE_ERR_UNEXPECTED_TAG_END = -2, /**< When a tag end does not match the tag start (e.g. `<a></b>`). */
+    PARSE_ERR_SYNTAX = -3,             /**< General syntax error. */
+    PARSE_ERR_EOF = -4,                /**< Unexpected EOF. */
+    PARSE_ERR_TEXT_OUTSIDE_NODE = -5,  /**< During DOM loading. */
+    PARSE_ERR_UNEXPECTED_NODE_END = -6 /**< During DOM loading. */
 } ParseError;
 
 /**
@@ -311,23 +311,23 @@ typedef enum _ParseError {
  * These will be passed to the `all_event` callback of the SAX parser.
  */
 typedef enum _XMLEvent {
-	XML_EVENT_START_DOC,	/**< Document parsing started. */
-	XML_EVENT_START_NODE,	/**< New node detected (all attributes are read). */
-	XML_EVENT_END_NODE,		/**< Last node ended. */
-	XML_EVENT_TEXT,			/**< Text detected in current node. */
-	XML_EVENT_ERROR,		/**< Parsing error. */
-	XML_EVENT_END_DOC		/**< Document parsing finished. */
+    XML_EVENT_START_DOC,  /**< Document parsing started. */
+    XML_EVENT_START_NODE, /**< New node detected (all attributes are read). */
+    XML_EVENT_END_NODE,   /**< Last node ended. */
+    XML_EVENT_TEXT,       /**< Text detected in current node. */
+    XML_EVENT_ERROR,      /**< Parsing error. */
+    XML_EVENT_END_DOC     /**< Document parsing finished. */
 } XMLEvent;
 
 /**
  * \brief Structure given as an argument for SAX callbacks to retrieve information about parsing status.
  */
 typedef struct _SAX_Data {
-	const SXML_CHAR* name;	/**< Document name (file name or buffer name). */
-	int line_num;			/**< Current line number being processed. */
-	void* user;				/**< User-given data. */
-	DataSourceType type;	/**< Data source type [DATA_SOURCE_FILE|DATA_SOURCE_BUFFER]. */
-	void* src;				/**< Data source [DataSourceFile|DataSourceBuffer]. Depends on type. */
+    const SXML_CHAR* name; /**< Document name (file name or buffer name). */
+    int line_num;          /**< Current line number being processed. */
+    void* user;            /**< User-given data. */
+    DataSourceType type;   /**< Data source type [DATA_SOURCE_FILE|DATA_SOURCE_BUFFER]. */
+    void* src;             /**< Data source [DataSourceFile|DataSourceBuffer]. Depends on type. */
 } SAX_Data;
 
 /**
@@ -343,13 +343,13 @@ typedef struct _SAX_Data {
  * will not be detected by the parser and should be detected by the callbacks instead.
  */
 typedef struct _SAX_Callbacks {
-	/**
+    /**
 	 * \fn start_doc
 	 * \brief Callback called when parsing starts, *before* parsing the first node.
 	 */
-	int (*start_doc)(SAX_Data* sd);
+    int (*start_doc)(SAX_Data* sd);
 
-	/**
+    /**
 	 * \fn start_node
 	 * \brief Callback called when a new node starts (e.g. `<tag>` or `<tag/>`).
 	 *
@@ -357,36 +357,36 @@ typedef struct _SAX_Callbacks {
 	 * N.B. "self-contained" ndoes (e.g. `<tag/>`) will trigger an immediate call to the `end_node()` callback
 	 * after the `start_node()` callback.
 	 */
-	int (*start_node)(const XMLNode* node, SAX_Data* sd);
+    int (*start_node)(const XMLNode* node, SAX_Data* sd);
 
-	/**
+    /**
 	 * \fn end_node
 	 * \brief Callback called when a node ends (e.g. `</tag>` or `<tag/>`).
 	 */
-	int (*end_node)(const XMLNode* node, SAX_Data* sd);
+    int (*end_node)(const XMLNode* node, SAX_Data* sd);
 
-	/**
+    /**
 	 * \fn new_text
 	 * \brief Callback called when text has been found in the last node (e.g. `<tag>text<...`).
 	 */
-	int (*new_text)(SXML_CHAR* text, SAX_Data* sd);
+    int (*new_text)(SXML_CHAR* text, SAX_Data* sd);
 
-	/**
+    /**
 	 * \fn end_doc
 	 * \brief Callback called when parsing is finished.
 	 * No other callbacks will be called after it.
 	 */
-	int (*end_doc)(SAX_Data* sd);
+    int (*end_doc)(SAX_Data* sd);
 
-	/**
+    /**
 	 * \fn on_error
 	 * \brief Callback called when an error occurs during parsing.
 	 * \param error_num is the error number
 	 * \param line_number is the line number in the stream being read (file or buffer).
 	 */
-	int (*on_error)(ParseError error_num, int line_number, SAX_Data* sd);
+    int (*on_error)(ParseError error_num, int line_number, SAX_Data* sd);
 
-	/**
+    /**
 	 * \fn all_event
 	 * \brief Callback called when text has been found in the last node.
 	 *
@@ -415,7 +415,7 @@ typedef struct _SAX_Callbacks {
 	 	 	 - `text` is the file name if a file is being parsed, NULL if a buffer is being parsed.
 	 	 	 - `n` is the number of lines parsed.
 	 */
-	int (*all_event)(XMLEvent event, const XMLNode* node, SXML_CHAR* text, const int n, SAX_Data* sd);
+    int (*all_event)(XMLEvent event, const XMLNode* node, SXML_CHAR* text, const int n, SAX_Data* sd);
 } SAX_Callbacks;
 
 /**
@@ -437,11 +437,11 @@ int SAX_Callbacks_init(SAX_Callbacks* sax);
  * `XMLDoc_parse_file_SAX()` giving this struct as a the `user` data pointer.
  */
 typedef struct _DOM_through_SAX {
-	XMLDoc* doc;		/**< Document to fill up. */
-	XMLNode* current;	/**< For internal use (current father node). */
-	ParseError error;	/**< For internal use (parse status). */
-	int line_error;		/**< For internal use (line number when error occurred). */
-	int text_as_nodes;	/**< For internal use (store text inside nodes as sequential TAG_TEXT nodes). */
+    XMLDoc* doc;       /**< Document to fill up. */
+    XMLNode* current;  /**< For internal use (current father node). */
+    ParseError error;  /**< For internal use (parse status). */
+    int line_error;    /**< For internal use (line number when error occurred). */
+    int text_as_nodes; /**< For internal use (store text inside nodes as sequential TAG_TEXT nodes). */
 } DOM_through_SAX;
 
 int DOMXMLDoc_doc_start(SAX_Data* dom);
@@ -665,7 +665,7 @@ int XMLNode_insert_child(XMLNode* node, XMLNode* child, int index);
  * \fn XMLNode_insert_after
  * \brief Insert a node after the given node.
  */
-#define XMLNode_insert_after(node, child) XMLNode_insert_child(node, child, XMLNode_get_index(node)+1)
+#define XMLNode_insert_after(node, child) XMLNode_insert_child(node, child, XMLNode_get_index(node) + 1)
 
 /**
  * \brief Move a child node among its siblings.
@@ -743,10 +743,7 @@ XMLNode* XMLNode_next_sibling(const XMLNode* node);
  */
 XMLNode* XMLNode_next(const XMLNode* node);
 
-
-
 /* --- XMLDoc methods --- */
-
 
 /**
  * \brief Initializes an already-allocated XML document.
@@ -911,8 +908,6 @@ int XMLDoc_parse_buffer_SAX_len(const SXML_CHAR* buffer, int buffer_len, const S
  */
 #define XMLDoc_parse_file XMLDoc_parse_file_DOM
 
-
-
 /* --- Utility functions --- */
 
 /**
@@ -1009,12 +1004,12 @@ int split_left_right(SXML_CHAR* str, SXML_CHAR sep, int* l0, int* l1, int* i_sep
  * \brief Describe the types of BOM detected while reading an XML buffer.
  */
 typedef enum _BOM_TYPE {
-	BOM_NONE = 0x00,
-	BOM_UTF_8 = 0xefbbbf,
-	BOM_UTF_16BE = 0xfeff,
-	BOM_UTF_16LE = 0xfffe,
-	BOM_UTF_32BE = 0x0000feff,
-	BOM_UTF_32LE = 0xfffe0000
+    BOM_NONE = 0x00,
+    BOM_UTF_8 = 0xefbbbf,
+    BOM_UTF_16BE = 0xfeff,
+    BOM_UTF_16LE = 0xfffe,
+    BOM_UTF_32BE = 0x0000feff,
+    BOM_UTF_32LE = 0xfffe0000
 } BOM_TYPE;
 /**
  Detect a potential BOM at the current file position and read it into 'bom' (if not NULL,
