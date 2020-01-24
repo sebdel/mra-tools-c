@@ -68,24 +68,24 @@ int get_file_by_name(t_file *files, int n_files, char *name)
     return -1;
 }
 
-int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length, int repeat, size_t offset, size_t size)
+int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length, t_part *part)
 {
     if (data)
     {
-        if (offset >= data_length)
+        if (part->offset >= data_length)
         {
-            printf("error: offset set past the part size\n");
-            return -1;
+            printf("warning: offset set past the part size. Skipping part.\n");
+            return 0;
         }
         else
         {
             int i;
-            int n_writes = repeat ? repeat : 1;
-            size_t length = (size && (size < (data_length - offset))) ? size : (data_length - offset);
+            int n_writes = part->repeat ? part->repeat : 1;
+            size_t length = (part->length && (part->length < (data_length - part->offset))) ? part->length : (data_length - part->offset);
             for (i = 0; i < n_writes; i++)
             {
-                fwrite(data + offset, 1, length, out);
-                MD5_Update(md5_ctx, data + offset, length);
+                fwrite(data + part->offset, 1, length, out);
+                MD5_Update(md5_ctx, data + part->offset, length);
             }
         }
     }
@@ -285,14 +285,14 @@ void main(int argc, char **argv)
 
             if (n != -1)
             {
-                if (write_to_rom(out, &md5_ctx, files[n].data, files[n].size, part->repeat, part->offset, part->length))
+                if (write_to_rom(out, &md5_ctx, files[n].data, files[n].size, part))
                 {
                     exit(-1);
                 }
             }
             else
             {
-                if (write_to_rom(out, &md5_ctx, part->data, part->data_length, part->repeat, part->offset, part->length))
+                if (write_to_rom(out, &md5_ctx, part->data, part->data_length, part))
                 {
                     exit(-1);
                 }

@@ -1,6 +1,7 @@
 #include <string.h>
-#include <stdint.h> // define SIZE_MAX
 #include <stdio.h>
+
+#define MAX_DATA_SIZE (4l * 1024l * 1024l)
 
 #include "utils.h"
 
@@ -19,7 +20,7 @@ int parse_hex_string(char *hexstr, unsigned char **data, size_t *length)
 
   // We prealloc (hexstr / 2 + 1) bytes, which is in the ball park of what we actually need.
   // It's at least big enough and we will downsize it anyway.
-  size_t size = strnlen(hexstr, SIZE_MAX) / 2 + 1;
+  size_t size = strnlen(hexstr, MAX_DATA_SIZE) / 2 + 1;
   *data = (unsigned char *)malloc(sizeof(unsigned char) * size);
   *length = 0;
   while (c = *ptr++)
