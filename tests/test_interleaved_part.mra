@@ -1,0 +1,16 @@
+<misterromdescription>
+	<name>Test Interleaved Data</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_interleaved_data</rbf>
+	<rom index="0" zip="tests.zip" md5="05ceff0412af6b08a562c197684c0613" type="merged|nonmerged">
+		<part name="s16.dat" />
+    <ipart width="16">
+  		<part name="s16.dat" pattern="01" />
+    </ipart>
+    <part name="s16.dat" />
+	</rom>
+</misterromdescription>

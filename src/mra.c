@@ -44,15 +44,21 @@ int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
         read_part(node, (*parts) + (*n_parts) - 1);
-    } else {
-        for (i = 0; i < node->n_children; i++) {
+    } else if (strncmp(node->tag, "ipart", 5) == 0) {
+        printf("warning: ipart not implemented (yet)\n");
+        return -1;
+        /*for (i = 0; i < node->n_children; i++) {
             read_parts(node->children[i], parts, n_parts);
-        }
+        }*/
+    } else {
+        printf("warning: unexpected token: %s\n", node->tag);
+        return -1;
     }
+    return 0;
 }
 
 void read_rom(XMLNode *node, t_rom *rom) {
-    int j;
+    int i, j;
 
     memset(rom, 0, sizeof(t_rom));
 
@@ -67,7 +73,9 @@ void read_rom(XMLNode *node, t_rom *rom) {
             rom->type = strndup(node->attributes[j].value, 256);
         }
     }
-    read_parts(node, &rom->parts, &rom->n_parts);
+    for (i = 0; i < node->n_children; i++) {
+        read_parts(node->children[i], &rom->parts, &rom->n_parts);
+    }
 }
 
 int read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
