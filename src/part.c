@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "globals.h"
@@ -45,16 +46,21 @@ int get_file_by_name(t_file *files, int n_files, char *name) {
 
 int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length, t_part *part) {
     if (data) {
-        if (part->r.offset >= data_length) {
-            printf("warning: offset set past the part size. Skipping part.\n");
-            return 0;
+        if (part->is_interleaved) {
+            fwrite(data, 1, data_length, out);
+            MD5_Update(md5_ctx, data, data_length);
         } else {
-            int i;
-            int n_writes = part->r.repeat ? part->r.repeat : 1;
-            size_t length = (part->r.length && (part->r.length < (data_length - part->r.offset))) ? part->r.length : (data_length - part->r.offset);
-            for (i = 0; i < n_writes; i++) {
-                fwrite(data + part->r.offset, 1, length, out);
-                MD5_Update(md5_ctx, data + part->r.offset, length);
+            if (part->r.offset >= data_length) {
+                printf("warning: offset set past the part size. Skipping part.\n");
+                return 0;
+            } else {
+                int i;
+                int n_writes = part->r.repeat ? part->r.repeat : 1;
+                size_t length = (part->r.length && (part->r.length < (data_length - part->r.offset))) ? part->r.length : (data_length - part->r.offset);
+                for (i = 0; i < n_writes; i++) {
+                    fwrite(data + part->r.offset, 1, length, out);
+                    MD5_Update(md5_ctx, data + part->r.offset, length);
+                }
             }
         }
     }
@@ -115,35 +121,87 @@ int write_rpart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     }
 }
 
-int write_ipart(FILE *out, MD5_CTX *md5ctx, t_part *part) {
-    int i;
-    printf("%s:%d: implementation in progress!\n", __FILE__, __LINE__);
+int parse_pattern(char *pattern, int **byte_offsets, int *n_src_bytes) {
+    *n_src_bytes = strnlen(pattern, 1024);
+    *byte_offsets = (int *)calloc((*n_src_bytes), sizeof(int));
 
-    printf("part width = %d\n", part->i.width);
+    for (int i = 0; i < (*n_src_bytes); i++) {
+        int offset = pattern[i] - '0';
+        if (offset >= (*n_src_bytes)) {
+            printf("error: invalid pattern, offset > length. (\"%s\")\n", pattern);
+            return -1;
+        }
+        (*byte_offsets)[i] = offset;
+    }
+    return 0;
+}
+
+int write_ipart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
+    int i;
+
+    if (part->i.n_parts == 0) {
+        printf("warning: empty ipart\n");
+        return 0;
+    }
+
+    // Allocate, load data sources and parse patterns for children of the ipart
+    int **byte_offsets = (int **)calloc(part->i.n_parts, sizeof(int *));
+    int *n_src_bytes = (int *)calloc(part->i.n_parts, sizeof(int));
+    uint8_t **data = (uint8_t **)calloc(part->i.n_parts, sizeof(uint8_t *));
+    size_t *size = (size_t *)calloc(part->i.n_parts, sizeof(size_t));
+
+    int n_dest_bytes = part->i.width >> 3;  // number of bytes per value defined by width attribute
 
     for (i = 0; i < part->i.n_parts; i++) {
         int res;
-        uint8_t *data;
-        size_t size;
 
-        res = get_data(part->i.parts + i, &data, &size);
+        res = get_data(part->i.parts + i, data + i, size + i);
         if (res) {
             return res;
         }
-        printf("data source #%d found. pattern = %s\n", i, part->i.parts[i].r.pattern);
-    }
-/*
-  get_byte(t_part *part, uint8_t *data, int value_index, int pattern_offset) {
-    int offset = part->r.pattern[pattern_offset]
-    
-    return data[value_index * pattern_length + offset];
-  }
-    for (i = 0; i < n_values; i++) {
-        for (byte_offset = 0; byte_offset < value_width; byte_offset++) {
-            buffer[i * value_width + byte_offset] = get_byte(part, data, i, byte_offset);
+        res = parse_pattern(part->i.parts[i].r.pattern, byte_offsets + i, n_src_bytes + i);
+        if (res) {
+            return res;
         }
     }
-*/
+
+    // Sanity checks on the data/width/pattern combinations
+    int n_bytes_value = 0;                       // number of bytes per value accumulated over patterns
+    size_t n_values = size[0] / n_src_bytes[0];  // number of values defined by part #0
+    for (i = 0; i < part->i.n_parts; i++) {
+        if (trace > 0) printf("size[%d] = %lu\n", i, size[i]);
+        if (trace > 0) printf("n_src_bytes[%d] = %d\n", i, n_src_bytes[i]);
+        if (trace > 0) printf("bytes_offsets[%d][0] = %d\n", i, byte_offsets[i][0]);
+        if (n_values != (size[i] / n_src_bytes[i])) {
+            printf("error: interleaved part size mismatch. (%lu vs. %lu)\n", n_values, (size[i] / n_src_bytes[i]));
+            return -1;
+        }
+        n_bytes_value += n_src_bytes[i];
+    }
+    if (n_bytes_value != n_dest_bytes) {
+        printf("error: interleaved group width do not match total bytes in children patterns.\n");
+        return -1;
+    }
+
+    // Allocate final interleaved buffer
+    size_t total_bytes = n_values * n_bytes_value;
+    uint8_t *buffer = (uint8_t *)malloc(sizeof(uint8_t) * total_bytes);
+
+    uint8_t *dest = buffer;
+    for (i = 0; i < n_values; i++) {                    // iterate over values
+        for (int j = 0; j < part->i.n_parts; j++) {     // for each value, iterate over parts
+            for (int k = 0; k < n_src_bytes[j]; k++) {  // for each part, iterate over the pattern
+                size_t byte_offset = i * n_src_bytes[j] + byte_offsets[j][k];
+                if (trace > 0) printf("i, j, k, offset: %d , %d, %d, %lu\n", i, j, k, byte_offset);
+                *dest++ = data[j][byte_offset];
+            }
+        }
+    }
+
+    if (write_to_rom(out, md5_ctx, buffer, total_bytes, part)) {
+        return -1;
+    }
+
     return 0;
 }
 

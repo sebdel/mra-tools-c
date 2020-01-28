@@ -6,11 +6,11 @@
 	<manufacturer>Seb, Inc.</manufacturer>
 	<category>Tests</category>
 	<rbf>test_interleaved_data</rbf>
-	<rom index="0" zip="tests.zip" md5="05ceff0412af6b08a562c197684c0613" type="merged|nonmerged">
+	<rom index="0" zip="tests.zip" md5="7804ee8bc7df5bfb925a8b36a99fc750" type="merged|nonmerged">
 		<part name="s16.dat" />
-    <ipart width="16">
-  		<part name="01.dat" pattern="0" />
-  		<part name="02.dat" pattern="1" />
+    <ipart width="32">
+  		<part name="01.dat" pattern="01" />
+  		<part name="s16.dat" pattern="10" />
     </ipart>
     <part name="s16.dat" />
 	</rom>
