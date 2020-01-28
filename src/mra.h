@@ -6,15 +6,25 @@
 #include "sxmlc.h"
 
 typedef struct s_part {
-    char *name;
-    char *zip;
-    uint32_t crc32;
-    int repeat;
-    long offset;
-    long length;
-
-    unsigned char *data;
-    size_t data_length;
+    int is_interleaved;
+    union {
+        struct s_regular_part {
+            char *name;
+            char *zip;
+            uint32_t crc32;
+            int repeat;
+            long offset;
+            long length;
+            unsigned char *pattern;
+            unsigned char *data;
+            size_t data_length;
+        } r;
+        struct s_interleaved_part {
+            int width;
+            struct s_part *parts;
+            int n_parts;
+        } i;
+    };
 } t_part;
 
 typedef struct s_rom {
