@@ -1,0 +1,55 @@
+<misterromdescription>
+	<name>Ghouls'n Ghosts</name>
+	<setname>ghouls</setname>
+	<year>1988</year>
+	<manufacturer>Capcom</manufacturer>
+	<rbf>jtcps1</rbf>
+	<rom index="0" zip="ghouls.zip" md5="44c9535f75c0537aef5085d897d517ee" type="merged|nonmerged">
+		<!-- Main CPU -->
+		<group width="16">
+            <!-- take one byte from each file -->
+			<part name="dme_29.10h"/>
+			<part name="dme_30.10j"/>
+		</group>
+		<group width="16">
+            <!-- take one byte from each file -->
+			<part name="dme_27.9h"/>
+			<part name="dme_28.9j"/>
+		</group>		
+		<part name="dm-17.7j"/>
+
+		<!-- GFX -->
+		<group width="64">
+            <!-- take two bytes from each file -->
+            <part name="dm-05.3a" pattern="01"/>
+            <part name="dm-07.3f" pattern="01"/>
+            <part name="dm-06.3c" pattern="01"/>
+            <part name="dm-08.3g" pattern="01"/>
+        </group>
+        <group width="64">
+            <!-- take one byte from each file -->
+            <part name="09.4a"/>
+            <part name="18.7a"/>
+            <part name="13.4e"/>
+            <part name="22.7e"/>
+            <part name="11.4c"/>
+            <part name="20.7c"/>
+            <part name="15.4g"/>
+            <part name="24.7g"/>
+        </group>
+        <group width="64">
+            <!-- take one byte from each file -->
+            <part name="10.4b"/>
+            <part name="19.7b"/>
+            <part name="14.4f"/>
+            <part name="23.7f"/>
+            <part name="12.4d"/>
+            <part name="21.7d"/>
+            <part name="16.4h"/>
+            <part name="25.7h"/>
+        </group>
+
+        <!--Audio CPU-->
+        <part name="26.10a"/>
+	</rom>
+</misterromdescription>
