@@ -82,7 +82,7 @@ int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
         read_rpart(node, (*parts) + (*n_parts) - 1);
-    } else if (strncmp(node->tag, "ipart", 5) == 0) {
+    } else if (strncmp(node->tag, "group", 5) == 0) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
         t_part *ipart = read_ipart(node, (*parts) + (*n_parts) - 1);
