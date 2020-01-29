@@ -122,6 +122,15 @@ int write_rpart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
 }
 
 int parse_pattern(char *pattern, int **byte_offsets, int *n_src_bytes) {
+
+    if (!pattern) {
+        printf("warning: pattern not set, defaulting to \"0\" (8 bits)\n");
+        *n_src_bytes = 1;
+        *byte_offsets = (int *)calloc(1, sizeof(int));
+        (*byte_offsets)[0] = 0;
+        return 0;
+    }
+
     *n_src_bytes = strnlen(pattern, 1024);
     *byte_offsets = (int *)calloc((*n_src_bytes), sizeof(int));
 
