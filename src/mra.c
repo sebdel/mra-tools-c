@@ -57,7 +57,7 @@ t_part *read_ipart(XMLNode *node, t_part *part) {
 
     memset(part, 0, sizeof(t_part));
     part->is_interleaved = -1;
-    part->i.width = 8; // default width = 8 bits
+    part->i.width = 8;  // default width = 8 bits
 
     for (j = 0; j < node->n_attributes; j++) {
         if (strncmp(node->attributes[j].name, "width", 6) == 0) {
@@ -89,7 +89,7 @@ int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
         for (i = 0; i < node->n_children; i++) {
             read_parts(node->children[i], &(ipart->i.parts), &(ipart->i.n_parts));
         }
-    } else {
+    } else if (node->tag_type != TAG_COMMENT) {
         printf("warning: unexpected token: %s\n", node->tag);
         return -1;
     }
