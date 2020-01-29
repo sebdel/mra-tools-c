@@ -124,7 +124,7 @@ int write_rpart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
 int parse_pattern(char *pattern, int **byte_offsets, int *n_src_bytes) {
 
     if (!pattern) {
-        printf("warning: pattern not set, defaulting to \"0\" (8 bits)\n");
+        if (trace > 0) printf("pattern not set, defaulting to \"0\" (8 bits)\n");
         *n_src_bytes = 1;
         *byte_offsets = (int *)calloc(1, sizeof(int));
         (*byte_offsets)[0] = 0;
@@ -201,7 +201,7 @@ int write_ipart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
         for (int j = 0; j < part->i.n_parts; j++) {     // for each value, iterate over parts
             for (int k = 0; k < n_src_bytes[j]; k++) {  // for each part, iterate over the pattern
                 size_t byte_offset = i * n_src_bytes[j] + byte_offsets[j][k];
-                if (trace > 0) printf("i, j, k, offset: %d , %d, %d, %lu\n", i, j, k, byte_offset);
+                if (trace > 1) printf("i, j, k, offset: %d , %d, %d, %lu\n", i, j, k, byte_offset);
                 *dest++ = data[j][byte_offset];
             }
         }
@@ -222,7 +222,7 @@ int write_rom(t_mra *mra, char *zip_dir, char *rom_filename) {
 
     rom_index = mra_get_next_rom0(mra, rom_index);
     if (rom_index == -1) {
-        printf("ROM0 not found in MRA.\n");
+        printf("%s:%d: error: ROM0 not found in MRA.\n", __FILE__, __LINE__);
         return -1;
     }
     rom = mra->roms + rom_index;
