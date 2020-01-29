@@ -45,21 +45,25 @@ int get_file_by_name(t_file *files, int n_files, char *name) {
 }
 
 int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length, t_part *part) {
+    int i;
+
     if (data) {
-        if (part->is_interleaved) {
-            fwrite(data, 1, data_length, out);
-            MD5_Update(md5_ctx, data, data_length);
+        if (part->is_group) {
+            int n_writes = part->g.repeat ? part->g.repeat : 1;
+            for (i = 0; i < n_writes; i++) {
+                fwrite(data, 1, data_length, out);
+                MD5_Update(md5_ctx, data, data_length);
+            }
         } else {
-            if (part->r.offset >= data_length) {
+            if (part->p.offset >= data_length) {
                 printf("warning: offset set past the part size. Skipping part.\n");
                 return 0;
             } else {
-                int i;
-                int n_writes = part->r.repeat ? part->r.repeat : 1;
-                size_t length = (part->r.length && (part->r.length < (data_length - part->r.offset))) ? part->r.length : (data_length - part->r.offset);
+                int n_writes = part->p.repeat ? part->p.repeat : 1;
+                size_t length = (part->p.length && (part->p.length < (data_length - part->p.offset))) ? part->p.length : (data_length - part->p.offset);
                 for (i = 0; i < n_writes; i++) {
-                    fwrite(data + part->r.offset, 1, length, out);
-                    MD5_Update(md5_ctx, data + part->r.offset, length);
+                    fwrite(data + part->p.offset, 1, length, out);
+                    MD5_Update(md5_ctx, data + part->p.offset, length);
                 }
             }
         }
@@ -71,22 +75,22 @@ int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length,
 int get_data(t_part *part, uint8_t **data, size_t *size) {
     int n;
 
-    if (part->r.zip) {
+    if (part->p.zip) {
         printf("Support of part with zip attributes is not implemented!\n");
         return -1;
     }
 
     n = -1;
-    if (part->r.crc32)  // First, try to identify file by crc
+    if (part->p.crc32)  // First, try to identify file by crc
     {
-        n = get_file_by_crc(files, n_files, part->r.crc32);
+        n = get_file_by_crc(files, n_files, part->p.crc32);
     }
-    if (n == -1 && part->r.name)  // then by name
+    if (n == -1 && part->p.name)  // then by name
     {
-        n = get_file_by_name(files, n_files, part->r.name);
+        n = get_file_by_name(files, n_files, part->p.name);
     }
-    if (n == -1 && !part->r.data) {  // no file, no data => part not found
-        printf("part not found in zip: %s\n", part->r.name);
+    if (n == -1 && !part->p.data) {  // no file, no data => part not found
+        printf("part not found in zip: %s\n", part->p.name);
         return -1;
     }
     if (n != -1 && trace > 0) {
@@ -99,14 +103,14 @@ int get_data(t_part *part, uint8_t **data, size_t *size) {
         *data = files[n].data;
         *size = files[n].size;
     } else {
-        *data = part->r.data;
-        *size = part->r.data_length;
+        *data = part->p.data;
+        *size = part->p.data_length;
     }
 
     return 0;
 }
 
-int write_rpart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
+int write_part(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     int res;
     uint8_t *data;
     size_t size;
@@ -122,7 +126,6 @@ int write_rpart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
 }
 
 int parse_pattern(char *pattern, int **byte_offsets, int *n_src_bytes) {
-
     if (!pattern) {
         if (trace > 0) printf("pattern not set, defaulting to \"0\" (8 bits)\n");
         *n_src_bytes = 1;
@@ -148,27 +151,31 @@ int parse_pattern(char *pattern, int **byte_offsets, int *n_src_bytes) {
 int write_group(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     int i;
 
-    if (part->i.n_parts == 0) {
+    if (!part->g.is_interleaved) {
+        printf("%s:%d: error: non interleaved groups are not implemented\n", __FILE__, __LINE__);
+        return -1;
+    }
+    if (part->g.n_parts == 0) {
         printf("warning: empty group\n");
         return 0;
     }
 
     // Allocate, load data sources and parse patterns for children of the group
-    int **byte_offsets = (int **)calloc(part->i.n_parts, sizeof(int *));
-    int *n_src_bytes = (int *)calloc(part->i.n_parts, sizeof(int));
-    uint8_t **data = (uint8_t **)calloc(part->i.n_parts, sizeof(uint8_t *));
-    size_t *size = (size_t *)calloc(part->i.n_parts, sizeof(size_t));
+    int **byte_offsets = (int **)calloc(part->g.n_parts, sizeof(int *));
+    int *n_src_bytes = (int *)calloc(part->g.n_parts, sizeof(int));
+    uint8_t **data = (uint8_t **)calloc(part->g.n_parts, sizeof(uint8_t *));
+    size_t *size = (size_t *)calloc(part->g.n_parts, sizeof(size_t));
 
-    int n_dest_bytes = part->i.width >> 3;  // number of bytes per value defined by width attribute
+    int n_dest_bytes = part->g.width >> 3;  // number of bytes per value defined by width attribute
 
-    for (i = 0; i < part->i.n_parts; i++) {
+    for (i = 0; i < part->g.n_parts; i++) {
         int res;
 
-        res = get_data(part->i.parts + i, data + i, size + i);
+        res = get_data(part->g.parts + i, data + i, size + i);
         if (res) {
             return res;
         }
-        res = parse_pattern(part->i.parts[i].r.pattern, byte_offsets + i, n_src_bytes + i);
+        res = parse_pattern(part->g.parts[i].p.pattern, byte_offsets + i, n_src_bytes + i);
         if (res) {
             return res;
         }
@@ -177,7 +184,7 @@ int write_group(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     // Sanity checks on the data/width/pattern combinations
     int n_bytes_value = 0;                       // number of bytes per value accumulated over patterns
     size_t n_values = size[0] / n_src_bytes[0];  // number of values defined by part #0
-    for (i = 0; i < part->i.n_parts; i++) {
+    for (i = 0; i < part->g.n_parts; i++) {
         if (trace > 0) printf("size[%d] = %lu\n", i, size[i]);
         if (trace > 0) printf("n_src_bytes[%d] = %d\n", i, n_src_bytes[i]);
         if (trace > 0) printf("bytes_offsets[%d][0] = %d\n", i, byte_offsets[i][0]);
@@ -198,7 +205,7 @@ int write_group(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
 
     uint8_t *dest = buffer;
     for (i = 0; i < n_values; i++) {                    // iterate over values
-        for (int j = 0; j < part->i.n_parts; j++) {     // for each value, iterate over parts
+        for (int j = 0; j < part->g.n_parts; j++) {     // for each value, iterate over parts
             for (int k = 0; k < n_src_bytes[j]; k++) {  // for each part, iterate over the pattern
                 size_t byte_offset = i * n_src_bytes[j] + byte_offsets[j][k];
                 if (trace > 1) printf("i, j, k, offset: %d , %d, %d, %lu\n", i, j, k, byte_offset);
@@ -267,10 +274,10 @@ int write_rom(t_mra *mra, char *zip_dir, char *rom_filename) {
         int j, n;
         t_part *part = rom->parts + i;
 
-        if (part->is_interleaved) {
+        if (part->is_group) {
             write_group(out, &md5_ctx, part);
         } else {
-            write_rpart(out, &md5_ctx, part);
+            write_part(out, &md5_ctx, part);
         }
     }
     fclose(out);

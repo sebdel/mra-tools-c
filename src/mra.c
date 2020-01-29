@@ -12,26 +12,26 @@ char *strtrimleft(char *src) {
     return p;
 }
 
-int read_rpart(XMLNode *node, t_part *part) {
+int read_part(XMLNode *node, t_part *part) {
     int j;
 
     memset(part, 0, sizeof(t_part));
 
     for (j = 0; j < node->n_attributes; j++) {
         if (strncmp(node->attributes[j].name, "crc", 4) == 0) {
-            part->r.crc32 = strtoul(strndup(node->attributes[j].value, 256), (char **)0, 0);
+            part->p.crc32 = strtoul(strndup(node->attributes[j].value, 256), (char **)0, 0);
         } else if (strncmp(node->attributes[j].name, "name", 5) == 0) {
-            part->r.name = strndup(node->attributes[j].value, 256);
+            part->p.name = strndup(node->attributes[j].value, 256);
         } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {
-            part->r.zip = strndup(node->attributes[j].value, 256);
+            part->p.zip = strndup(node->attributes[j].value, 256);
         } else if (strncmp(node->attributes[j].name, "repeat", 7) == 0) {
-            part->r.repeat = atoi(strndup(node->attributes[j].value, 256));
+            part->p.repeat = atoi(strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "offset", 7) == 0) {
-            part->r.offset = atol(strndup(node->attributes[j].value, 256));
+            part->p.offset = atol(strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "length", 7) == 0) {
-            part->r.length = atol(strndup(node->attributes[j].value, 256));
+            part->p.length = atol(strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "pattern", 8) == 0) {
-            part->r.pattern = strndup(node->attributes[j].value, 256);
+            part->p.pattern = strndup(node->attributes[j].value, 256);
         } else {
             printf("warning: unknown attribute for regular part: %s\n", node->attributes[j].name);
         }
@@ -39,10 +39,10 @@ int read_rpart(XMLNode *node, t_part *part) {
     if (node->text != NULL) {
         char *trimmed_text = strtrimleft(node->text);
         if (*trimmed_text) {
-            if (part->r.name) {
-                printf("warning: part %s has a name and data. Data dropped.\n", part->r.name);
+            if (part->p.name) {
+                printf("warning: part %s has a name and data. Data dropped.\n", part->p.name);
             } else {
-                if (parse_hex_string(trimmed_text, &(part->r.data), &(part->r.data_length))) {
+                if (parse_hex_string(trimmed_text, &(part->p.data), &(part->p.data_length))) {
                     printf("warning: failed to decode part data. Data dropped.\n");
                 } else {
                 }
@@ -56,20 +56,24 @@ t_part *read_group(XMLNode *node, t_part *part) {
     int i, j;
 
     memset(part, 0, sizeof(t_part));
-    part->is_interleaved = -1;
-    part->i.width = 8;  // default width = 8 bits
-
+    part->is_group = -1;
+    part->g.width = 8;            // default width = 8 bits
+    part->g.is_interleaved = -1;  // groups are interleaved by default
     for (j = 0; j < node->n_attributes; j++) {
         if (strncmp(node->attributes[j].name, "width", 6) == 0) {
-            part->i.width = atoi(strndup(node->attributes[j].value, 256));
+            part->g.width = atoi(strndup(node->attributes[j].value, 256));
+        } else if (strncmp(node->attributes[j].name, "repeat", 7) == 0) {
+            part->g.repeat = atoi(strndup(node->attributes[j].value, 256));
+        } else if (strncmp(node->attributes[j].name, "interleaved", 12) == 0) {
+            part->g.is_interleaved = atoi(strndup(node->attributes[j].value, 256));
         } else {
-            printf("warning: unknown attribute for interleaved part: %s\n", node->attributes[j].name);
+            printf("warning: unknown attribute for group: %s\n", node->attributes[j].name);
         }
     }
     if (node->text != NULL) {
         char *trimmed_text = strtrimleft(node->text);
         if (*trimmed_text) {
-            printf("warning: interleaved part cannot have embedded data. (%s)\n", node->text);
+            printf("warning: groups cannot have embedded data. (%s)\n", node->text);
         }
     }
     return part;
@@ -81,13 +85,13 @@ int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
     if (strncmp(node->tag, "part", 5) == 0) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
-        read_rpart(node, (*parts) + (*n_parts) - 1);
+        read_part(node, (*parts) + (*n_parts) - 1);
     } else if (strncmp(node->tag, "group", 5) == 0) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
         t_part *group = read_group(node, (*parts) + (*n_parts) - 1);
         for (i = 0; i < node->n_children; i++) {
-            read_parts(node->children[i], &(group->i.parts), &(group->i.n_parts));
+            read_parts(node->children[i], &(group->g.parts), &(group->g.n_parts));
         }
     } else if (node->tag_type != TAG_COMMENT) {
         printf("warning: unexpected token: %s\n", node->tag);
@@ -182,23 +186,25 @@ int mra_load(char *filename, t_mra *mra) {
 void dump_part(t_part *part) {
     int i;
 
-    if (part->is_interleaved) {
-        printf("**** interleaved part start\n");
-        printf("    width: %u\n", part->i.width);
-        for (i = 0; i < part->i.n_parts; i++) {
+    if (part->is_group) {
+        printf("**** group start\n");
+        printf("    is_interleaved: %s\n", part->g.is_interleaved ? "true" : "false");
+        printf("    width: %u\n", part->g.width);
+        printf("    repeat: %d\n", part->g.repeat);
+        for (i = 0; i < part->g.n_parts; i++) {
             printf("[%d]: \n", i);
-            dump_part(part->i.parts + i);
+            dump_part(part->g.parts + i);
         }
-        printf("**** interleaved part end\n");
+        printf("**** group end\n");
     } else {
-        if (part->r.crc32) printf("    crc32: %u\n", part->r.crc32);
-        if (part->r.name) printf("    name: %s\n", part->r.name);
-        if (part->r.zip) printf("    zip: %s\n", part->r.zip);
-        if (part->r.pattern) printf("    pattern: %s\n", part->r.pattern);
-        if (part->r.repeat) printf("    repeat: %d\n", part->r.repeat);
-        if (part->r.offset) printf("    offset: %ld\n", part->r.offset);
-        if (part->r.length) printf("    length: %ld\n", part->r.length);
-        if (part->r.data_length) printf("    data_length: %lu\n", part->r.data_length);
+        if (part->p.crc32) printf("    crc32: %u\n", part->p.crc32);
+        if (part->p.name) printf("    name: %s\n", part->p.name);
+        if (part->p.zip) printf("    zip: %s\n", part->p.zip);
+        if (part->p.pattern) printf("    pattern: %s\n", part->p.pattern);
+        if (part->p.repeat) printf("    repeat: %d\n", part->p.repeat);
+        if (part->p.offset) printf("    offset: %ld\n", part->p.offset);
+        if (part->p.length) printf("    length: %ld\n", part->p.length);
+        if (part->p.data_length) printf("    data_length: %lu\n", part->p.data_length);
     }
 }
 
