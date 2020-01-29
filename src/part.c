@@ -145,15 +145,15 @@ int parse_pattern(char *pattern, int **byte_offsets, int *n_src_bytes) {
     return 0;
 }
 
-int write_ipart(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
+int write_group(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     int i;
 
     if (part->i.n_parts == 0) {
-        printf("warning: empty ipart\n");
+        printf("warning: empty group\n");
         return 0;
     }
 
-    // Allocate, load data sources and parse patterns for children of the ipart
+    // Allocate, load data sources and parse patterns for children of the group
     int **byte_offsets = (int **)calloc(part->i.n_parts, sizeof(int *));
     int *n_src_bytes = (int *)calloc(part->i.n_parts, sizeof(int));
     uint8_t **data = (uint8_t **)calloc(part->i.n_parts, sizeof(uint8_t *));
@@ -268,7 +268,7 @@ int write_rom(t_mra *mra, char *zip_dir, char *rom_filename) {
         t_part *part = rom->parts + i;
 
         if (part->is_interleaved) {
-            write_ipart(out, &md5_ctx, part);
+            write_group(out, &md5_ctx, part);
         } else {
             write_rpart(out, &md5_ctx, part);
         }

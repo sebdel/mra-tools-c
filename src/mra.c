@@ -52,7 +52,7 @@ int read_rpart(XMLNode *node, t_part *part) {
     return 0;
 }
 
-t_part *read_ipart(XMLNode *node, t_part *part) {
+t_part *read_group(XMLNode *node, t_part *part) {
     int i, j;
 
     memset(part, 0, sizeof(t_part));
@@ -85,9 +85,9 @@ int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
     } else if (strncmp(node->tag, "group", 5) == 0) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
-        t_part *ipart = read_ipart(node, (*parts) + (*n_parts) - 1);
+        t_part *group = read_group(node, (*parts) + (*n_parts) - 1);
         for (i = 0; i < node->n_children; i++) {
-            read_parts(node->children[i], &(ipart->i.parts), &(ipart->i.n_parts));
+            read_parts(node->children[i], &(group->i.parts), &(group->i.n_parts));
         }
     } else if (node->tag_type != TAG_COMMENT) {
         printf("warning: unexpected token: %s\n", node->tag);
