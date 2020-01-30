@@ -14,12 +14,12 @@ int trace = 0;
 int verbose = 0;
 
 void print_usage() {
-    printf("Usage: mra-tools [-vlz] <my_file.mra>\n");
+    printf("Usage: mra [-vlz] <my_file.mra>\n");
     printf("\n");
     printf("\t-h\tHelp.\n");
     printf("\t-v\tVerbose on (default: off)\n");
-    printf("\t-l\tList MRA content instead of creating the ROM\n");
-    printf("\t-z dir\tSet directory where to look for the rom zip file\n");
+    printf("\t-l\tLists MRA content instead of creating the ROM\n");
+    printf("\t-z dir\tSets directory to include zip files. This directory has priority over the current dir.\n");
 }
 
 void main(int argc, char **argv) {

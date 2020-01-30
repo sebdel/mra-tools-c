@@ -6,9 +6,9 @@
 #include "sxmlc.h"
 
 typedef struct s_part {
-    int is_interleaved;
+    int is_group;
     union {
-        struct s_regular_part {
+        struct s_p {
             char *name;
             char *zip;
             uint32_t crc32;
@@ -18,12 +18,14 @@ typedef struct s_part {
             unsigned char *pattern;
             unsigned char *data;
             size_t data_length;
-        } r;
-        struct s_interleaved_part {
+        } p;
+        struct s_g {
+            int is_interleaved;
             int width;
+            int repeat;
             struct s_part *parts;
             int n_parts;
-        } i;
+        } g;
     };
 } t_part;
 

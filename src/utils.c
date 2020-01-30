@@ -1,12 +1,23 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #define MAX_DATA_SIZE (4l * 1024l * 1024l)
 
-#include "utils.h"
-
-const int read_hex_char(char c) {
+static int read_hex_char(char c) {
     return c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'f' ? 10 + c - 'a' : c >= 'A' && c <= 'F' ? 10 + c - 'A' : -1;
+}
+
+int file_exists(char *filename) {
+    struct stat buffer;
+    return (stat(filename, &buffer) == 0);
+}
+
+void sprintf_md5(char *dest, unsigned char *md5) {
+    snprintf(dest, 33, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+             md5[0], md5[1], md5[2], md5[3], md5[4], md5[5], md5[6], md5[7],
+             md5[8], md5[9], md5[10], md5[11], md5[12], md5[13], md5[14], md5[15]);
 }
 
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length) {
