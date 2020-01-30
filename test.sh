@@ -17,7 +17,6 @@ echo "Test interleaving...(expected: no warnings)"
 ./mra tests/test_interleaved_part.mra -z tests
 echo
 echo "Result files (visualize with hexdump -Cv)..."
-tput setaf 2
 ls -l tests/*.rom
 
 if [[ `git status --porcelain | grep .rom` ]]; then
