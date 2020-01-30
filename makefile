@@ -13,6 +13,9 @@ all: clean $(TARGET)
 $(TARGET): $(OBJS)
 	gcc -o $(TARGET) $(OBJS) $(LIBS)
 
+check:
+	./test.sh
+
 clean:
 	find . -type f -name '*.o' -exec rm {} +
 	rm -f mra
