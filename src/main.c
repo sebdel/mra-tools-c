@@ -10,6 +10,8 @@
 extern char *optarg;
 extern int optind, opterr, optopt;
 
+extern char *sha1;
+
 int trace = 0;
 int verbose = 0;
 
@@ -17,9 +19,13 @@ void print_usage() {
     printf("Usage: mra [-vlz] <my_file.mra>\n");
     printf("\n");
     printf("\t-h\tHelp.\n");
-    printf("\t-v\tVerbose on (default: off)\n");
+    printf("\t-v\tVersion. Only when it is the only parameter, otherwise set Verbose on (default: off).\n");
     printf("\t-l\tLists MRA content instead of creating the ROM\n");
     printf("\t-z dir\tSets directory to include zip files. This directory has priority over the current dir.\n");
+}
+
+void print_version() {
+    printf("MRA Tool (%s) (%s)\n", sha1, __DATE__);
 }
 
 void main(int argc, char **argv) {
@@ -31,6 +37,12 @@ void main(int argc, char **argv) {
     int dump_mra = 0;
 
     // Parse command line
+    // Looks bad but mkfs does it so why not me ?
+    if (argc == 2 && !strcmp(argv[1], "-v")) {
+        print_version();
+        exit(0);
+    }
+
     int opt;
     // put ':' in the starting of the
     // string so that program can

@@ -52,6 +52,13 @@ Mkfile.old
 dkms.conf
 
 .vscode/
+
+# Don't accidently commit copyrighted files
 roms/
-*.rom
+*.zip
+
+# Binary
 mra
+
+# Generated at build time
+src/sha1.c

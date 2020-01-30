@@ -11,5 +11,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: make
       run: make
-    - name: test
-      run: ./test.sh
+    - name: check
+      run: make check
