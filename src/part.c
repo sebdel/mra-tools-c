@@ -5,16 +5,11 @@
 #include "globals.h"
 #include "md5.h"
 #include "part.h"
+#include "utils.h"
 #include "unzip.h"
 
 t_file *files = NULL;
 int n_files = 0;
-
-void sprintf_md5(char *dest, unsigned char *md5) {
-    snprintf(dest, 33, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-             md5[0], md5[1], md5[2], md5[3], md5[4], md5[5], md5[6], md5[7],
-             md5[8], md5[9], md5[10], md5[11], md5[12], md5[13], md5[14], md5[15]);
-}
 
 int get_file_by_crc(t_file *files, int n_files, uint32_t crc) {
     int i;
@@ -221,12 +216,34 @@ int write_group(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     return 0;
 }
 
+static char *get_zip_filename(char *filename, char *userdir) {
+
+    if (*userdir) {
+        char *result;
+        int length = strnlen(userdir, 1024) + strnlen(filename, 1024);
+        result = (char *)malloc(sizeof(char) * (length + 2));
+        snprintf(result, 2050, "%s/%s", userdir, filename);
+
+        if (file_exists(result)) {
+            return result;
+        }
+        free(result);
+    }
+
+    if (file_exists(filename)) {
+        return strndup(filename, 1024);
+    }
+
+    return NULL;
+}
+
 int write_rom(t_mra *mra, char *zip_dir, char *rom_filename) {
     char *zip_filename;
     t_rom *rom;
     int rom_index;
     int i, res;
 
+    // Look for first ROM with index 0
     rom_index = mra_get_next_rom0(mra, rom_index);
     if (rom_index == -1) {
         printf("%s:%d: error: ROM0 not found in MRA.\n", __FILE__, __LINE__);
@@ -234,13 +251,11 @@ int write_rom(t_mra *mra, char *zip_dir, char *rom_filename) {
     }
     rom = mra->roms + rom_index;
 
-    if (*zip_dir) {
-        int length = strnlen(zip_dir, 1024) + strnlen(rom->zip, 1024);
-        zip_filename = (char *)malloc(sizeof(char) * (length + 2));
-
-        snprintf(zip_filename, 2050, "%s/%s", zip_dir, rom->zip);
-    } else {
-        zip_filename = rom->zip;
+    // Look for zip file (first in user defined dir, then in current dir)
+    zip_filename = get_zip_filename(rom->zip, zip_dir);
+    if (!zip_filename) {
+        printf("zip file not found: %s\n", rom->zip);
+        return -1;
     }
     if (verbose) {
         printf("Reading zip file: %s\n", zip_filename);
