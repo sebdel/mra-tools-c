@@ -3,10 +3,28 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "utils.h"
+
 #define MAX_DATA_SIZE (4l * 1024l * 1024l)
 
 static int read_hex_char(char c) {
     return c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'f' ? 10 + c - 'a' : c >= 'A' && c <= 'F' ? 10 + c - 'A' : -1;
+}
+
+char *get_path(char *filename) {
+    char *path = strndup(filename, 1024);
+    char *last_slash = path;
+    char *p = path;
+    char c;
+
+    while (c = *p) {
+        if (c == '/')
+            last_slash = p;
+        p++;
+    }
+    *last_slash = '\0';
+
+    return path;
 }
 
 int file_exists(char *filename) {
@@ -56,4 +74,21 @@ int parse_hex_string(char *hexstr, unsigned char **data, size_t *length) {
     }
     *data = (unsigned char *)realloc(*data, sizeof(unsigned char *) * *length);
     return 0;
+}
+
+t_string_list *string_list_new(char *element) {
+    t_string_list *new_list = (t_string_list *)calloc(sizeof(t_string_list), 1);
+
+    if (element) {
+        string_list_add(new_list, element);
+    }
+    return new_list;
+}
+
+char *string_list_add(t_string_list *list, char *element) {
+    list->n_elements++;
+    list->elements = (char **)realloc(list->elements, sizeof(char *) * list->n_elements);
+    list->elements[list->n_elements - 1] = strndup(element, 1024);
+
+    return list->elements[list->n_elements - 1];
 }

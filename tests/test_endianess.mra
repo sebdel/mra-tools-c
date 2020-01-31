@@ -1,0 +1,14 @@
+<misterromdescription>
+	<name>Test Endianness</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_endianess</rbf>
+	<rom index="0" zip="tests.zip" md5="9244a386048a5b4c48bd2d11f7584fb3" type="merged|nonmerged">
+    <group width="16">
+			<part name="s16.dat" pattern="10" />
+    </group>
+	</rom>
+</misterromdescription>

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "utils.h"
 #include "mra.h"
 #include "part.h"
 
@@ -32,7 +33,7 @@ void main(int argc, char **argv) {
     t_mra mra;
     char *rom_filename;
     char *mra_filename;
-    char *zip_dir = "";
+    t_string_list *dirs = string_list_new(NULL);
     int i, res;
     int dump_mra = 0;
 
@@ -56,7 +57,7 @@ void main(int argc, char **argv) {
                 dump_mra = -1;
                 break;
             case 'z':
-                zip_dir = strndup(optarg, 1024);
+                string_list_add(dirs, optarg);
                 break;
             case 'h':
                 print_usage();
@@ -87,44 +88,29 @@ void main(int argc, char **argv) {
     rom_filename[strnlen(rom_filename, 1024) - 4] = 0;
     strncat(rom_filename, ".rom", 4);
 
+    char *mra_path = get_path(mra_filename);
+    if (*mra_path)
+        string_list_add(dirs, mra_path);
+    string_list_add(dirs, ".");
+
     if (verbose) {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);
-        if (*zip_dir) {
-            printf("ROMS zip dir: %s\n", zip_dir);
+        if (dirs->n_elements) {
+            int i;
+            printf("zip include dirs: ");
+            for (i = 0; i < dirs->n_elements; i++) {
+                printf("%s%s/", i ? ", " : "",  dirs->elements[i]);
+            }
+            printf("\n");
         }
     }
 
     mra_load(mra_filename, &mra);
 
     if (dump_mra) {
-#if 1  // Use that to create test files
         mra_dump(&mra);
-#else
-        int i;
-        uint8_t buffer[16];
-
-        FILE *out;
-        out = fopen("01.dat", "wb");
-        memset(buffer, 1, 16);
-        fwrite(buffer, 1, 16, out);
-        fclose(out);
-        out = fopen("02.dat", "wb");
-        memset(buffer, 2, 16);
-        fwrite(buffer, 1, 16, out);
-        fclose(out);
-        out = fopen("03.dat", "wb");
-        memset(buffer, 3, 16);
-        fwrite(buffer, 1, 16, out);
-        fclose(out);
-        out = fopen("s16.dat", "wb");
-        for (i = 0; i < 16; i++)
-            buffer[i] = i;
-        fwrite(buffer, 1, 16, out);
-        fclose(out);
-#endif
-
     } else {
-        res = write_rom(&mra, zip_dir, rom_filename);
+        res = write_rom(&mra, dirs, rom_filename);
         if (res != 0) {
             printf("Writing ROM failed with error code: %d\n", res);
             exit(-1);
