@@ -216,13 +216,15 @@ int write_group(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     return 0;
 }
 
-static char *get_zip_filename(char *filename, char *userdir) {
+static char *get_zip_filename(char *filename, t_string_list *dirs) {
+    int i;
 
-    if (*userdir) {
+    for (i = 0; i < dirs->n_elements; i++) {
+
         char *result;
-        int length = strnlen(userdir, 1024) + strnlen(filename, 1024);
+        int length = strnlen(dirs->elements[i], 1024) + strnlen(filename, 1024);
         result = (char *)malloc(sizeof(char) * (length + 2));
-        snprintf(result, 2050, "%s/%s", userdir, filename);
+        snprintf(result, 2050, "%s/%s", dirs->elements[i], filename);
 
         if (file_exists(result)) {
             return result;
@@ -237,7 +239,7 @@ static char *get_zip_filename(char *filename, char *userdir) {
     return NULL;
 }
 
-int write_rom(t_mra *mra, char *zip_dir, char *rom_filename) {
+int write_rom(t_mra *mra, t_string_list *dirs, char *rom_filename) {
     char *zip_filename;
     t_rom *rom;
     int rom_index;
@@ -252,7 +254,7 @@ int write_rom(t_mra *mra, char *zip_dir, char *rom_filename) {
     rom = mra->roms + rom_index;
 
     // Look for zip file (first in user defined dir, then in current dir)
-    zip_filename = get_zip_filename(rom->zip, zip_dir);
+    zip_filename = get_zip_filename(rom->zip, dirs);
     if (!zip_filename) {
         printf("zip file not found: %s\n", rom->zip);
         return -1;
