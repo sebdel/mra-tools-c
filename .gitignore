@@ -54,6 +54,7 @@ dkms.conf
 .vscode/
 
 # Don't accidently commit copyrighted files
+samples/*.rom
 roms/
 *.zip
 

@@ -4,7 +4,7 @@
 	<year>1988</year>
 	<manufacturer>Capcom</manufacturer>
 	<rbf>jtcps1</rbf>
-	<rom index="0" zip="ghouls.zip" md5="44c9535f75c0537aef5085d897d517ee" type="merged|nonmerged">
+	<rom index="0" zip="ghouls.zip" md5="86b3985f8100f9e4aa8883875e9ba56f" type="merged|nonmerged">
 		<!-- Main CPU -->
 		<group width="16">
             <!-- take one byte from each file -->
