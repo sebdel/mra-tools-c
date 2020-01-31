@@ -6,7 +6,7 @@
 	<manufacturer>Seb, Inc.</manufacturer>
 	<category>Tests</category>
 	<rbf>test_endianess</rbf>
-	<rom index="0" zip="tests.zip" md5="9244a386048a5b4c48bd2d11f7584fb3" type="merged|nonmerged">
+	<rom index="0" zip="tests.zip" md5="84011483e9df3fbe3a6efc9bc5503707" type="merged|nonmerged">
     <group width="16">
 			<part name="s16.dat" pattern="10" />
     </group>

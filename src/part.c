@@ -5,8 +5,8 @@
 #include "globals.h"
 #include "md5.h"
 #include "part.h"
-#include "utils.h"
 #include "unzip.h"
+#include "utils.h"
 
 t_file *files = NULL;
 int n_files = 0;
@@ -40,6 +40,7 @@ int get_file_by_name(t_file *files, int n_files, char *name) {
 }
 
 int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length, t_part *part) {
+    static size_t global_offset = 0;
     int i;
 
     if (data) {
@@ -48,6 +49,10 @@ int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length,
             for (i = 0; i < n_writes; i++) {
                 fwrite(data, 1, data_length, out);
                 MD5_Update(md5_ctx, data, data_length);
+                if (verbose) {
+                    printf("writing %lu bytes @ %08lX\n", data_length, global_offset);
+                }
+                global_offset += data_length;
             }
         } else {
             if (part->p.offset >= data_length) {
@@ -59,6 +64,10 @@ int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length,
                 for (i = 0; i < n_writes; i++) {
                     fwrite(data + part->p.offset, 1, length, out);
                     MD5_Update(md5_ctx, data + part->p.offset, length);
+                    if (verbose) {
+                        printf("writing %lu bytes @ %08lX\n", length, global_offset);
+                    }
+                    global_offset += length;
                 }
             }
         }
@@ -220,7 +229,6 @@ static char *get_zip_filename(char *filename, t_string_list *dirs) {
     int i;
 
     for (i = 0; i < dirs->n_elements; i++) {
-
         char *result;
         int length = strnlen(dirs->elements[i], 1024) + strnlen(filename, 1024);
         result = (char *)malloc(sizeof(char) * (length + 2));
