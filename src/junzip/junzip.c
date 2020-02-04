@@ -73,23 +73,23 @@ int jzReadCentralDirectory(JZFile *zip, JZEndRecord *endRecord,
     for (i = 0; i < endRecord->numEntries; i++) {
         if (zip->read(zip, &fileHeader, sizeof(JZGlobalFileHeader)) <
             sizeof(JZGlobalFileHeader)) {
-            fprintf(stderr, "Couldn't read file header %d!", i);
+            fprintf(stderr, "Couldn't read file header %d!\n", i);
             return Z_ERRNO;
         }
 
         if (fileHeader.signature != 0x02014B50) {
-            fprintf(stderr, "Invalid file header signature %d!", i);
+            fprintf(stderr, "Invalid file header signature (%d): 0x%08X!\n", i, fileHeader.signature);
             return Z_ERRNO;
         }
 
         if (fileHeader.fileNameLength + 1 >= JZ_BUFFER_SIZE) {
-            fprintf(stderr, "Too long file name %d!", i);
+            fprintf(stderr, "Too long file name %d!\n", i);
             return Z_ERRNO;
         }
 
         if (zip->read(zip, jzBuffer, fileHeader.fileNameLength) <
             fileHeader.fileNameLength) {
-            fprintf(stderr, "Couldn't read filename %d!", i);
+            fprintf(stderr, "Couldn't read filename %d!\n", i);
             return Z_ERRNO;
         }
 
@@ -97,7 +97,7 @@ int jzReadCentralDirectory(JZFile *zip, JZEndRecord *endRecord,
 
         if (zip->seek(zip, fileHeader.extraFieldLength, SEEK_CUR) ||
             zip->seek(zip, fileHeader.fileCommentLength, SEEK_CUR)) {
-            fprintf(stderr, "Couldn't skip extra field or file comment %d", i);
+            fprintf(stderr, "Couldn't skip extra field or file comment %d\n", i);
             return Z_ERRNO;
         }
 

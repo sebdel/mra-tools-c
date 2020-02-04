@@ -16,7 +16,6 @@ int processFile(JZFile *zip, t_file *file) {
     char filename[1024];
 
     if (jzReadLocalFileHeader(zip, &header, filename, sizeof(filename))) {
-        printf("Couldn't read local file header!");
         return -1;
     }
 
@@ -79,7 +78,6 @@ int unzip_file(char *file, t_file **files, int *n_files) {
         printf("Couldn't open \"%s\"!", file);
         return -1;
     }
-
     zip = jzfile_from_stdio_file(fp);
 
     if (jzReadEndRecord(zip, &endRecord)) {

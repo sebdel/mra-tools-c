@@ -5,6 +5,8 @@
 #include "globals.h"
 #include "sxmlc.h"
 
+#pragma pack(1)
+
 typedef struct s_part {
     int is_group;
     union {
