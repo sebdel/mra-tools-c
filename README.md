@@ -8,7 +8,12 @@ Also useful to generate all sort of binary blobs.
 Pre-compiled binaries for linux and windows 64bits are available under the release folder.
 
 ## How to build
-git clone, make, success
+`git clone https:\\https://github.com/sebdel/mra-tools-c.git`
+`make`
+
+### Build for windows
+`sudo apt install mingw-w64 libz-mingw-w64-dev`
+`make -f makefile.windows`
 
 ## License
 

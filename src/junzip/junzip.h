@@ -41,6 +41,8 @@ extern "C" {
 
 typedef struct JZFile JZFile;
 
+#pragma pack(1)
+
 struct JZFile {
     size_t (*read)(JZFile *file, void *buf, size_t size);
     size_t (*tell)(JZFile *file);
