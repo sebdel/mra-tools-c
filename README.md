@@ -4,7 +4,10 @@
 A tool used to merge mame ROMs in various ways, using the so called MRA configuration file.
 Also useful to generate all sort of binary blobs.
 
-## How to
+## Download
+Pre-compiled binaries for linux and windows 64bits are available under the release folder.
+
+## How to build
 git clone, make, success
 
 ## License

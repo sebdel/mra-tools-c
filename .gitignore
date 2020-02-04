@@ -23,13 +23,11 @@
 *.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
 *.so
 *.so.*
 *.dylib
 
 # Executables
-*.exe
 *.out
 *.app
 *.i*86
@@ -57,9 +55,6 @@ dkms.conf
 samples/*.rom
 roms/
 *.zip
-
-# Binary
-mra
 
 # Generated at build time
 src/sha1.c

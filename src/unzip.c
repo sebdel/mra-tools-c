@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
 #include "junzip.h"
 #include "unzip.h"
 

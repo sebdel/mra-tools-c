@@ -8,6 +8,11 @@ typedef struct s_string_list {
   int n_elements;
 } t_string_list;
 
+#if defined(_WIN32) || defined(_WIN64)
+// strndup() is not available on Windows
+char *strndup( const char *s1, size_t n);
+#endif
+
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length);
 void sprintf_md5(char *dest, unsigned char *md5);
 int file_exists(char *filename);
