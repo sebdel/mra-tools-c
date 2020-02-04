@@ -11,6 +11,20 @@ static int read_hex_char(char c) {
     return c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'f' ? 10 + c - 'a' : c >= 'A' && c <= 'F' ? 10 + c - 'A' : -1;
 }
 
+#if defined(_WIN32) || defined(_WIN64)
+
+#include <math.h>
+
+// strndup() is not available on Windows
+char *strndup( const char *s1, size_t n)
+{
+    char *copy= (char*)malloc( n+1 );
+    memcpy( copy, s1, n );
+    copy[n] = 0;
+    return copy;
+};
+#endif
+
 char *get_path(char *filename) {
     char *path = strndup(filename, 1024);
     char *last_slash = path;
