@@ -3,9 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "arc.h"
 #include "mra.h"
 #include "part.h"
-#include "arc.h"
 #include "utils.h"
 
 // make vscode happy
@@ -117,17 +117,24 @@ void main(int argc, char **argv) {
     }
 
     mra_load(mra_filename, &mra);
+    if (trace > 0) printf("MRA loaded...\n");
 
     if (dump_mra) {
+        if (trace > 0) printf("dumping MRA content...\n");
         mra_dump(&mra);
     } else {
         if (create_arc) {
+            if (trace > 0) printf("create_arc set...\n");
+            if (verbose) {
+                printf("Creating ARC file!\n");
+            }
             res = write_arc(&mra, arc_filename);
             if (res != 0) {
                 printf("Writing ARC file failed with error code: %d\n. Retry without -A if you still want to create the ROM file.\n", res);
                 exit(-1);
             }
         }
+        if (trace > 0) printf("creating ROM...\n");
         res = write_rom(&mra, dirs, rom_filename);
         if (res != 0) {
             printf("Writing ROM failed with error code: %d\n", res);

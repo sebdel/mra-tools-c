@@ -19,6 +19,9 @@ echo
 echo "Test endianess...(expected: no warnings)"
 ./mra tests/test_endianess.mra
 echo
+echo "Test groups...(expected: 1 error)"
+./mra tests/test_groups.mra
+echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/*.rom
 

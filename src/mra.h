@@ -42,6 +42,13 @@ typedef struct s_rom {
     int n_parts;
 } t_rom;
 
+typedef struct s_configuration
+{
+    char *bits;
+    char *name;
+    char *ids;
+} t_configuration;
+
 typedef struct s_mra {
     XMLDoc _xml_doc;
 
@@ -51,10 +58,14 @@ typedef struct s_mra {
     char *setname;
     char *year;
     char *manufacturer;
-    t_string_list categories;
     char *rbf;
     int mod;
 
+    t_string_list categories;
+    
+    t_configuration *configurations;
+    int n_configurations;
+    
     t_rom *roms;
     int n_roms;
 } t_mra;

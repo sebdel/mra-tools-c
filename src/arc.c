@@ -8,7 +8,7 @@
 int write_arc(t_mra *mra, char *filename) {
     FILE *out;
     char buffer[MAX_LINE_LENGTH + 1];
-    int n;
+    int i, n;
 
     out = fopen(filename, "wb");
     if (out == NULL) {
@@ -25,6 +25,10 @@ int write_arc(t_mra *mra, char *filename) {
             n = snprintf(buffer, MAX_LINE_LENGTH, "MOD=\"%d\"\n", mra->mod);
             fwrite(buffer, 1, n, out);
         }
+    }
+    for (i = 0; i < mra->n_configurations; i++) {
+        n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", mra->configurations[i].bits, mra->configurations[i].name, mra->configurations[i].ids);
+        fwrite(buffer, 1, n, out);
     }
     fclose(out);
     return 0;
