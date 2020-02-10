@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "globals.h"
+#include "utils.h"
 #include "sxmlc.h"
 
 #pragma pack(1)
@@ -50,8 +51,7 @@ typedef struct s_mra {
     char *setname;
     char *year;
     char *manufacturer;
-    char **categories;
-    int n_categories;
+    t_string_list categories;
     char *rbf;
     int mod;
 

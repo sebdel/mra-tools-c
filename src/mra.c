@@ -155,8 +155,9 @@ int read_root(XMLNode *root, t_mra *mra) {
             mra->manufacturer = strndup(node->text, 1024);
         } else if (strncmp(node->tag, "rbf", 4) == 0) {
             mra->rbf = strndup(node->text, 1024);
+        } else if (strncmp(node->tag, "category", 9) == 0) {
+            string_list_add(&mra->categories, node->text);
         }
-        // TODO: parse categories and n_categories
     }
 }
 
@@ -167,7 +168,7 @@ int mra_load(char *filename, t_mra *mra) {
 
     memset(mra, 0, sizeof(t_mra));
     mra->mod = -1;
-    
+
     XMLDoc_init(doc);
     res = XMLDoc_parse_file(filename, doc);
     if (res != 1 || doc->i_root < 0) {
@@ -220,8 +221,8 @@ int mra_dump(t_mra *mra) {
     if (mra->manufacturer) printf("manufacturer: %s\n", mra->manufacturer);
     if (mra->rbf) printf("rbf: %s\n", mra->rbf);
     if (mra->mod >= 0) printf("mod: %d\n", mra->mod);
-    for (i = 0; i < mra->n_categories; i++) {
-        printf("category[%d]: %s\n", i, mra->name);
+    for (i = 0; i < mra->categories.n_elements; i++) {
+        printf("category[%d]: %s\n", i, mra->categories.elements[i]);
     }
 
     printf("nb roms: %d\n", mra->n_roms);

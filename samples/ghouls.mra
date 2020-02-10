@@ -1,25 +1,28 @@
 <misterromdescription>
-	<name>Ghouls'n Ghosts</name>
-	<setname>ghouls</setname>
-	<year>1988</year>
-	<manufacturer>Capcom</manufacturer>
-	<rbf>jtcps1</rbf>
-	<rom index="0" zip="ghouls.zip" md5="86b3985f8100f9e4aa8883875e9ba56f" type="merged|nonmerged">
-		<!-- Main CPU -->
-		<group width="16">
+    <name>Ghouls'n Ghosts</name>
+    <setname>ghouls</setname>
+    <year>1988</year>
+    <manufacturer>Capcom</manufacturer>
+    <rbf>jtcps1</rbf>
+    <category>Maze / Monkeys</category>
+    <category>Platform</category>
+    <category>Platform / Mario Bros.</category>
+    <rom index="0" zip="ghouls.zip" md5="86b3985f8100f9e4aa8883875e9ba56f" type="merged|nonmerged">
+        <!-- Main CPU -->
+        <group width="16">
             <!-- take one byte from each file -->
-			<part name="dme_29.10h"/>
-			<part name="dme_30.10j"/>
-		</group>
-		<group width="16">
+            <part name="dme_29.10h"/>
+            <part name="dme_30.10j"/>
+        </group>
+        <group width="16">
             <!-- take one byte from each file -->
-			<part name="dme_27.9h"/>
-			<part name="dme_28.9j"/>
-		</group>		
-		<part name="dm-17.7j"/>
+            <part name="dme_27.9h"/>
+            <part name="dme_28.9j"/>
+        </group>
+        <part name="dm-17.7j"/>
 
-		<!-- GFX -->
-		<group width="64">
+        <!-- GFX -->
+        <group width="64">
             <!-- take two bytes from each file -->
             <part name="dm-05.3a" pattern="01"/>
             <part name="dm-07.3f" pattern="01"/>
@@ -51,5 +54,5 @@
 
         <!--Audio CPU-->
         <part name="26.10a"/>
-	</rom>
+    </rom>
 </misterromdescription>
