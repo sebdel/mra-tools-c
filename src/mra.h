@@ -53,6 +53,7 @@ typedef struct s_mra {
     char **categories;
     int n_categories;
     char *rbf;
+    int mod;
 
     t_rom *roms;
     int n_roms;

@@ -3,9 +3,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "utils.h"
 #include "mra.h"
 #include "part.h"
+#include "arc.h"
+#include "utils.h"
 
 // make vscode happy
 extern char *optarg;
@@ -21,8 +22,9 @@ void print_usage() {
     printf("\n");
     printf("\t-h\tHelp.\n");
     printf("\t-v\tVersion. Only when it is the only parameter, otherwise set Verbose on (default: off).\n");
-    printf("\t-l\tLists MRA content instead of creating the ROM\n");
+    printf("\t-l\tLists MRA content instead of creating the ROM file.\n");
     printf("\t-z dir\tSets directory to include zip files. This directory has priority over the current dir.\n");
+    printf("\t-A\tCreate ARC file. This is done in addition to creating the ROM file.\n");
 }
 
 void print_version() {
@@ -33,9 +35,11 @@ void main(int argc, char **argv) {
     t_mra mra;
     char *rom_filename;
     char *mra_filename;
+    char *arc_filename;
     t_string_list *dirs = string_list_new(NULL);
     int i, res;
     int dump_mra = 0;
+    int create_arc = 0;
 
     // Parse command line
     // Looks bad but mkfs does it so why not me ?
@@ -48,13 +52,16 @@ void main(int argc, char **argv) {
     // put ':' in the starting of the
     // string so that program can
     //distinguish between '?' and ':'
-    while ((opt = getopt(argc, argv, ":vlhz:")) != -1) {
+    while ((opt = getopt(argc, argv, ":vlhAz:")) != -1) {
         switch (opt) {
             case 'v':
                 verbose = -1;
                 break;
             case 'l':
                 dump_mra = -1;
+                break;
+            case 'A':
+                create_arc = -1;
                 break;
             case 'z':
                 string_list_add(dirs, optarg);
@@ -86,7 +93,11 @@ void main(int argc, char **argv) {
 
     rom_filename = strndup(mra_filename, 1024);
     rom_filename[strnlen(rom_filename, 1024) - 4] = 0;
-    strncat(rom_filename, ".rom", 4);
+    strncat(rom_filename, ".rom", 5);
+
+    arc_filename = strndup(mra_filename, 1024);
+    arc_filename[strnlen(rom_filename, 1024) - 4] = 0;
+    strncat(arc_filename, ".arc", 5);
 
     char *mra_path = get_path(mra_filename);
     if (*mra_path)
@@ -99,7 +110,7 @@ void main(int argc, char **argv) {
             int i;
             printf("zip include dirs: ");
             for (i = 0; i < dirs->n_elements; i++) {
-                printf("%s%s/", i ? ", " : "",  dirs->elements[i]);
+                printf("%s%s/", i ? ", " : "", dirs->elements[i]);
             }
             printf("\n");
         }
@@ -110,6 +121,13 @@ void main(int argc, char **argv) {
     if (dump_mra) {
         mra_dump(&mra);
     } else {
+        if (create_arc) {
+            res = write_arc(&mra, arc_filename);
+            if (res != 0) {
+                printf("Writing ARC file failed with error code: %d\n. Retry without -A if you still want to create the ROM file.\n", res);
+                exit(-1);
+            }
+        }
         res = write_rom(&mra, dirs, rom_filename);
         if (res != 0) {
             printf("Writing ROM failed with error code: %d\n", res);

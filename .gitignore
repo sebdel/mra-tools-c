@@ -58,3 +58,5 @@ roms/
 
 # Generated at build time
 src/sha1.c
+
+mra

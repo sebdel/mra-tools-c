@@ -166,7 +166,8 @@ int mra_load(char *filename, t_mra *mra) {
     XMLNode *root = NULL;
 
     memset(mra, 0, sizeof(t_mra));
-
+    mra->mod = -1;
+    
     XMLDoc_init(doc);
     res = XMLDoc_parse_file(filename, doc);
     if (res != 1 || doc->i_root < 0) {
@@ -211,13 +212,14 @@ void dump_part(t_part *part) {
 int mra_dump(t_mra *mra) {
     int i;
 
-    printf("name: %s\n", mra->name);
-    printf("mratimestamp: %s\n", mra->mratimestamp);
-    printf("mameversion: %s\n", mra->mameversion);
-    printf("setname: %s\n", mra->setname);
-    printf("year: %s\n", mra->year);
-    printf("manufacturer: %s\n", mra->manufacturer);
-    printf("rbf: %s\n", mra->rbf);
+    if (mra->name) printf("name: %s\n", mra->name);
+    if (mra->mratimestamp) printf("mratimestamp: %s\n", mra->mratimestamp);
+    if (mra->mameversion) printf("mameversion: %s\n", mra->mameversion);
+    if (mra->setname) printf("setname: %s\n", mra->setname);
+    if (mra->year) printf("year: %s\n", mra->year);
+    if (mra->manufacturer) printf("manufacturer: %s\n", mra->manufacturer);
+    if (mra->rbf) printf("rbf: %s\n", mra->rbf);
+    if (mra->mod >= 0) printf("mod: %d\n", mra->mod);
     for (i = 0; i < mra->n_categories; i++) {
         printf("category[%d]: %s\n", i, mra->name);
     }
