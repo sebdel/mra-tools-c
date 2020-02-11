@@ -1,10 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "utils.h"
 #include "arc.h"
 
 #define MAX_LINE_LENGTH 256
+
+char *parse_bits(char *bits) {
+    char buffer[256] = "O";
+    int n = 1;
+    char *token;
+
+    while (token = strtok(n == 1 ? bits : NULL, ",")) {
+        char c = atoi(token);
+        buffer[n++] = (c < 10) ? ('0' + c) : 'A' + c - 10;
+    }
+    buffer[n] = '\0';
+    return strdup(buffer);
+}
 
 int write_arc(t_mra *mra, char *filename) {
     FILE *out;
@@ -39,8 +53,8 @@ int write_arc(t_mra *mra, char *filename) {
             fwrite(buffer, 1, n, out);
         }
     }
-    for (i = 0; i < mra->n_configurations; i++) {
-        n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", mra->configurations[i].bits, mra->configurations[i].name, mra->configurations[i].ids);
+    for (i = 0; i < mra->n_switches; i++) {
+        n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", parse_bits(mra->switches[i].bits), mra->switches[i].name, mra->switches[i].ids);
         fwrite(buffer, 1, n, out);
     }
     fclose(out);

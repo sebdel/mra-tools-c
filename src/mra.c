@@ -121,43 +121,30 @@ void read_rom(XMLNode *node, t_rom *rom) {
     }
 }
 
-char *parse_bits(char *bits) {
-    char buffer[256] = "O";
-    int n = 1;
-    char *token;
-
-    while (token = strtok(n == 1 ? bits : NULL, ",")) {
-        char c = atoi(token);
-        buffer[n++] = (c < 10) ? ('0' + c) : 'A' + c - 10;
-    }
-    buffer[n] = '\0';
-    return strdup(buffer);
-}
-
-void read_configuration(XMLNode *node, t_configuration *configuration) {
+void read_dip_switch(XMLNode *node, t_dip_switch *dip_switch) {
     int i;
 
-    memset(configuration, 0, sizeof(t_configuration));
+    memset(dip_switch, 0, sizeof(t_dip_switch));
     for (i = 0; i < node->n_attributes; i++) {
         if (strncmp(node->attributes[i].name, "bits", 5) == 0) {
-            configuration->bits = parse_bits(node->attributes[i].value);
+            dip_switch->bits = strndup(node->attributes[i].value, 256);
         } else if (strncmp(node->attributes[i].name, "name", 5) == 0) {
-            configuration->name = strndup(node->attributes[i].value, 256);
+            dip_switch->name = strndup(node->attributes[i].value, 256);
         } else if (strncmp(node->attributes[i].name, "ids", 5) == 0) {
-            configuration->ids = strndup(node->attributes[i].value, 256);
+            dip_switch->ids = strndup(node->attributes[i].value, 256);
         }
     }
 }
 
-int read_configurations(XMLNode *node, t_configuration **configurations, int *n_configurations) {
+int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches) {
     int i;
 
     for (i = 0; i < node->n_children; i++) {
         XMLNode *child = node->children[i];
         if (strncmp(child->tag, "dip", 4) == 0) {
-            (*n_configurations)++;
-            *configurations = (t_configuration *)realloc(*configurations, sizeof(t_configuration) * (*n_configurations));
-            read_configuration(child, (*configurations) + (*n_configurations) - 1);
+            (*n_switches)++;
+            *switches = (t_dip_switch *)realloc(*switches, sizeof(t_dip_switch) * (*n_switches));
+            read_dip_switch(child, (*switches) + (*n_switches) - 1);
         }
     }
     return 0;
@@ -201,7 +188,7 @@ int read_root(XMLNode *root, t_mra *mra) {
         } else if (strncmp(node->tag, "category", 9) == 0) {
             string_list_add(&mra->categories, node->text);
         } else if (strncmp(node->tag, "switches", 9) == 0) {
-            read_configurations(node, &mra->configurations, &mra->n_configurations);
+            read_switches(node, &mra->switches, &mra->n_switches);
         }
     }
 }
@@ -267,9 +254,9 @@ int mra_dump(t_mra *mra) {
     for (i = 0; i < mra->categories.n_elements; i++) {
         printf("category[%d]: %s\n", i, mra->categories.elements[i]);
     }
-    printf("nb configurations: %d\n", mra->n_configurations);
-    for (i = 0; i < mra->n_configurations; i++) {
-        printf("configuration[%d]: %s,%s,%s\n", i, mra->configurations[i].bits, mra->configurations[i].name, mra->configurations[i].ids);
+    printf("nb switches: %d\n", mra->n_switches);
+    for (i = 0; i < mra->n_switches; i++) {
+        printf("dip_switch[%d]: %s,%s,%s\n", i, mra->switches[i].bits, mra->switches[i].name, mra->switches[i].ids);
     }
 
     printf("nb roms: %d\n", mra->n_roms);
