@@ -19,12 +19,18 @@ echo
 echo "Test endianess...(expected: no warnings)"
 ./mra tests/test_endianess.mra
 echo
+echo "Test groups...(expected: 1 error)"
+./mra tests/test_groups.mra
+echo
+echo "Test ARC file...(expected: no warnings)"
+./mra tests/test_arc.mra -A
+echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/*.rom
 
-if [[ `git status --porcelain | grep .rom` ]]; then
+if [[ `git status --porcelain | grep -E '\.rom|\.arc'` ]]; then
   # Changes
-  echo "ROM files changed:"
-  git status --porcelain | grep .rom
+  echo "Output files with errors:"
+  git status --porcelain | grep -E '\.rom|\.arc'
   exit 1
 fi

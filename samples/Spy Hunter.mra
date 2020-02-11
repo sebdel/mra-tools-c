@@ -1,0 +1,46 @@
+<misterromdescription>
+	<name>Spy Hunter</name>
+	<mameversion>0216</mameversion>
+	<mratimestamp>201912310000</mratimestamp>
+	<manufacturer>Bally Midway</manufacturer>
+	<rbf>mcr3scroll</rbf>
+	<setname>spyhunt</setname>
+	<switches default="FF 00">
+		<dip bits="0"    name="Game Timer" ids="1:00,1:30"/>
+		<dip bits="1"    name="Demo Sounds" ids="Off,On"/>
+		<dip bits="8"    name="Service" ids="Off,On"/>
+	</switches>
+	<buttons names="Machine Guns,Missiles,Smoke Screen,Oil Slick,Van/Start,Gear Shift,Coin" default="A,B,X,Y,Start,R,Select"/>
+	<rom index="1">
+		<part>0</part>
+	</rom>
+	<rom index="0" zip="spyhunt.zip" md5="83494589c7ec76729e0d776d999e3a70" type="merged|nonmerged">
+		<part name="spy-hunter_cpu_pg0_2-9-84.6d"/>
+		<part name="spy-hunter_cpu_pg1_2-9-84.7d"/>
+		<part name="spy-hunter_cpu_pg2_2-9-84.8d"/>
+		<part name="spy-hunter_cpu_pg3_2-9-84.9d"/>
+		<part name="spy-hunter_cpu_pg4_2-9-84.10d"/>
+		<part name="spy-hunter_cpu_pg5_2-9-84.11d"/>
+		<part name="spy-hunter_snd_0_sd_11-18-83.a7"/>
+		<part name="spy-hunter_snd_1_sd_11-18-83.a8"/>
+		<part name="spy-hunter_cs_deluxe_u17_b_11-18-83.u17"/>
+		<part name="spy-hunter_cs_deluxe_u18_d_11-18-83.u18"/>
+		<part name="spy-hunter_cs_deluxe_u7_a_11-18-83.u7"/>
+		<part name="spy-hunter_cs_deluxe_u8_c_11-18-83.u8"/>
+		<interleave output="32">
+			<part name="spy-hunter_video_1fg_11-18-83.a7" map="0001"/>
+			<part name="spy-hunter_video_0fg_11-18-83.a8" map="0001"/>
+			<part name="spy-hunter_video_3fg_11-18-83.a5" map="0010"/>
+			<part name="spy-hunter_video_2fg_11-18-83.a6" map="0010"/>
+			<part name="spy-hunter_video_5fg_11-18-83.a3" map="0100"/>
+			<part name="spy-hunter_video_4fg_11-18-83.a4" map="0100"/>
+			<part name="spy-hunter_video_7fg_11-18-83.a1" map="1000"/>
+			<part name="spy-hunter_video_6fg_11-18-83.a2" map="1000"/>
+		</interleave>
+		<part name="spy-hunter_cpu_bg0_11-18-83.3a"/>
+		<part name="spy-hunter_cpu_bg1_11-18-83.4a"/>
+		<part name="spy-hunter_cpu_bg2_11-18-83.5a"/>
+		<part name="spy-hunter_cpu_bg3_11-18-83.6a"/>
+		<part name="spy-hunter_cpu_alpha-n_11-18-83"/>
+	</rom>
+</misterromdescription>

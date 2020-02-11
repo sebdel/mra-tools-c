@@ -16,10 +16,9 @@ static int read_hex_char(char c) {
 #include <math.h>
 
 // strndup() is not available on Windows
-char *strndup( const char *s1, size_t n)
-{
-    char *copy= (char*)malloc( n+1 );
-    memcpy( copy, s1, n );
+char *strndup(const char *s1, size_t n) {
+    char *copy = (char *)malloc(n + 1);
+    memcpy(copy, s1, n);
     copy[n] = 0;
     return copy;
 };
@@ -52,19 +51,29 @@ void sprintf_md5(char *dest, unsigned char *md5) {
              md5[8], md5[9], md5[10], md5[11], md5[12], md5[13], md5[14], md5[15]);
 }
 
+char *str_toupper(char *src) {
+    char *dest = strndup(src, 256);
+    char *p = dest;
+    while(*p) {
+        char c = *p;
+        *p++ = toupper(c);
+    }
+    return dest;
+}
+
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length) {
     char *ptr = hexstr;
     char c;
+    int state;
+    int lsq, msq;
 
     // We prealloc (hexstr / 2 + 1) bytes, which is in the ball park of what we actually need.
     // It's at least big enough and we will downsize it anyway.
     size_t size = strnlen(hexstr, MAX_DATA_SIZE) / 2 + 1;
     *data = (unsigned char *)malloc(sizeof(unsigned char) * size);
     *length = 0;
+    state = 0;  // 0: wait for MSQ, 1: wait for LSQ
     while (c = *ptr++) {
-        static int state = 0;  // 0: wait for MSQ, 1: wait for LSQ
-        int lsq, msq;
-
         if (state == 0) {
             msq = read_hex_char(c);
             if (msq != -1) {
@@ -74,17 +83,14 @@ int parse_hex_string(char *hexstr, unsigned char **data, size_t *length) {
             lsq = read_hex_char(c);
             if (lsq != -1) {
                 (*data)[(*length)++] = (msq << 4) + lsq;
-                state = 0;
             } else {
-                // single digit value, we don't support that (we could)
-                printf("single digit value, we don't support that!\n");
-
-                free(*data);
-                *data = NULL;
-                *length = 0;
-                return -1;
+                (*data)[(*length)++] = msq;
             }
+            state = 0;
         }
+    }
+    if (state == 1) {
+        (*data)[(*length)++] = msq;
     }
     *data = (unsigned char *)realloc(*data, sizeof(unsigned char *) * *length);
     return 0;

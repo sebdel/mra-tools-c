@@ -2,7 +2,9 @@
 #define _MRA_H_
 
 #include <stdint.h>
+#include "utils.h"
 #include "globals.h"
+#include "utils.h"
 #include "sxmlc.h"
 
 #pragma pack(1)
@@ -41,6 +43,13 @@ typedef struct s_rom {
     int n_parts;
 } t_rom;
 
+typedef struct s_configuration
+{
+    char *bits;
+    char *name;
+    char *ids;
+} t_configuration;
+
 typedef struct s_mra {
     XMLDoc _xml_doc;
 
@@ -50,10 +59,13 @@ typedef struct s_mra {
     char *setname;
     char *year;
     char *manufacturer;
-    char **categories;
-    int n_categories;
     char *rbf;
 
+    t_string_list categories;
+    
+    t_configuration *configurations;
+    int n_configurations;
+    
     t_rom *roms;
     int n_roms;
 } t_mra;
@@ -61,5 +73,6 @@ typedef struct s_mra {
 int mra_load(char *filename, t_mra *mra);
 int mra_dump(t_mra *mra);
 int mra_get_next_rom0(t_mra *mra, int start_index);
+int mra_get_rom_by_index(t_mra *mra, int index, int start_pos);
 
 #endif

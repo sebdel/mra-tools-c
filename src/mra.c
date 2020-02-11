@@ -106,19 +106,61 @@ void read_rom(XMLNode *node, t_rom *rom) {
     memset(rom, 0, sizeof(t_rom));
 
     for (j = 0; j < node->n_attributes; j++) {
-        if (strncmp(node->attributes[j].name, "index", 4) == 0) {
+        if (strncmp(node->attributes[j].name, "index", 6) == 0) {
             rom->index = atoi(strndup(node->attributes[j].value, 256));
-        } else if (strncmp(node->attributes[j].name, "zip", 3) == 0) {
+        } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {
             rom->zip = strndup(node->attributes[j].value, 256);
-        } else if (strncmp(node->attributes[j].name, "md5", 3) == 0) {
+        } else if (strncmp(node->attributes[j].name, "md5", 4) == 0) {
             rom->md5 = strndup(node->attributes[j].value, 256);
-        } else if (strncmp(node->attributes[j].name, "type", 4) == 0) {
+        } else if (strncmp(node->attributes[j].name, "type", 5) == 0) {
             rom->type = strndup(node->attributes[j].value, 256);
         }
     }
     for (i = 0; i < node->n_children; i++) {
         read_parts(node->children[i], &rom->parts, &rom->n_parts);
     }
+}
+
+char *parse_bits(char *bits) {
+    char buffer[256] = "O";
+    int n = 1;
+    char *token;
+
+    while (token = strtok(n == 1 ? bits : NULL, ",")) {
+        char c = atoi(token);
+        buffer[n++] = (c < 10) ? ('0' + c) : 'A' + c - 10;
+    }
+    buffer[n] = '\0';
+    return strdup(buffer);
+}
+
+void read_configuration(XMLNode *node, t_configuration *configuration) {
+    int i;
+
+    memset(configuration, 0, sizeof(t_configuration));
+    for (i = 0; i < node->n_attributes; i++) {
+        if (strncmp(node->attributes[i].name, "bits", 5) == 0) {
+            configuration->bits = parse_bits(node->attributes[i].value);
+        } else if (strncmp(node->attributes[i].name, "name", 5) == 0) {
+            configuration->name = strndup(node->attributes[i].value, 256);
+        } else if (strncmp(node->attributes[i].name, "ids", 5) == 0) {
+            configuration->ids = strndup(node->attributes[i].value, 256);
+        }
+    }
+}
+
+int read_configurations(XMLNode *node, t_configuration **configurations, int *n_configurations) {
+    int i;
+
+    for (i = 0; i < node->n_children; i++) {
+        XMLNode *child = node->children[i];
+        if (strncmp(child->tag, "dip", 4) == 0) {
+            (*n_configurations)++;
+            *configurations = (t_configuration *)realloc(*configurations, sizeof(t_configuration) * (*n_configurations));
+            read_configuration(child, (*configurations) + (*n_configurations) - 1);
+        }
+    }
+    return 0;
 }
 
 int read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
@@ -133,6 +175,7 @@ int read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
             read_roms(node->children[i], roms, n_roms);
         }
     }
+    return 0;
 }
 
 int read_root(XMLNode *root, t_mra *mra) {
@@ -155,8 +198,11 @@ int read_root(XMLNode *root, t_mra *mra) {
             mra->manufacturer = strndup(node->text, 1024);
         } else if (strncmp(node->tag, "rbf", 4) == 0) {
             mra->rbf = strndup(node->text, 1024);
+        } else if (strncmp(node->tag, "category", 9) == 0) {
+            string_list_add(&mra->categories, node->text);
+        } else if (strncmp(node->tag, "switches", 9) == 0) {
+            read_configurations(node, &mra->configurations, &mra->n_configurations);
         }
-        // TODO: parse categories and n_categories
     }
 }
 
@@ -211,15 +257,19 @@ void dump_part(t_part *part) {
 int mra_dump(t_mra *mra) {
     int i;
 
-    printf("name: %s\n", mra->name);
-    printf("mratimestamp: %s\n", mra->mratimestamp);
-    printf("mameversion: %s\n", mra->mameversion);
-    printf("setname: %s\n", mra->setname);
-    printf("year: %s\n", mra->year);
-    printf("manufacturer: %s\n", mra->manufacturer);
-    printf("rbf: %s\n", mra->rbf);
-    for (i = 0; i < mra->n_categories; i++) {
-        printf("category[%d]: %s\n", i, mra->name);
+    if (mra->name) printf("name: %s\n", mra->name);
+    if (mra->mratimestamp) printf("mratimestamp: %s\n", mra->mratimestamp);
+    if (mra->mameversion) printf("mameversion: %s\n", mra->mameversion);
+    if (mra->setname) printf("setname: %s\n", mra->setname);
+    if (mra->year) printf("year: %s\n", mra->year);
+    if (mra->manufacturer) printf("manufacturer: %s\n", mra->manufacturer);
+    if (mra->rbf) printf("rbf: %s\n", mra->rbf);
+    for (i = 0; i < mra->categories.n_elements; i++) {
+        printf("category[%d]: %s\n", i, mra->categories.elements[i]);
+    }
+    printf("nb configurations: %d\n", mra->n_configurations);
+    for (i = 0; i < mra->n_configurations; i++) {
+        printf("configuration[%d]: %s,%s,%s\n", i, mra->configurations[i].bits, mra->configurations[i].name, mra->configurations[i].ids);
     }
 
     printf("nb roms: %d\n", mra->n_roms);
@@ -229,9 +279,9 @@ int mra_dump(t_mra *mra) {
 
         printf("rom[%d]:\n", i);
         printf("  index: %d\n", rom->index);
-        printf("  zip: %s\n", rom->zip);
-        printf("  md5: %s\n", rom->md5);
-        printf("  type: %s\n", rom->type);
+        if (rom->zip) printf("  zip: %s\n", rom->zip);
+        if (rom->md5) printf("  md5: %s\n", rom->md5);
+        if (rom->type) printf("  type: %s\n", rom->type);
 
         for (j = 0; j < rom->n_parts; j++) {
             printf("  part[%d]:\n", j);
@@ -241,15 +291,19 @@ int mra_dump(t_mra *mra) {
 }
 
 int mra_get_next_rom0(t_mra *mra, int start_index) {
+    return mra_get_rom_by_index(mra, 0, start_index);
+}
+
+int mra_get_rom_by_index(t_mra *mra, int index, int start_pos) {
     int i;
 
-    if (start_index >= mra->n_roms) {
+    if (start_pos >= mra->n_roms) {
         return -1;
     }
-    for (i = start_index; i < mra->n_roms; i++) {
-        if (mra->roms[i].index == 0) {
+    for (i = start_pos; i < mra->n_roms; i++) {
+        if (mra->roms[i].index == index) {
             return i;
         }
     }
-    return -1;  // ROM 0 not found
+    return -1;  // ROM not found
 }
