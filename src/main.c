@@ -88,6 +88,11 @@ void main(int argc, char **argv) {
     }
 
     mra_filename = strndup(argv[optind], 1024);
+    if (!file_exists(mra_filename)) {
+        printf("error: file not found (%s)\n", mra_filename);
+        exit(-1);
+    }
+    
     if (trace > 0)
         printf("mra: %s\n", mra_filename);
 
