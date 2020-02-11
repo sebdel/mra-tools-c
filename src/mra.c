@@ -293,15 +293,19 @@ int mra_dump(t_mra *mra) {
 }
 
 int mra_get_next_rom0(t_mra *mra, int start_index) {
+    return mra_get_rom_by_index(mra, 0, start_index);
+}
+
+int mra_get_rom_by_index(t_mra *mra, int index, int start_pos) {
     int i;
 
-    if (start_index >= mra->n_roms) {
+    if (start_pos >= mra->n_roms) {
         return -1;
     }
-    for (i = start_index; i < mra->n_roms; i++) {
-        if (mra->roms[i].index == 0) {
+    for (i = start_pos; i < mra->n_roms; i++) {
+        if (mra->roms[i].index == index) {
             return i;
         }
     }
-    return -1;  // ROM 0 not found
+    return -1;  // ROM not found
 }
