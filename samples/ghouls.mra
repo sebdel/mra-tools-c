@@ -8,6 +8,7 @@
     <category>Platform</category>
     <category>Platform / Mario Bros.</category>
     <switches default="FF,FF,C9">
+        <dip bits="1" name="Soft Reset"/>
         <dip bits="15" name="Cabinet" ids="Cocktail,Upright"/>
         <dip bits="16,17" name="Coinage" ids="2c/1cr,1c/1cr,1c/2cr,Free Play" values="3,1,2,0"/>
         <dip bits="18,19" name="Lives" ids="1,2,3,5"/>

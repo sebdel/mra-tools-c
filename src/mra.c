@@ -150,7 +150,7 @@ int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches) {
     return 0;
 }
 
-int read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
+void read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
     int i;
 
     if (strncmp(node->tag, "rom", 4) == 0) {
@@ -162,10 +162,9 @@ int read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
             read_roms(node->children[i], roms, n_roms);
         }
     }
-    return 0;
 }
 
-int read_root(XMLNode *root, t_mra *mra) {
+void read_root(XMLNode *root, t_mra *mra) {
     int i;
 
     for (i = 0; i < root->n_children; i++) {
@@ -214,6 +213,8 @@ int mra_load(char *filename, t_mra *mra) {
 
     read_root(root, mra);
     read_roms(root, &mra->roms, &mra->n_roms);
+
+    return 0;
 }
 
 void dump_part(t_part *part) {
