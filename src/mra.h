@@ -60,7 +60,6 @@ typedef struct s_mra {
     char *year;
     char *manufacturer;
     char *rbf;
-    int mod;
 
     t_string_list categories;
     

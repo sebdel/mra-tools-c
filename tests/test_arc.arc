@@ -1,5 +1,6 @@
 [ARC]
 RBF="test_arc"
+MOD="10"
 CONF="OF,Cabinet,Cocktail,Upright"
 CONF="OGH,Coinage,2c/1cr,1c/1cr,1c/2cr,Free Play"
 CONF="OIJ,Lives,1,2,3,5"
