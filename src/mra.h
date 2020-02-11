@@ -2,6 +2,7 @@
 #define _MRA_H_
 
 #include <stdint.h>
+#include "utils.h"
 #include "globals.h"
 #include "utils.h"
 #include "sxmlc.h"

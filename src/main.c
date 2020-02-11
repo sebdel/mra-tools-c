@@ -141,7 +141,6 @@ void main(int argc, char **argv) {
             exit(-1);
         }
     }
-
     if (verbose) {
         printf("done!\n");
     }

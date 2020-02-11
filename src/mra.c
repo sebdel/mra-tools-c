@@ -106,13 +106,13 @@ void read_rom(XMLNode *node, t_rom *rom) {
     memset(rom, 0, sizeof(t_rom));
 
     for (j = 0; j < node->n_attributes; j++) {
-        if (strncmp(node->attributes[j].name, "index", 4) == 0) {
+        if (strncmp(node->attributes[j].name, "index", 6) == 0) {
             rom->index = atoi(strndup(node->attributes[j].value, 256));
-        } else if (strncmp(node->attributes[j].name, "zip", 3) == 0) {
+        } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {
             rom->zip = strndup(node->attributes[j].value, 256);
-        } else if (strncmp(node->attributes[j].name, "md5", 3) == 0) {
+        } else if (strncmp(node->attributes[j].name, "md5", 4) == 0) {
             rom->md5 = strndup(node->attributes[j].value, 256);
-        } else if (strncmp(node->attributes[j].name, "type", 4) == 0) {
+        } else if (strncmp(node->attributes[j].name, "type", 5) == 0) {
             rom->type = strndup(node->attributes[j].value, 256);
         }
     }
