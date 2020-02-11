@@ -51,6 +51,16 @@ void sprintf_md5(char *dest, unsigned char *md5) {
              md5[8], md5[9], md5[10], md5[11], md5[12], md5[13], md5[14], md5[15]);
 }
 
+char *str_toupper(char *src) {
+    char *dest = strndup(src, 256);
+    char *p = dest;
+    while(*p) {
+        char c = *p;
+        *p++ = toupper(c);
+    }
+    return dest;
+}
+
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length) {
     char *ptr = hexstr;
     char c;

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "utils.h"
 #include "arc.h"
 
 #define MAX_LINE_LENGTH 256
@@ -31,7 +32,7 @@ int write_arc(t_mra *mra, char *filename) {
     n = snprintf(buffer, MAX_LINE_LENGTH, "[ARC]\n");
     fwrite(buffer, 1, n, out);
     if (mra->rbf) {
-        n = snprintf(buffer, MAX_LINE_LENGTH, "RBF=\"%s\"\n", mra->rbf);
+        n = snprintf(buffer, MAX_LINE_LENGTH, "RBF=\"%s\"\n", str_toupper(mra->rbf));
         fwrite(buffer, 1, n, out);
         if (mod != -1) {
             n = snprintf(buffer, MAX_LINE_LENGTH, "MOD=\"%d\"\n", mod);

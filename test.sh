@@ -28,9 +28,9 @@ echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/*.rom
 
-if [[ `git status --porcelain | grep .rom` ]]; then
+if [[ `git status --porcelain | grep -E '\.rom|\.arc'` ]]; then
   # Changes
-  echo "ROM files changed:"
-  git status --porcelain | grep .rom
+  echo "Output files with errors:"
+  git status --porcelain | grep -E '\.rom|\.arc'
   exit 1
 fi

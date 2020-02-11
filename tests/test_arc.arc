@@ -1,5 +1,5 @@
 [ARC]
-RBF="test_arc"
+RBF="TEST_ARC"
 MOD="10"
 CONF="OF,Cabinet,Cocktail,Upright"
 CONF="OGH,Coinage,2c/1cr,1c/1cr,1c/2cr,Free Play"

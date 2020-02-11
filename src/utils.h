@@ -2,6 +2,7 @@
 #define _UTILS_H_
 
 #include <stdlib.h>
+#include <ctype.h>
 
 typedef struct s_string_list {
   char **elements;
@@ -12,6 +13,8 @@ typedef struct s_string_list {
 // strndup() is not available on Windows
 char *strndup( const char *s1, size_t n);
 #endif
+
+char *str_toupper(char *src);
 
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length);
 void sprintf_md5(char *dest, unsigned char *md5);
