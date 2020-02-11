@@ -106,13 +106,13 @@ void read_rom(XMLNode *node, t_rom *rom) {
     memset(rom, 0, sizeof(t_rom));
 
     for (j = 0; j < node->n_attributes; j++) {
-        if (strncmp(node->attributes[j].name, "index", 4) == 0) {
+        if (strncmp(node->attributes[j].name, "index", 6) == 0) {
             rom->index = atoi(strndup(node->attributes[j].value, 256));
-        } else if (strncmp(node->attributes[j].name, "zip", 3) == 0) {
+        } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {
             rom->zip = strndup(node->attributes[j].value, 256);
-        } else if (strncmp(node->attributes[j].name, "md5", 3) == 0) {
+        } else if (strncmp(node->attributes[j].name, "md5", 4) == 0) {
             rom->md5 = strndup(node->attributes[j].value, 256);
-        } else if (strncmp(node->attributes[j].name, "type", 4) == 0) {
+        } else if (strncmp(node->attributes[j].name, "type", 5) == 0) {
             rom->type = strndup(node->attributes[j].value, 256);
         }
     }
@@ -131,6 +131,19 @@ int read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
     } else {
         for (i = 0; i < node->n_children; i++) {
             read_roms(node->children[i], roms, n_roms);
+        }
+    }
+}
+
+void read_rbf(XMLNode *node, t_rbf *rbf) {
+    int i;
+
+    memset(rbf, 0, sizeof(t_rbf));
+    rbf->mod = -1;
+    rbf->name = strndup(node->text, 1024);
+    for (i = 0; i < node->n_attributes; i++) {
+        if (strncmp(node->attributes[i].name, "mod", 4) == 0) {
+            rbf->mod = atoi(strndup(node->attributes[0].value, 256));
         }
     }
 }
@@ -154,9 +167,15 @@ int read_root(XMLNode *root, t_mra *mra) {
         } else if (strncmp(node->tag, "manufacturer", 13) == 0) {
             mra->manufacturer = strndup(node->text, 1024);
         } else if (strncmp(node->tag, "rbf", 4) == 0) {
-            mra->rbf = strndup(node->text, 1024);
+            read_rbf(node, &mra->rbf);
+        } else if (strncmp(node->tag, "configuration", 14) == 0) {
+            printf("%s:%d: TODO: parse configuration\n", __FILE__, __LINE__);
+        } else if (strncmp(node->tag, "category", 9) == 0) {
+            if (!mra->categories) {
+                mra->categories = string_list_new(NULL);
+            }
+            string_list_add(mra->categories, node->text);
         }
-        // TODO: parse categories and n_categories
     }
 }
 
@@ -211,15 +230,18 @@ void dump_part(t_part *part) {
 int mra_dump(t_mra *mra) {
     int i;
 
-    printf("name: %s\n", mra->name);
-    printf("mratimestamp: %s\n", mra->mratimestamp);
-    printf("mameversion: %s\n", mra->mameversion);
-    printf("setname: %s\n", mra->setname);
-    printf("year: %s\n", mra->year);
-    printf("manufacturer: %s\n", mra->manufacturer);
-    printf("rbf: %s\n", mra->rbf);
-    for (i = 0; i < mra->n_categories; i++) {
-        printf("category[%d]: %s\n", i, mra->name);
+    if (mra->name) printf("name: %s\n", mra->name);
+    if (mra->mratimestamp) printf("mratimestamp: %s\n", mra->mratimestamp);
+    if (mra->mameversion) printf("mameversion: %s\n", mra->mameversion);
+    if (mra->setname) printf("setname: %s\n", mra->setname);
+    if (mra->year) printf("year: %s\n", mra->year);
+    if (mra->manufacturer) printf("manufacturer: %s\n", mra->manufacturer);
+    if (mra->rbf.name) printf("rbf name: %s\n", mra->rbf.name);
+    if (mra->rbf.mod >= 0) printf("rbf mod: %d\n", mra->rbf.mod);
+    if (mra->categories) {
+        for (i = 0; i < mra->categories->n_elements; i++) {
+            printf("category[%d]: %s\n", i, mra->categories->elements[i]);
+        }
     }
 
     printf("nb roms: %d\n", mra->n_roms);

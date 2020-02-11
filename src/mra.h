@@ -2,6 +2,7 @@
 #define _MRA_H_
 
 #include <stdint.h>
+#include "utils.h"
 #include "globals.h"
 #include "sxmlc.h"
 
@@ -41,6 +42,12 @@ typedef struct s_rom {
     int n_parts;
 } t_rom;
 
+typedef struct s_rbf
+{
+    char *name;
+    int mod;
+}t_rbf;
+
 typedef struct s_mra {
     XMLDoc _xml_doc;
 
@@ -50,9 +57,8 @@ typedef struct s_mra {
     char *setname;
     char *year;
     char *manufacturer;
-    char **categories;
-    int n_categories;
-    char *rbf;
+    t_string_list *categories;
+    t_rbf rbf;
 
     t_rom *roms;
     int n_roms;
