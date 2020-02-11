@@ -43,12 +43,12 @@ typedef struct s_rom {
     int n_parts;
 } t_rom;
 
-typedef struct s_configuration
+typedef struct s_dip_switch
 {
     char *bits;
     char *name;
     char *ids;
-} t_configuration;
+} t_dip_switch;
 
 typedef struct s_mra {
     XMLDoc _xml_doc;
@@ -63,8 +63,8 @@ typedef struct s_mra {
 
     t_string_list categories;
     
-    t_configuration *configurations;
-    int n_configurations;
+    t_dip_switch *switches;
+    int n_switches;
     
     t_rom *roms;
     int n_roms;

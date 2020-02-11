@@ -92,17 +92,13 @@ void main(int argc, char **argv) {
         printf("error: file not found (%s)\n", mra_filename);
         exit(-1);
     }
-    
+
     if (trace > 0)
         printf("mra: %s\n", mra_filename);
 
     rom_filename = strndup(mra_filename, 1024);
     rom_filename[strnlen(rom_filename, 1024) - 4] = 0;
     strncat(rom_filename, ".rom", 5);
-
-    arc_filename = strndup(mra_filename, 1024);
-    arc_filename[strnlen(rom_filename, 1024) - 4] = 0;
-    strncat(arc_filename, ".arc", 5);
 
     char *mra_path = get_path(mra_filename);
     if (*mra_path)
@@ -121,8 +117,20 @@ void main(int argc, char **argv) {
         }
     }
 
-    mra_load(mra_filename, &mra);
+    if (mra_load(mra_filename, &mra)) {
+        exit(-1);
+    }
     if (trace > 0) printf("MRA loaded...\n");
+
+    if (mra.name) {
+        int n = strnlen(mra_path, 1024) + strnlen(mra.name, 1024) + 7;  // leave some room for the extension and "/"
+        arc_filename = (char *)malloc(sizeof(char) * n);
+        snprintf(arc_filename, n, "%s/%s.arc", *mra_path ? mra_path : ".", mra.name);        
+    } else {
+        arc_filename = strndup(mra_filename, 1024);
+        arc_filename[strnlen(mra_filename, 1024) - 4] = 0;
+        strncat(arc_filename, ".arc", 5);
+    }
 
     if (dump_mra) {
         if (trace > 0) printf("dumping MRA content...\n");
@@ -131,7 +139,7 @@ void main(int argc, char **argv) {
         if (create_arc) {
             if (trace > 0) printf("create_arc set...\n");
             if (verbose) {
-                printf("Creating ARC file!\n");
+                printf("Creating ARC file %s\n", arc_filename);
             }
             res = write_arc(&mra, arc_filename);
             if (res != 0) {
