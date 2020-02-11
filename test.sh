@@ -22,7 +22,7 @@ echo
 echo "Test groups...(expected: 1 error)"
 ./mra tests/test_groups.mra
 echo
-echo "Test ARC file...(expected: no warnings)"
+echo "Test ARC file...(expected: 1 error)"
 ./mra tests/test_arc.mra -A
 echo
 echo "Result files (visualize with hexdump -Cv)..."
