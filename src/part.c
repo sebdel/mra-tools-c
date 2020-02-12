@@ -14,6 +14,10 @@ int n_files = 0;
 int get_file_by_crc(t_file *files, int n_files, uint32_t crc) {
     int i;
 
+    if (trace > 0) {
+        printf("looking for crc: %08x\n", crc);
+    }
+
     for (i = 0; i < n_files; i++) {
         if (files[i].crc32 == crc) {
             if (trace > 0) {

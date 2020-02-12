@@ -25,6 +25,9 @@ echo
 echo "Test ARC file...(expected: 1 error)"
 ./mra tests/test_arc.mra -A
 echo
+echo "Test Selection by CRC...(expected: no warnings)"
+./mra tests/test_select_by_crc.mra
+echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/*.rom
 
