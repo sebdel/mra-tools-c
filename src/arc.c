@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "arc.h"
+#include "globals.h"
 #include "utils.h"
 
 #define MAX_LINE_LENGTH 256
@@ -54,21 +55,30 @@ int write_arc(t_mra *mra, char *filename) {
     }
 
     n = snprintf(buffer, MAX_LINE_LENGTH, "[ARC]\n");
+    if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
     fwrite(buffer, 1, n, out);
     if (mra->rbf) {
         n = snprintf(buffer, MAX_LINE_LENGTH, "RBF=%s\n", str_toupper(mra->rbf));
+        if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
         fwrite(buffer, 1, n, out);
         if (mod != -1) {
             n = snprintf(buffer, MAX_LINE_LENGTH, "MOD=%d\n", mod);
+            if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
             fwrite(buffer, 1, n, out);
         }
     }
+    char *arc_name = str_toupper(strndup(mra->name ? mra->name : mra_basename, 8));
+    n = snprintf(buffer, MAX_LINE_LENGTH, "NAME=%s\n", arc_name);
+    if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
+    fwrite(buffer, 1, n, out);
+
     for (i = 0; i < mra->n_switches; i++) {
         if (mra->switches[i].ids) {
             n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(mra->switches + i), mra->switches[i].name, mra->switches[i].ids);
         } else {
             n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(mra->switches + i), mra->switches[i].name);
         }
+        if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
         fwrite(buffer, 1, n, out);
     }
     fclose(out);
