@@ -19,7 +19,7 @@ int read_part(XMLNode *node, t_part *part) {
 
     for (j = 0; j < node->n_attributes; j++) {
         if (strncmp(node->attributes[j].name, "crc", 4) == 0) {
-            part->p.crc32 = strtoul(strndup(node->attributes[j].value, 256), (char **)0, 0);
+            part->p.crc32 = strtoul(strndup(node->attributes[j].value, 256), (char **)0, 16);
         } else if (strncmp(node->attributes[j].name, "name", 5) == 0) {
             part->p.name = strndup(node->attributes[j].value, 256);
         } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {

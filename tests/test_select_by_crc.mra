@@ -1,0 +1,22 @@
+<misterromdescription>
+	<name>Test Selection by CRC</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_offset_length</rbf>
+	<rom index="0" zip="tests.zip" md5="23d0dc4b8d5c77b970e39f80576cecb4" type="merged|nonmerged">
+		<part name="s16.dat" offset="1" length="8"/>
+		<part crc="52a028b7" name="blah.dat" length="8"/>
+		<part crc="4bfc8ad0" />
+		<part crc="aaaaaaaa" name="03.dat" offset="14"/>
+		<part name="s16.dat" repeat="1"/>
+	</rom>
+</misterromdescription>
+<!-- 
+      16  Defl:N        5  69% 2020-01-23 09:44 52a028b7  01.dat
+      16  Defl:N        5  69% 2020-01-23 09:44 4bfc8ad0  02.dat
+      16  Defl:N        5  69% 2020-01-23 09:44 f5e7e932  03.dat
+      16  Stored       16   0% 2020-01-23 09:44 cecee288  s16.dat
+-->

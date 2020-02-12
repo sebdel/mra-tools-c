@@ -19,7 +19,7 @@ int verbose = 0;
 char *mra_basename = NULL;
 
 void print_usage() {
-    printf("Usage: mra [-vlz] <my_file.mra>\n");
+    printf("Usage: mra [-vlzA] <my_file.mra>\n");
     printf("\n");
     printf("\t-h\tHelp.\n");
     printf("\t-v\tVersion. Only when it is the only parameter, otherwise set Verbose on (default: off).\n");
