@@ -4,4 +4,6 @@
 extern int trace;
 extern int verbose;
 
+extern char *mra_basename;
+
 #endif

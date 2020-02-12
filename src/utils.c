@@ -26,7 +26,7 @@ char *strndup(const char *s1, size_t n) {
 
 char *get_path(char *filename) {
     char *path = strndup(filename, 1024);
-    char *last_slash = path;
+    char *last_slash = NULL;
     char *p = path;
     char c;
 
@@ -35,9 +35,45 @@ char *get_path(char *filename) {
             last_slash = p;
         p++;
     }
-    *last_slash = '\0';
-
+    // Return '.' if no '/' was found in filename
+    if (last_slash) {
+        *last_slash = '\0';
+    } else {
+        strncpy(path, ".", 2);
+    }
     return path;
+}
+
+char *get_basename(char *filename, int strip_extension) {
+    char *basename = strndup(filename, 1024);
+    char *p = basename;
+    char *last_dot = NULL;
+    char *last_slash = NULL;
+    char c;
+    int i = 0;
+
+    while ((c = *p) && (i++ < 1024)) {
+        if (c == '.') last_dot = p;
+        if (c == '/') last_slash = p;
+        p++;
+    }
+    if (strip_extension && last_dot) *last_dot = '\0';
+    return last_slash ? last_slash + 1 : basename;
+}
+
+char *get_filename(char *path, char *basename, char *extension) {
+    char *filename;
+    int n = strnlen(path, 1024) + 1 + strnlen(basename, 1024) + 1;
+    if (extension) {
+        n += strnlen(extension, 1024) + 1;
+    }
+    filename = (char *)malloc(sizeof(char) * n);
+    if (extension)
+        snprintf(filename, n, "%s/%s.%s", path, basename, extension);
+    else {
+        snprintf(filename, n, "%s/%s", path, basename);
+    }
+    return filename;
 }
 
 int file_exists(char *filename) {
@@ -54,7 +90,7 @@ void sprintf_md5(char *dest, unsigned char *md5) {
 char *str_toupper(char *src) {
     char *dest = strndup(src, 256);
     char *p = dest;
-    while(*p) {
+    while (*p) {
         char c = *p;
         *p++ = toupper(c);
     }
