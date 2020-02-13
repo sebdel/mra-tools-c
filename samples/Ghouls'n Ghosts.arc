@@ -1,6 +1,6 @@
 [ARC]
 RBF=JTCPS1
-NAME=GHOULS'N
+NAME=GHOULS_N
 CONF="T1,Soft Reset"
 CONF="OF,Cabinet,Cocktail,Upright"
 CONF="OGH,Coinage,2c/1cr,1c/1cr,1c/2cr,Free Play"

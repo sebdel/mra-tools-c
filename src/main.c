@@ -16,7 +16,7 @@ extern char *sha1;
 
 int trace = 0;
 int verbose = 0;
-char *mra_basename = NULL;
+char *rom_basename = NULL;
 
 void print_usage() {
     printf("Usage: mra [-vlzA] <my_file.mra>\n");
@@ -36,6 +36,7 @@ void main(int argc, char **argv) {
     t_mra mra;
     char *rom_filename;
     char *mra_filename;
+    char *mra_basename;
     char *arc_filename;
     char *mra_path;
     t_string_list *dirs = string_list_new(NULL);
@@ -98,11 +99,17 @@ void main(int argc, char **argv) {
     if (trace > 0)
         printf("mra: %s\n", mra_filename);
 
-    mra_path = get_path(mra_filename);
+    mra_path = get_path(mra_filename);  
     string_list_add(dirs, mra_path);
-    mra_basename = get_basename(mra_filename, 1);
-    rom_filename = get_filename(mra_path, mra_basename, "rom");
 
+    if (mra_load(mra_filename, &mra)) {
+        exit(-1);
+    }
+
+    mra_basename = get_basename(mra_filename, 1);
+    rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename);
+    rom_filename = get_filename(mra_path, rom_basename, "ROM");
+    
     if (verbose) {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);
         if (dirs->n_elements) {
@@ -115,9 +122,6 @@ void main(int argc, char **argv) {
         }
     }
 
-    if (mra_load(mra_filename, &mra)) {
-        exit(-1);
-    }
     if (trace > 0) printf("MRA loaded...\n");
 
     if (dump_mra) {

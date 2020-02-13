@@ -4,6 +4,6 @@
 extern int trace;
 extern int verbose;
 
-extern char *mra_basename;
+extern char *rom_basename;
 
 #endif

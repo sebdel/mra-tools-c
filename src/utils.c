@@ -24,6 +24,23 @@ char *strndup(const char *s1, size_t n) {
 };
 #endif
 
+char *dos_clean_basename(char *filename) {
+    char bad_chars[] = " !@%^*~<>|:?'\"";
+    char *clean_name;
+    int i;
+
+    clean_name = str_toupper(strndup(filename, 8));
+
+    for (i = 0; i < strlen(bad_chars); i++) {
+        char *p;
+        if (p = strchr(clean_name, bad_chars[i])) {
+            *p = '_';
+            break;
+        }
+    }
+    return clean_name;
+}
+
 char *get_path(char *filename) {
     char *path = strndup(filename, 1024);
     char *last_slash = NULL;
@@ -64,6 +81,7 @@ char *get_basename(char *filename, int strip_extension) {
 char *get_filename(char *path, char *basename, char *extension) {
     char *filename;
     int n = strnlen(path, 1024) + 1 + strnlen(basename, 1024) + 1;
+
     if (extension) {
         n += strnlen(extension, 1024) + 1;
     }
