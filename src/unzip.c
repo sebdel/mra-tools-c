@@ -26,10 +26,7 @@ int processFile(JZFile *zip, t_file *file) {
         printf("Couldn't allocate memory!");
         return -1;
     }
-    // look for index of filename in files->filenames
-    /*    int i, n;
-    for (i = 0, n = strlen(filename); i < files->n_files && strncmp(files->file_names[i], filename, n); i++)
-        ;*/
+
     if (trace > 0) {
         printf("%s, %d / %d bytes at offset %08X\n", filename,
                header.compressedSize, header.uncompressedSize, header.offset);

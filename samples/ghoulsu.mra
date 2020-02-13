@@ -1,0 +1,52 @@
+<misterromdescription>
+    <name>Ghouls'n Ghosts (USA)</name>
+    <setname>ghoulsu</setname>
+    <year>1988</year>
+    <manufacturer>Capcom</manufacturer>
+    <rbf>jtcps1</rbf>
+    <rom index="0" zip="ghouls.zip|ghoulsu.zip" md5="b3d6ca2a35aa8702e361ed06d23b77c4" type="merged|nonmerged">
+        <!-- maincpu -->
+        <group width="16">
+            <part name="dmu_30.10j" crc="cee8ceb5"/>
+            <part name="dmu_29.10h" crc="334d85b2"/>
+       </group>
+        <group width="16">
+            <part name="dmu_28.9j" crc="94aae205"/>
+            <part name="dmu_27.9h" crc="4a524140"/>
+       </group>
+        <part name="dm-17.7j" crc="3ea1b0f2" pattern ="10"/>
+        <!-- audiocpu -->
+        <part name="26.10a" crc="3692f6e5"/>
+        <!-- oki -->
+        <part repeat="262144">FF</part>
+        <!-- gfx -->
+        <group width="64">
+            <part name="dm-05.3a" crc="0ba9c0b0" pattern="01"/>
+            <part name="dm-07.3f" crc="5d760ab9" pattern="01"/>
+            <part name="dm-06.3c" crc="4ba90b59" pattern="01"/>
+            <part name="dm-08.3g" crc="4bdee9de" pattern="01"/>
+       </group>
+        <group width="64">
+            <part name="09.4a" crc="ae24bb19" />
+            <part name="18.7a" crc="d34e271a" />
+            <part name="13.4e" crc="3f70dd37" />
+            <part name="22.7e" crc="7e69e2e6" />
+            <part name="11.4c" crc="37c9b6c6" />
+            <part name="20.7c" crc="2f1345b4" />
+            <part name="15.4g" crc="3c2a212a" />
+            <part name="24.7g" crc="889aac05" />
+       </group>
+        <group width="64">
+            <part name="10.4b" crc="bcc0f28c" />
+            <part name="19.7b" crc="2a40166a" />
+            <part name="14.4f" crc="20f85c03" />
+            <part name="23.7f" crc="8426144b" />
+            <part name="12.4d" crc="da088d61" />
+            <part name="21.7d" crc="17e11df0" />
+            <part name="16.4h" crc="f187ba1c" />
+            <part name="25.7h" crc="29f79c78" />
+       </group>
+       <!-- CPS-B config for ghoulsu -->
+       <part> 30 08 04 02 30 2E 2C 2A 28 26 FF FF FF FF 00 FF </part>
+    </rom>
+</misterromdescription>

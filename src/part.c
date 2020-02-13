@@ -65,12 +65,12 @@ int write_to_rom(FILE *out, MD5_CTX *md5_ctx, uint8_t *data, size_t data_length,
             } else {
                 int n_writes = part->p.repeat ? part->p.repeat : 1;
                 size_t length = (part->p.length && (part->p.length < (data_length - part->p.offset))) ? part->p.length : (data_length - part->p.offset);
+                if (verbose) {
+                    printf("writing %lu bytes @ %08lX\n", length * n_writes, global_offset);
+                }
                 for (i = 0; i < n_writes; i++) {
                     fwrite(data + part->p.offset, 1, length, out);
                     MD5_Update(md5_ctx, data + part->p.offset, length);
-                    if (verbose) {
-                        printf("writing %lu bytes @ %08lX\n", length, global_offset);
-                    }
                     global_offset += length;
                 }
             }
@@ -89,16 +89,26 @@ int get_data(t_part *part, uint8_t **data, size_t *size) {
     }
 
     n = -1;
-    if (part->p.crc32)  // First, try to identify file by crc
-    {
-        n = get_file_by_crc(files, n_files, part->p.crc32);
-    }
-    if (n == -1 && part->p.name)  // then by name
-    {
-        n = get_file_by_name(files, n_files, part->p.name);
+    if (part->p.name || part->p.crc32) {
+        if (part->p.crc32) {  // First, try to identify file by crc
+            n = get_file_by_crc(files, n_files, part->p.crc32);
+            if (n >= 0) {
+                if (verbose) {
+                    printf("part selected by CRC (%08X)\n", part->p.crc32);
+                }
+            }
+        }
+        if (n == -1 && part->p.name) {  // then by name
+            n = get_file_by_name(files, n_files, part->p.name);
+            if (n >= 0) {
+                if (verbose) {
+                    printf("part selected by name (%s)\n", part->p.name);
+                }
+            }
+        }
     }
     if (n == -1 && !part->p.data) {  // no file, no data => part not found
-        printf("part not found in zip: %s\n", part->p.name);
+        printf("part not found in zip: %s (%08x)\n", part->p.name, part->p.crc32);
         return -1;
     }
     if (n != -1 && trace > 0) {
@@ -265,24 +275,29 @@ int write_rom(t_mra *mra, t_string_list *dirs, char *rom_filename) {
     }
     rom = mra->roms + rom_index;
 
-    // Look for zip file (first in user defined dir, then in current dir)
-    zip_filename = get_zip_filename(rom->zip.elements[0], dirs);
-    if (!zip_filename) {
-        printf("zip file not found: %s\n", rom->zip.elements[0]);
-        return -1;
-    }
-    if (verbose) {
-        printf("Reading zip file: %s\n", zip_filename);
+    // Load all zip files
+    for (i = 0; i < rom->zip.n_elements; i++) {
+        char *zip_filename;
+
+        // Look for zip file (first in user defined dir, then in current dir)
+        zip_filename = get_zip_filename(rom->zip.elements[i], dirs);
+        if (!zip_filename) {
+            printf("warning: zip file not found: %s\n", rom->zip.elements[i]);
+        }
+        if (verbose) {
+            printf("Uncompressing zip file: %s\n", zip_filename);
+        }
+        res = unzip_file(zip_filename, &files, &n_files);
+        if (res != 0) {
+            printf("warning: failed to unzip file: %s\n", zip_filename);
+        }
     }
 
-    res = unzip_file(zip_filename, &files, &n_files);
-    if (res != 0) {
-        printf("\nFailed to unzip file: %s\n", zip_filename);
-        return -1;
-    }
-    if (trace > 0) {
+    if (verbose) {
+        printf("FILE\t\tSIZE\tCRC\n");
+        printf("----\t\t----\t---\n");
         for (i = 0; i < n_files; i++) {
-            printf("%s\t%d\t%X\n", files[i].name, files[i].size, files[i].crc32);
+            printf("%s\t\t%d\t%X\n", files[i].name, files[i].size, files[i].crc32);
         }
     }
 
