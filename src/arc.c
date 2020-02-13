@@ -11,12 +11,13 @@
 char *format_bits(t_dip_switch *dip) {
     char buffer[256] = "O";
     int n = 1;
-    char *token;
+    char *token = dip->bits;
 
     // Parse bits first
-    while (token = strtok(n == 1 ? dip->bits : NULL, ",")) {
+    while (token = strtok(token, ",")) {
         char c = atoi(token);
         buffer[n++] = (c < 10) ? ('0' + c) : 'A' + c - 10;
+        token = NULL;
     }
     buffer[n] = '\0';
 

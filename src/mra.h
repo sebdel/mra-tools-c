@@ -35,10 +35,10 @@ typedef struct s_part {
 
 typedef struct s_rom {
     int index;
-    char *zip;
     char *md5;
     char *type;
 
+    t_string_list zip;
     t_part *parts;
     int n_parts;
 } t_rom;

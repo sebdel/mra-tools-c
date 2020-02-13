@@ -266,9 +266,9 @@ int write_rom(t_mra *mra, t_string_list *dirs, char *rom_filename) {
     rom = mra->roms + rom_index;
 
     // Look for zip file (first in user defined dir, then in current dir)
-    zip_filename = get_zip_filename(rom->zip, dirs);
+    zip_filename = get_zip_filename(rom->zip.elements[0], dirs);
     if (!zip_filename) {
-        printf("zip file not found: %s\n", rom->zip);
+        printf("zip file not found: %s\n", rom->zip.elements[0]);
         return -1;
     }
     if (verbose) {
