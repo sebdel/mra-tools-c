@@ -1,0 +1,36 @@
+<misterromdescription>
+	<name>Test Multiple zip per ROM</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_multi_zip</rbf>
+	<rom index="0" zip="tests.zip|tests2.zip|test3.zip" md5="23d0dc4b8d5c77b970e39f80576cecb4" type="merged|nonmerged">
+		<part crc="79802302" />
+		<part crc="52a028b7" />
+		<part crc="4bfc8ad0" />
+		<part crc="05dad9f5" />
+		<part crc="4bfc8ad0" />
+	</rom>
+</misterromdescription>
+<!-- 
+Archive:  tests/tests2.zip
+ Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
+--------  ------  ------- ---- ---------- ----- --------  ----
+      16  Defl:N        6  63% 2020-02-13 22:37 79802302  AB.ROM
+      16  Defl:N        6  63% 2020-02-13 22:37 d64f27ae  CD.ROM
+      16  Defl:N        6  63% 2020-02-13 22:38 05dad9f5  EF.ROM
+--------          -------  ---                            -------
+      48               18  63%                            3 files
+
+Archive:  tests/tests.zip
+ Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
+--------  ------  ------- ---- ---------- ----- --------  ----
+      16  Defl:N        5  69% 2020-01-23 09:44 52a028b7  01.dat
+      16  Defl:N        5  69% 2020-01-23 09:44 4bfc8ad0  02.dat
+      16  Defl:N        5  69% 2020-01-23 09:44 f5e7e932  03.dat
+      16  Stored       16   0% 2020-01-23 09:44 cecee288  s16.dat
+--------          -------  ---                            -------
+      64               31  52%                            4 files
+-->
