@@ -16,6 +16,7 @@ extern char *sha1;
 
 int trace = 0;
 int verbose = 0;
+char *rom_basename = NULL;
 
 void print_usage() {
     printf("Usage: mra [-vlzA] <my_file.mra>\n");
@@ -35,7 +36,9 @@ void main(int argc, char **argv) {
     t_mra mra;
     char *rom_filename;
     char *mra_filename;
+    char *mra_basename;
     char *arc_filename;
+    char *mra_path;
     t_string_list *dirs = string_list_new(NULL);
     int i, res;
     int dump_mra = 0;
@@ -96,15 +99,17 @@ void main(int argc, char **argv) {
     if (trace > 0)
         printf("mra: %s\n", mra_filename);
 
-    rom_filename = strndup(mra_filename, 1024);
-    rom_filename[strnlen(rom_filename, 1024) - 4] = 0;
-    strncat(rom_filename, ".rom", 5);
+    mra_path = get_path(mra_filename);  
+    string_list_add(dirs, mra_path);
 
-    char *mra_path = get_path(mra_filename);
-    if (*mra_path)
-        string_list_add(dirs, mra_path);
-    string_list_add(dirs, ".");
+    if (mra_load(mra_filename, &mra)) {
+        exit(-1);
+    }
 
+    mra_basename = get_basename(mra_filename, 1);
+    rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename);
+    rom_filename = get_filename(mra_path, rom_basename, "ROM");
+    
     if (verbose) {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);
         if (dirs->n_elements) {
@@ -117,20 +122,7 @@ void main(int argc, char **argv) {
         }
     }
 
-    if (mra_load(mra_filename, &mra)) {
-        exit(-1);
-    }
     if (trace > 0) printf("MRA loaded...\n");
-
-    if (mra.name) {
-        int n = strnlen(mra_path, 1024) + strnlen(mra.name, 1024) + 7;  // leave some room for the extension and "/"
-        arc_filename = (char *)malloc(sizeof(char) * n);
-        snprintf(arc_filename, n, "%s/%s.arc", *mra_path ? mra_path : ".", mra.name);        
-    } else {
-        arc_filename = strndup(mra_filename, 1024);
-        arc_filename[strnlen(mra_filename, 1024) - 4] = 0;
-        strncat(arc_filename, ".arc", 5);
-    }
 
     if (dump_mra) {
         if (trace > 0) printf("dumping MRA content...\n");
@@ -138,6 +130,7 @@ void main(int argc, char **argv) {
     } else {
         if (create_arc) {
             if (trace > 0) printf("create_arc set...\n");
+            arc_filename = get_filename(mra_path, mra.name ? mra.name : mra_basename, "arc");
             if (verbose) {
                 printf("Creating ARC file %s\n", arc_filename);
             }

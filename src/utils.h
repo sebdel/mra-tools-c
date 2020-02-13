@@ -19,7 +19,11 @@ char *str_toupper(char *src);
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length);
 void sprintf_md5(char *dest, unsigned char *md5);
 int file_exists(char *filename);
+
 char *get_path(char *filename);
+char *get_basename(char *filename, int strip_extension);
+char *get_filename(char *path, char *basename, char *extension);
+char *dos_clean_basename(char *filename);
 
 t_string_list *string_list_new(char *element);
 char *string_list_add(t_string_list *list, char *element);

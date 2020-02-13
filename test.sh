@@ -29,11 +29,11 @@ echo "Test Selection by CRC...(expected: no warnings)"
 ./mra tests/test_select_by_crc.mra
 echo
 echo "Result files (visualize with hexdump -Cv)..."
-ls -l tests/*.rom
+ls -l tests/*.ROM
 
-if [[ `git status --porcelain | grep -E '\.rom|\.arc'` ]]; then
+if [[ `git status --porcelain | grep -E '\.ROM|\.arc'` ]]; then
   # Changes
   echo "Output files with errors:"
-  git status --porcelain | grep -E '\.rom|\.arc'
+  git status --porcelain | grep -E '\.ROM|\.arc'
   exit 1
 fi

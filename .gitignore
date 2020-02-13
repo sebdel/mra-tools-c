@@ -53,6 +53,7 @@ dkms.conf
 
 # Don't accidently commit copyrighted files
 samples/*.rom
+samples/*.ROM
 roms/
 *.zip
 
