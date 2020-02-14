@@ -1,0 +1,45 @@
+<misterromdescription>
+	<name>Crater Raider</name>
+	<mameversion>0216</mameversion>
+	<mratimestamp>201912310000</mratimestamp>
+	<year>1984</year>
+	<manufacturer>Bally Midway</manufacturer>
+	<category>Action</category>
+	<rbf>mcr3scroll</rbf>
+	<setname>crater</setname>
+	<switches default="FF 00">
+		<dip bits="8"    name="Service" ids="Off,On"/>
+	</switches>
+	<buttons names="Fire,Shield,-,-,Start 2P,Start 1P,Coin" default="A,B,Select,Start,R"/>
+	<rom index="1">
+		<part>2</part>
+	</rom>
+	<rom index="0" zip="crater.zip" md5="3e955ef6ec3c456981e04117864fcc48" type="merged|nonmerged">
+		<part crc="ad31f127" name="crcpu.6d"/>
+		<part crc="3743c78f" name="crcpu.7d"/>
+		<part crc="c95f9088" name="crcpu.8d"/>
+		<part crc="a03c4b11" name="crcpu.9d"/>
+		<part crc="44ae4cbd" name="crcpu.10d"/>
+		<part repeat="0x4000">FF</part>
+		<part crc="fd666cb5" name="crsnd4.a7"/>
+		<part crc="90bf2c4c" name="crsnd1.a8"/>		
+		<part crc="3b8deef1" name="crsnd2.a9"/>
+		<part crc="05803453" name="crsnd3.a10"/>	
+		<part repeat="0x6000">00</part>
+		<interleave output="32">
+			<part crc="579a8e36" name="crvid.a4"  map="0001"/>
+			<part crc="2c2f5b29" name="crvid.a3"  map="0001"/>
+			<part crc="5bf954e0" name="crvid.a6"  map="0010"/>
+			<part crc="9bdec312" name="crvid.a5"  map="0010"/>
+			<part crc="4b913498" name="crvid.a8"  map="0100"/>
+			<part crc="9fa307d5" name="crvid.a7"  map="0100"/>
+			<part crc="7a22d6bc" name="crvid.a10" map="1000"/>
+			<part crc="811f152d" name="crvid.a9"  map="1000"/>
+		</interleave>
+		<part crc="9d73504a" name="crcpu.3a"/>
+		<part crc="42a47dff" name="crcpu.4a"/>
+		<part crc="2fe4a6e1" name="crcpu.5a"/>		
+		<part crc="d0659042" name="crcpu.6a"/>
+		<part crc="6fe53c8d" name="crcpu.10g"/>
+	</rom>
+</misterromdescription>

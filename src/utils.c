@@ -115,6 +115,13 @@ char *str_toupper(char *src) {
     return dest;
 }
 
+char *str_trimleft(char *src) {
+    char *p;
+    for (p = src; *p && isspace(*p); p++)
+        ;
+    return p;
+}
+
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length) {
     char *ptr = hexstr;
     char c;

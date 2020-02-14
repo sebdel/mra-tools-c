@@ -1,0 +1,36 @@
+<misterromdescription>
+  <name>Arkanoid</name>
+  <mameversion>0216</mameversion>
+  <mratimestamp>201911270000</mratimestamp>
+  <rbf>arkanoid</rbf>
+  <rom index='0' md5='b9fb0ef35479748397ddc187affa2fea' type='merged' zip='arkanoid.zip'>
+    <part name='arkatayt/ic81-v.3f'/>
+    <part name='arkatayt/ic82-w.5f'/>
+    <part name='a75-03.ic64'/>
+    <part name='a75-04.ic63'/>
+    <part name='a75-05.ic62'/>
+    <part name='a75-07.ic24'/>
+    <part name='a75-08.ic23'/>
+    <part name='a75-09.ic22'/>
+    <patch offset="0x33C2">49</patch>
+    <patch offset="0x33F4">49</patch>
+    <patch offset="0x3437">49</patch>
+    <patch offset="0x5042">	
+       00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+       00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+       00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+       00 00 00 00 00 00 00 00 00 00 FF 00 00 00 00 00
+       00 00 00 00 00
+    </patch>
+    <patch offset="0x7D9F">49</patch>
+    <patch offset="0xBDA5">ED</patch>
+    <patch offset="0xBFFF">92</patch>
+    <patch offset="0x9571">00</patch> <!-- unlimited lives /-->
+    <patch offset="0x094C">FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF</patch>
+	<!-- patch offset="0x14B1">00</patch /-->
+	<!-- patch offset="0x59DE">00</patch /-->
+	<patch offset="0x06FD">05</patch>
+	<patch offset="0x145D">00 00 00</patch>
+  </rom>
+  
+</misterromdescription>

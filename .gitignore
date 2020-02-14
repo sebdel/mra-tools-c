@@ -52,9 +52,9 @@ dkms.conf
 .vscode/
 
 # Don't accidently commit copyrighted files
+roms/
 samples/*.rom
 samples/*.ROM
-roms/
 samples/*.zip
 
 # Generated at build time

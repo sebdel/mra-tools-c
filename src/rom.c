@@ -4,7 +4,7 @@
 
 #include "globals.h"
 #include "md5.h"
-#include "part.h"
+#include "rom.h"
 #include "unzip.h"
 #include "utils.h"
 

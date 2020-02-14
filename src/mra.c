@@ -5,12 +5,6 @@
 #include "mra.h"
 #include "utils.h"
 
-char *strtrimleft(char *src) {
-    char *p;
-    for (p = src; *p && isspace(*p); p++)
-        ;
-    return p;
-}
 
 int read_part(XMLNode *node, t_part *part) {
     int j;
@@ -19,17 +13,21 @@ int read_part(XMLNode *node, t_part *part) {
 
     for (j = 0; j < node->n_attributes; j++) {
         if (strncmp(node->attributes[j].name, "crc", 4) == 0) {
-            part->p.crc32 = strtoul(strndup(node->attributes[j].value, 256), (char **)0, 16);
+            // CRC is read as hexa no matter what
+            part->p.crc32 = strtoul(strndup(node->attributes[j].value, 256), NULL, 16);
         } else if (strncmp(node->attributes[j].name, "name", 5) == 0) {
             part->p.name = strndup(node->attributes[j].value, 256);
         } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {
             part->p.zip = strndup(node->attributes[j].value, 256);
         } else if (strncmp(node->attributes[j].name, "repeat", 7) == 0) {
-            part->p.repeat = atoi(strndup(node->attributes[j].value, 256));
+            // repeat can be decimal or hexa with 0x prefix
+            part->p.repeat = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
         } else if (strncmp(node->attributes[j].name, "offset", 7) == 0) {
-            part->p.offset = atol(strndup(node->attributes[j].value, 256));
+            // offset can be decimal or hexa with 0x prefix
+            part->p.offset = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
         } else if (strncmp(node->attributes[j].name, "length", 7) == 0) {
-            part->p.length = atol(strndup(node->attributes[j].value, 256));
+            // length can be decimal or hexa with 0x prefix
+            part->p.length = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
         } else if (strncmp(node->attributes[j].name, "pattern", 8) == 0) {
             part->p.pattern = strndup(node->attributes[j].value, 256);
         } else {
@@ -37,7 +35,7 @@ int read_part(XMLNode *node, t_part *part) {
         }
     }
     if (node->text != NULL) {
-        char *trimmed_text = strtrimleft(node->text);
+        char *trimmed_text = str_trimleft(node->text);
         if (*trimmed_text) {
             if (part->p.name) {
                 printf("warning: part %s has a name and data. Data dropped.\n", part->p.name);
@@ -71,7 +69,7 @@ t_part *read_group(XMLNode *node, t_part *part) {
         }
     }
     if (node->text != NULL) {
-        char *trimmed_text = strtrimleft(node->text);
+        char *trimmed_text = str_trimleft(node->text);
         if (*trimmed_text) {
             printf("warning: groups cannot have embedded data. (%s)\n", node->text);
         }
@@ -113,7 +111,7 @@ void read_rom(XMLNode *node, t_rom *rom) {
         } else if (strncmp(node->attributes[j].name, "md5", 4) == 0) {
             rom->md5 = strndup(node->attributes[j].value, 256);
         } else if (strncmp(node->attributes[j].name, "type", 5) == 0) {
-            rom->type = strndup(node->attributes[j].value, 256);
+            string_list_add(&rom->type, strndup(node->attributes[j].value, 256));
         }
     }
     for (i = 0; i < node->n_children; i++) {
@@ -231,13 +229,13 @@ void dump_part(t_part *part) {
         }
         printf("**** group end\n");
     } else {
-        if (part->p.crc32) printf("    crc32: %u\n", part->p.crc32);
+        if (part->p.crc32) printf("    crc32: %08x\n", part->p.crc32);
         if (part->p.name) printf("    name: %s\n", part->p.name);
         if (part->p.zip) printf("    zip: %s\n", part->p.zip);
         if (part->p.pattern) printf("    pattern: %s\n", part->p.pattern);
-        if (part->p.repeat) printf("    repeat: %d\n", part->p.repeat);
-        if (part->p.offset) printf("    offset: %ld\n", part->p.offset);
-        if (part->p.length) printf("    length: %ld\n", part->p.length);
+        if (part->p.repeat) printf("    repeat: %u (0x%04x)\n", part->p.repeat, part->p.repeat);
+        if (part->p.offset) printf("    offset: %u (0x%04x)\n", part->p.offset, part->p.offset);
+        if (part->p.length) printf("    length: %u (0x%04x)\n", part->p.length, part->p.length);
         if (part->p.data_length) printf("    data_length: %lu\n", part->p.data_length);
     }
 }
@@ -268,8 +266,9 @@ int mra_dump(t_mra *mra) {
         printf("rom[%d]:\n", i);
         printf("  index: %d\n", rom->index);
         if (rom->md5) printf("  md5: %s\n", rom->md5);
-        if (rom->type) printf("  type: %s\n", rom->type);
-
+        for (j = 0; j < rom->type.n_elements; j++) {
+            printf("  type[%d]: %s\n", j, rom->type.elements[j]);
+        }
         for (j = 0; j < rom->zip.n_elements; j++) {
             printf("  zip[%d]: %s\n", j, rom->zip.elements[j]);
         }
