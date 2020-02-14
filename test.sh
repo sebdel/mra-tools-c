@@ -28,6 +28,9 @@ echo
 echo "Test Selection by CRC...(expected: no warnings)"
 ./mra tests/test_select_by_crc.mra
 echo
+echo "Test Multi zips source...(expected: 1 warning)"
+./mra tests/test_multi_zips.mra
+echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/*.ROM
 

@@ -1,0 +1,2 @@
+[ARC]
+NAME=AMIDAR

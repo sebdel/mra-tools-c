@@ -1,0 +1,6 @@
+<misterromdescription>
+    <setname>ef</setname>
+	<rom index="0">
+		<part repeat="16">ef</part>
+	</rom>
+</misterromdescription>

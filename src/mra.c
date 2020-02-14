@@ -109,7 +109,7 @@ void read_rom(XMLNode *node, t_rom *rom) {
         if (strncmp(node->attributes[j].name, "index", 6) == 0) {
             rom->index = atoi(strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {
-            rom->zip = strndup(node->attributes[j].value, 256);
+            string_list_add(&rom->zip, strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "md5", 4) == 0) {
             rom->md5 = strndup(node->attributes[j].value, 256);
         } else if (strncmp(node->attributes[j].name, "type", 5) == 0) {
@@ -267,10 +267,12 @@ int mra_dump(t_mra *mra) {
 
         printf("rom[%d]:\n", i);
         printf("  index: %d\n", rom->index);
-        if (rom->zip) printf("  zip: %s\n", rom->zip);
         if (rom->md5) printf("  md5: %s\n", rom->md5);
         if (rom->type) printf("  type: %s\n", rom->type);
 
+        for (j = 0; j < rom->zip.n_elements; j++) {
+            printf("  zip[%d]: %s\n", j, rom->zip.elements[j]);
+        }
         for (j = 0; j < rom->n_parts; j++) {
             printf("  part[%d]:\n", j);
             dump_part(rom->parts + j);

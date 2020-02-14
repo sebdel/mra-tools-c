@@ -156,13 +156,20 @@ t_string_list *string_list_new(char *element) {
     if (element) {
         string_list_add(new_list, element);
     }
+
     return new_list;
 }
 
 char *string_list_add(t_string_list *list, char *element) {
-    list->n_elements++;
-    list->elements = (char **)realloc(list->elements, sizeof(char *) * list->n_elements);
-    list->elements[list->n_elements - 1] = strndup(element, 1024);
+    char *token = element;
+
+    while (token = strtok(token, "|")) {
+        list->n_elements++;
+        list->elements = (char **)realloc(list->elements, sizeof(char *) * list->n_elements);
+        list->elements[list->n_elements - 1] = strndup(token, 1024);
+
+        token = NULL;
+    }
 
     return list->elements[list->n_elements - 1];
 }

@@ -25,7 +25,8 @@ char *get_basename(char *filename, int strip_extension);
 char *get_filename(char *path, char *basename, char *extension);
 char *dos_clean_basename(char *filename);
 
-t_string_list *string_list_new(char *element);
+t_string_list *string_list_new(char *pipe_separated_list);
 char *string_list_add(t_string_list *list, char *element);
+char *string_list_to_string(t_string_list *list);
 
 #endif

@@ -14,7 +14,7 @@ all: clean $(TARGET)
 $(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS) $(LIBS)
 
-check:
+check:	all
 	./test.sh
 
 clean:
