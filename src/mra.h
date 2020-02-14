@@ -16,9 +16,9 @@ typedef struct s_part {
             char *name;
             char *zip;
             uint32_t crc32;
-            int repeat;
-            long offset;
-            long length;
+            uint32_t repeat;
+            uint32_t offset;
+            uint32_t length;
             unsigned char *pattern;
             unsigned char *data;
             size_t data_length;
@@ -36,8 +36,7 @@ typedef struct s_part {
 typedef struct s_rom {
     int index;
     char *md5;
-    char *type;
-
+    t_string_list type;
     t_string_list zip;
     t_part *parts;
     int n_parts;
