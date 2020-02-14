@@ -25,6 +25,7 @@ void print_usage() {
     printf("\t-v\tVersion. Only when it is the only parameter, otherwise set Verbose on (default: off).\n");
     printf("\t-l\tLists MRA content instead of creating the ROM file.\n");
     printf("\t-z dir\tSets directory to include zip files. This directory has priority over the current dir.\n");
+    printf("\t-O dir\tSets the output directory. By default, ROM and ARC files are creating in the current directory.\n");
     printf("\t-A\tCreate ARC file. This is done in addition to creating the ROM file.\n");
 }
 
@@ -39,6 +40,7 @@ void main(int argc, char **argv) {
     char *mra_basename;
     char *arc_filename;
     char *mra_path;
+    char *output_dir = ".";
     t_string_list *dirs = string_list_new(NULL);
     int i, res;
     int dump_mra = 0;
@@ -55,7 +57,7 @@ void main(int argc, char **argv) {
     // put ':' in the starting of the
     // string so that program can
     //distinguish between '?' and ':'
-    while ((opt = getopt(argc, argv, ":vlhAz:")) != -1) {
+    while ((opt = getopt(argc, argv, ":vlhO:Az:")) != -1) {
         switch (opt) {
             case 'v':
                 verbose = -1;
@@ -68,6 +70,11 @@ void main(int argc, char **argv) {
                 break;
             case 'z':
                 string_list_add(dirs, optarg);
+                break;
+            case 'O':
+
+            printf("dir set: %s\n", optarg);
+                output_dir = strndup(optarg, 1024);
                 break;
             case 'h':
                 print_usage();
@@ -108,7 +115,7 @@ void main(int argc, char **argv) {
 
     mra_basename = get_basename(mra_filename, 1);
     rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename);
-    rom_filename = get_filename(mra_path, rom_basename, "ROM");
+    rom_filename = get_filename(output_dir, rom_basename, "ROM");
     
     if (verbose) {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);
@@ -130,7 +137,7 @@ void main(int argc, char **argv) {
     } else {
         if (create_arc) {
             if (trace > 0) printf("create_arc set...\n");
-            arc_filename = get_filename(mra_path, mra.name ? mra.name : mra_basename, "arc");
+            arc_filename = get_filename(output_dir, mra.name ? mra.name : mra_basename, "arc");
             if (verbose) {
                 printf("Creating ARC file %s\n", arc_filename);
             }
