@@ -19,8 +19,8 @@ typedef struct s_part {
             uint32_t repeat;
             uint32_t offset;
             uint32_t length;
-            unsigned char *pattern;
-            unsigned char *data;
+            uint8_t *pattern;
+            uint8_t *data;
             size_t data_length;
         } p;
         struct s_g {
@@ -33,6 +33,13 @@ typedef struct s_part {
     };
 } t_part;
 
+typedef struct s_patch
+{
+    uint32_t offset;
+    uint8_t *data;
+    size_t data_length;
+} t_patch;
+
 typedef struct s_rom {
     int index;
     char *md5;
@@ -40,6 +47,8 @@ typedef struct s_rom {
     t_string_list zip;
     t_part *parts;
     int n_parts;
+    t_patch *patches;
+    int n_patches;
 } t_rom;
 
 typedef struct s_dip_switch
