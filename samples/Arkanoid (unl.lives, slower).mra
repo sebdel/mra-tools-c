@@ -3,9 +3,9 @@
   <mameversion>0216</mameversion>
   <mratimestamp>201911270000</mratimestamp>
   <rbf>arkanoid</rbf>
-  <rom index='0' md5='b9fb0ef35479748397ddc187affa2fea' type='merged' zip='arkanoid.zip'>
-    <part name='arkatayt/ic81-v.3f'/>
-    <part name='arkatayt/ic82-w.5f'/>
+  <rom index='0' md5='b9fb0ef35479748397ddc187affa2fea' type='merged' zip='arkanoid.zip|arkatayt.zip'>
+    <part name='ic81-v.3f'/>
+    <part name='ic82-w.5f'/>
     <part name='a75-03.ic64'/>
     <part name='a75-04.ic63'/>
     <part name='a75-05.ic62'/>

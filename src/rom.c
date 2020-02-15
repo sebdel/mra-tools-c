@@ -325,6 +325,14 @@ int write_rom(t_mra *mra, t_string_list *dirs, char *rom_filename) {
             write_part(out, &md5_ctx, part);
         }
     }
+
+    // Apply patches before we close the file
+    for(i = 0; i < rom->n_patches; i++) {
+        fseek(out, rom->patches[i].offset, SEEK_SET);
+        fwrite(rom->patches[i].data, 1, rom->patches[i].data_length, out);
+    }
+
+    // Done
     fclose(out);
     MD5_Final(md5, &md5_ctx);
     sprintf_md5(md5_string, md5);
