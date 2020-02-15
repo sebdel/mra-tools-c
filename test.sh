@@ -32,6 +32,9 @@ echo
 echo "Test Multi zips source...(expected: 1 warning)"
 ./mra tests/test_multi_zips.mra -O tests
 echo
+echo "Test Patch...(expected: no warnings)"
+./mra tests/test_patch.mra -O tests
+echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/*.ROM
 

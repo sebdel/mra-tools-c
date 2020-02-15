@@ -5,6 +5,25 @@
 #include "mra.h"
 #include "utils.h"
 
+int read_patch(XMLNode *node, t_patch *patch) {
+    int j;
+
+    memset(patch, 0, sizeof(t_patch));
+    for (j = 0; j < node->n_attributes; j++) {
+        if (strncmp(node->attributes[j].name, "offset", 7) == 0) {
+            // offset can be decimal or hexa with 0x prefix
+            patch->offset = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
+        }
+    }
+    if (node->text != NULL) {
+        char *trimmed_text = str_trimleft(node->text);
+        if (*trimmed_text) {
+            if (parse_hex_string(trimmed_text, &(patch->data), &(patch->data_length))) {
+                printf("warning: failed to decode patch data. Data dropped.\n");
+            }
+        }
+    }
+}
 
 int read_part(XMLNode *node, t_part *part) {
     int j;
@@ -115,7 +134,13 @@ void read_rom(XMLNode *node, t_rom *rom) {
         }
     }
     for (i = 0; i < node->n_children; i++) {
-        read_parts(node->children[i], &rom->parts, &rom->n_parts);
+        if (strncmp(node->children[i]->tag, "patch", 6) == 0) {
+            rom->n_patches++;
+            rom->patches = (t_patch *)realloc(rom->patches, sizeof(t_patch) * rom->n_patches);
+            read_patch(node->children[i], rom->patches + rom->n_patches - 1);
+        } else {
+            read_parts(node->children[i], &rom->parts, &rom->n_parts);
+        }
     }
 }
 
@@ -211,7 +236,7 @@ int mra_load(char *filename, t_mra *mra) {
 
     read_root(root, mra);
     read_roms(root, &mra->roms, &mra->n_roms);
-    
+
     return 0;
 }
 
@@ -266,15 +291,24 @@ int mra_dump(t_mra *mra) {
         printf("rom[%d]:\n", i);
         printf("  index: %d\n", rom->index);
         if (rom->md5) printf("  md5: %s\n", rom->md5);
+        printf("  ============\n");
         for (j = 0; j < rom->type.n_elements; j++) {
             printf("  type[%d]: %s\n", j, rom->type.elements[j]);
         }
+        printf("  ============\n");
         for (j = 0; j < rom->zip.n_elements; j++) {
             printf("  zip[%d]: %s\n", j, rom->zip.elements[j]);
         }
+        printf("  ============\n");
         for (j = 0; j < rom->n_parts; j++) {
             printf("  part[%d]:\n", j);
             dump_part(rom->parts + j);
+        }
+        printf("  ============\n");
+        for (j = 0; j < rom->n_patches; j++) {
+            printf("  patch[%d]:\n", j);
+            printf("    offset: %u (0x%08x)\n", rom->patches[j].offset, rom->patches[j].offset);
+            printf("    data_length: %lu (0x%08lx)\n", rom->patches[j].data_length, rom->patches[j].data_length);
         }
     }
 }
