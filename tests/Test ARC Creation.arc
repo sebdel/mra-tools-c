@@ -1,7 +1,7 @@
 [ARC]
 RBF=TEST_ARC
 MOD=10
-NAME=TEST_ARC
+NAME=test_arc
 CONF="T5,Soft Reset"
 CONF="(null),Error Test"
 CONF="OF,Cabinet,Cocktail,Upright"

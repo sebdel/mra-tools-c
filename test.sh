@@ -36,11 +36,11 @@ echo "Test Patch...(expected: no warnings)"
 ./mra tests/test_patch.mra -O tests
 echo
 echo "Result files (visualize with hexdump -Cv)..."
-ls -l tests/*.ROM
+ls -l tests/*.rom
 
-if [[ `git status --porcelain | grep -E '\.ROM|\.arc'` ]]; then
+if [[ `git status --porcelain | grep -E '\.rom|\.arc'` ]]; then
   # Changes
   echo "Output files with errors:"
-  git status --porcelain | grep -E '\.ROM|\.arc'
+  git status --porcelain | grep -E '\.rom|\.arc'
   exit 1
 fi

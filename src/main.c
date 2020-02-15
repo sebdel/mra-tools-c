@@ -112,8 +112,8 @@ void main(int argc, char **argv) {
     }
 
     mra_basename = get_basename(mra_filename, 1);
-    rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename);
-    rom_filename = get_filename(output_dir, rom_basename, "ROM");
+    rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
+    rom_filename = get_filename(output_dir, rom_basename, "rom");
     
     if (verbose) {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);

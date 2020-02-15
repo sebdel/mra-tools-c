@@ -24,12 +24,12 @@ char *strndup(const char *s1, size_t n) {
 };
 #endif
 
-char *dos_clean_basename(char *filename) {
+char *dos_clean_basename(char *filename, int uppercase) {
     char bad_chars[] = " !@%^*~<>|:?'\"";
     char *clean_name;
     int i;
 
-    clean_name = str_toupper(strndup(filename, 8));
+    clean_name = uppercase ? str_toupper(strndup(filename, 8)) : strndup(filename, 8);
 
     for (i = 0; i < strlen(bad_chars); i++) {
         char *p;
