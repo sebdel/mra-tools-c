@@ -1,0 +1,11 @@
+<misterromdescription>
+	<name>Test Patch</name>
+	<category>Tests</category>
+	<rbf>test_patch</rbf>
+	<rom index="0" md5="f09f35a5637839458e462e6350ecbce4">
+		<part repeat="0x80">00</part>
+		<patch offset="16">01 01 01 01</patch>
+		<patch offset="0x20">02 02 02 02</patch>
+		<patch offset="72">f8 f9 fa fb fc fd fe ff</patch>
+	</rom>
+</misterromdescription>

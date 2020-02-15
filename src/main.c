@@ -72,8 +72,6 @@ void main(int argc, char **argv) {
                 string_list_add(dirs, optarg);
                 break;
             case 'O':
-
-            printf("dir set: %s\n", optarg);
                 output_dir = strndup(optarg, 1024);
                 break;
             case 'h':
