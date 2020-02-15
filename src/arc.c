@@ -68,7 +68,7 @@ int write_arc(t_mra *mra, char *filename) {
             fwrite(buffer, 1, n, out);
         }
     }
-    n = snprintf(buffer, MAX_LINE_LENGTH, "NAME=%s\n", rom_basename);
+    n = snprintf(buffer, MAX_LINE_LENGTH, "NAME=%s\n", str_toupper(rom_basename));
     if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
     fwrite(buffer, 1, n, out);
 
