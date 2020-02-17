@@ -1,0 +1,29 @@
+<misterromdescription>
+	<name>Robotron 2084 (Yellow-Orange label)</name>
+	<mameversion>0218</mameversion>
+	<setname>robotronyo</setname>
+	<mratimestamp>20200211221230</mratimestamp>
+	<year>1982</year>
+	<manufacturer>Williams / Vid Kidz</manufacturer>
+	<category>Adventure / Apocalyptic</category>
+	<category>Maze</category>
+	<category>Space / Robots</category>
+	<rbf>robotron</rbf>
+	<rom index="0" zip="robotron.zip|robotronyo.zip" md5="ef207c88a141fd07563a01ab482328c2">
+		<part crc="4a9d5f52" name="robotron.yoa"/>
+		<part crc="2afc5e7f" name="robotron.yob"/>
+		<part crc="45da9202" name="robotron.yoc"/>
+		<part crc="66c7d3ef" name="robotron.sb1"/>
+		<part crc="5bc6c614" name="robotron.sb2"/>
+		<part crc="67a369bc" name="robotron.yo3"/>
+		<part crc="b0de677a" name="robotron.yo4"/>
+		<part crc="24726007" name="robotron.yo5"/>
+		<part crc="028181a6" name="robotron.yo6"/>
+		<part crc="4dfcceae" name="robotron.yo7"/>
+		<part crc="3a96e88c" name="robotron.sb8"/>
+		<part crc="b124367b" name="robotron.sb9"/>
+		<part crc="c56c1d28" name="robotron.snd"/>
+		<part crc="e6631c23" name="decoder.4"/>
+		<part crc="83faf25e" name="decoder.6"/>
+	</rom>
+</misterromdescription>

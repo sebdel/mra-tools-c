@@ -1,0 +1,29 @@
+<misterromdescription>
+	<name>Robotron 2084 (2015 'tie-die V2' hack)</name>
+	<mameversion>0218</mameversion>
+	<setname>robotrontd</setname>
+	<mratimestamp>20200211221230</mratimestamp>
+	<year>2015</year>
+	<manufacturer>hack</manufacturer>
+	<category>Adventure / Apocalyptic</category>
+	<category>Maze</category>
+	<category>Space / Robots</category>
+	<rbf>robotron</rbf>
+	<rom index="0" zip="robotron.zip|robotrontd.zip" md5="279f54616f09bc45ef2eee50b488dc50">
+		<part crc="952bea55" name="tiedie.sba"/>
+		<part crc="4c05fd3c" name="tiedie.sbb"/>
+		<part crc="645d543e" name="robotron.sbc"/>
+		<part crc="66c7d3ef" name="robotron.sb1"/>
+		<part crc="5bc6c614" name="robotron.sb2"/>
+		<part crc="e99a82be" name="robotron.sb3"/>
+		<part crc="e8238019" name="tiedie.sb4"/>
+		<part crc="827cb5c9" name="fixrobo.sb5"/>
+		<part crc="bd2c853d" name="robotron.sb6"/>
+		<part crc="3ecf4620" name="tiedie.sb7"/>
+		<part crc="752d7a46" name="tiedie.sb8"/>
+		<part crc="b124367b" name="robotron.sb9"/>
+		<part crc="c56c1d28" name="robotron.snd"/>
+		<part crc="e6631c23" name="decoder.4"/>
+		<part crc="83faf25e" name="decoder.6"/>
+	</rom>
+</misterromdescription>
