@@ -46,6 +46,12 @@ void main(int argc, char **argv) {
     int dump_mra = 0;
     int create_arc = 0;
 
+    if (trace > 0) {
+        for (i = 0; i < argc; i++) {
+            printf("argv[%d]: %s\n", i, argv[i]);
+        }
+    }
+
     // Parse command line
     // Looks bad but mkfs does it so why not me ?
     if (argc == 2 && !strcmp(argv[1], "-v")) {
