@@ -25,19 +25,24 @@ char *strndup(const char *s1, size_t n) {
 #endif
 
 char *dos_clean_basename(char *filename, int uppercase) {
-    char bad_chars[] = " !@%^*~<>|:?'\"";
-    char *clean_name;
+    char bad_chars[] = " ()[]{}.!@%^*~<>|:?'\"";
+    char *clean_name = (char *)malloc(8 + 1);
     int i;
 
-    clean_name = uppercase ? str_toupper(strndup(filename, 8)) : strndup(filename, 8);
+    memcpy(clean_name, filename, 5);                                    // str_left(filename, 5)
+    memcpy(clean_name + 5, filename + strnlen(filename, 1024) - 3, 3);  // str_right(filename, 3)
+    clean_name[8] = '\0';
+    if (uppercase)
+        clean_name = str_toupper(clean_name);
 
     for (i = 0; i < strlen(bad_chars); i++) {
         char *p;
         if (p = strchr(clean_name, bad_chars[i])) {
             *p = '_';
-            break;
         }
     }
+    printf("filename: %s, clean_name: %s\n", filename, clean_name);
+
     return clean_name;
 }
 
@@ -81,15 +86,24 @@ char *get_basename(char *filename, int strip_extension) {
 char *get_filename(char *path, char *basename, char *extension) {
     char *filename;
     int n = strnlen(path, 1024) + 1 + strnlen(basename, 1024) + 1;
+    char has_separator = path[strnlen(path, 1024) - 1] == '/';
 
     if (extension) {
         n += strnlen(extension, 1024) + 1;
     }
     filename = (char *)malloc(sizeof(char) * n);
-    if (extension)
-        snprintf(filename, n, "%s/%s.%s", path, basename, extension);
-    else {
-        snprintf(filename, n, "%s/%s", path, basename);
+    if (extension) {
+        if (has_separator) {
+            snprintf(filename, n, "%s%s.%s", path, basename, extension);
+        } else {
+            snprintf(filename, n, "%s/%s.%s", path, basename, extension);
+        }
+    } else {
+        if (has_separator) {
+            snprintf(filename, n, "%s%s", path, basename);
+        } else {
+            snprintf(filename, n, "%s/%s", path, basename);
+        }
     }
     return filename;
 }

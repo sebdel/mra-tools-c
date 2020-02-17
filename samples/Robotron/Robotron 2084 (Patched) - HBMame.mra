@@ -1,0 +1,29 @@
+<misterromdescription>
+	<name>Robotron 2084 (Patched) - HBMame</name>
+	<mameversion>0217</mameversion>
+	<setname>robotronp</setname>
+	<mratimestamp>20200211221230</mratimestamp>
+	<year>2014</year>
+	<manufacturer>Christian Gingras / Sean Riddle</manufacturer>
+	<category>Adventure / Apocalyptic</category>
+	<category>Maze</category>
+	<category>Space / Robots</category>
+	<rbf>robotron</rbf>
+	<rom index="0" zip="/hbmame/robotron.zip" md5="03de06b1750aa740984e65c25c1dcdcf">
+		<part crc="13797024" name="robotron.sba"/>
+		<part crc="e83a2eda" name="robotron201/robotronp.sbb"/>
+		<part crc="645d543e" name="robotron.sbc"/>
+		<part crc="66c7d3ef" name="robotron.sb1"/>
+		<part crc="5bc6c614" name="robotron.sb2"/>
+		<part crc="e99a82be" name="robotron.sb3"/>
+		<part crc="afb1c561" name="robotron.sb4"/>
+		<part crc="827cb5c9" name="robotron201/robotronp.5"/>
+		<part crc="bd2c853d" name="robotron.sb6"/>
+		<part crc="49ac400c" name="robotron.sb7"/>
+		<part crc="3a96e88c" name="robotron.sb8"/>
+		<part crc="b124367b" name="robotron.sb9"/>
+		<part crc="c56c1d28" name="robotron.snd"/>
+		<part crc="e6631c23" name="decoder.4"/>
+		<part crc="83faf25e" name="decoder.6"/>
+	</rom>
+</misterromdescription>

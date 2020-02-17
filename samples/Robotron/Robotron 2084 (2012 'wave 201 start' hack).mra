@@ -1,0 +1,29 @@
+<misterromdescription>
+	<name>Robotron 2084 (2012 'wave 201 start' hack)</name>
+	<mameversion>0218</mameversion>
+	<setname>robotron12</setname>
+	<mratimestamp>20200211221230</mratimestamp>
+	<year>2012</year>
+	<manufacturer>hack</manufacturer>
+	<category>Adventure / Apocalyptic</category>
+	<category>Maze</category>
+	<category>Space / Robots</category>
+	<rbf>robotron</rbf>
+	<rom index="0" zip="robotron.zip|robotron12.zip" md5="2b3134fd85bc0c10787e4b4c6122c6b8">
+		<part crc="13797024" name="robotron.sba"/>
+		<part crc="e83a2eda" name="fixrobo.sbb"/>
+		<part crc="645d543e" name="robotron.sbc"/>
+		<part crc="66c7d3ef" name="robotron.sb1"/>
+		<part crc="5bc6c614" name="robotron.sb2"/>
+		<part crc="85eb583e" name="wave201.sb3"/>
+		<part crc="afb1c561" name="robotron.sb4"/>
+		<part crc="827cb5c9" name="fixrobo.sb5"/>
+		<part crc="bd2c853d" name="robotron.sb6"/>
+		<part crc="49ac400c" name="robotron.sb7"/>
+		<part crc="3a96e88c" name="robotron.sb8"/>
+		<part crc="b124367b" name="robotron.sb9"/>
+		<part crc="c56c1d28" name="robotron.snd"/>
+		<part crc="e6631c23" name="decoder.4"/>
+		<part crc="83faf25e" name="decoder.6"/>
+	</rom>
+</misterromdescription>
