@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 rm -f tests/results/*
+mkdir -p tests/logs
+mkdir -p tests/tmp
 
 echo "Test Embedded data...(expected: 1 warning, no errors)"
 ./mra tests/test_embedded_data.mra -O tests/results
@@ -36,10 +38,11 @@ echo "Test Patch...(expected: no warnings)"
 ./mra tests/test_patch.mra -O tests/results
 echo
 echo "Test file names...(expected: no warnings)"
-mkdir -p _test_output_temp
-./mra_dir.sh samples/Robotron -AO _test_output_temp > _test_output_temp/log
-ls -1 _test_output_temp | grep -E '\.rom|\.arc' | LC_ALL=C sort > tests/results/filenames_test
-rm -rf _test_output_temp
+./mra_dir.sh samples/Robotron -AO tests/tmp > tests/logs/test_file_names.log
+ls -1 tests/tmp | grep -E '\.rom|\.arc' | LC_ALL=C sort > tests/results/filenames_test
+echo
+echo "Test command line args...(expected: no warnings)"
+./mra tests/test_arc.mra -Ava "custom name.mra" -o "custom name.rom" -O tests/results > tests/logs/test_command_line.log
 echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/results
@@ -50,5 +53,7 @@ if [[ `git status --porcelain` ]]; then
   git status --porcelain
   exit 1
 else
+  rm -rf tests/logs
+  rm -rf tests/tmp
   echo "All tests passed"  
 fi

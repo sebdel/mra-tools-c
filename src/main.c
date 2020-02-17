@@ -40,10 +40,9 @@ void main(int argc, char **argv) {
     t_mra mra;
     char *rom_filename = NULL;
     char *arc_filename = NULL;
+    char *output_dir = NULL;
     char *mra_filename;
     char *mra_basename;
-    char *mra_path;
-    char *output_dir = ".";
     t_string_list *dirs = string_list_new(NULL);
     int i, res;
     int dump_mra = 0;
@@ -119,19 +118,22 @@ void main(int argc, char **argv) {
     if (trace > 0)
         printf("mra: %s\n", mra_filename);
 
-    mra_path = get_path(mra_filename);
-    string_list_add(dirs, mra_path);
+    char *mra_path = get_path(mra_filename);
+    string_list_add(dirs, mra_path ? mra_path : ".");
 
     if (mra_load(mra_filename, &mra)) {
         exit(-1);
     }
 
     mra_basename = get_basename(mra_filename, 1);
-    if (!rom_filename) {
-        rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
-        rom_filename = get_filename(output_dir, rom_basename, "rom");
-    } else {
+    if (rom_filename) {
         rom_basename = get_basename(rom_filename, 1);
+        if (output_dir) {
+            rom_filename = get_filename(output_dir, rom_basename, "rom");
+        }
+    } else {
+        rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
+        rom_filename = get_filename(output_dir ? output_dir : ".", rom_basename, "rom");
     }
 
     if (verbose) {
@@ -154,9 +156,15 @@ void main(int argc, char **argv) {
     } else {
         if (create_arc) {
             if (trace > 0) printf("create_arc set...\n");
-            if (!arc_filename) {
-                arc_filename = get_filename(output_dir, mra.name ? mra.name : mra_basename, "arc");
+
+            if (arc_filename) {
+                if (output_dir) {
+                    arc_filename = get_filename(output_dir, get_basename(arc_filename, 1), "arc");
+                }
+            } else {
+                arc_filename = get_filename(output_dir ? output_dir : ".", mra.name ? mra.name : mra_basename, "arc");
             }
+
             if (verbose) {
                 printf("Creating ARC file %s\n", arc_filename);
             }
