@@ -19,14 +19,17 @@ int verbose = 0;
 char *rom_basename = NULL;
 
 void print_usage() {
-    printf("Usage: mra [-vlzA] <my_file.mra>\n");
-    printf("\n");
-    printf("\t-h\tHelp.\n");
-    printf("\t-v\tVersion. Only when it is the only parameter, otherwise set Verbose on (default: off).\n");
-    printf("\t-l\tLists MRA content instead of creating the ROM file.\n");
-    printf("\t-z dir\tSets directory to include zip files. This directory has priority over the current dir.\n");
-    printf("\t-O dir\tSets the output directory. By default, ROM and ARC files are creating in the current directory.\n");
-    printf("\t-A\tCreate ARC file. This is done in addition to creating the ROM file.\n");
+    printf("\nUsage:\n\tmra [-vlzoOaA] <my_file.mra>\n");
+    printf("\nConvert a MRA file to a ROM file for use on MiST arcade cores.\nOptionally creates the associated ARC file.\n");
+    printf("For more informations, visit http://www.atari-forum.com/viewforum.php?f=115\n\n");
+    printf("Options:\n\t-h\t\tthis help.\n");
+    printf("\t-v\t\twhen it is the only parameter, display version information and exit. Otherwise, set Verbose on (default: off).\n");
+    printf("\t-l\t\tlist MRA content instead of creating the ROM file.\n");
+    printf("\t-z directory\tadd directory to include zip files. Directories added with -z have priority over the current dir.\n");
+    printf("\t-o filename\tset the output ROM file name. Overrides the internal generation of the filename.\n");
+    printf("\t-O directory\tset the output directory. By default, ROM and ARC files are created in the current directory.\n");
+    printf("\t-a filename\tset the output ARC file name. Overrides the internal generation of the filename.\n");
+    printf("\t-A\t\tcreate ARC file. This is done in addition to creating the ROM file.\n");
 }
 
 void print_version() {
@@ -63,7 +66,7 @@ void main(int argc, char **argv) {
     // put ':' in the starting of the
     // string so that program can
     //distinguish between '?' and ':'
-    while ((opt = getopt(argc, argv, ":vlhO:Az:")) != -1) {
+    while ((opt = getopt(argc, argv, ":vlhr:a:O:Az:")) != -1) {
         switch (opt) {
             case 'v':
                 verbose = -1;
