@@ -41,7 +41,6 @@ char *dos_clean_basename(char *filename, int uppercase) {
             *p = '_';
         }
     }
-    printf("filename: %s, clean_name: %s\n", filename, clean_name);
 
     return clean_name;
 }

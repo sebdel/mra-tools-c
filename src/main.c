@@ -3,9 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "arc.h"
 #include "mra.h"
 #include "rom.h"
-#include "arc.h"
 #include "utils.h"
 
 // make vscode happy
@@ -38,10 +38,10 @@ void print_version() {
 
 void main(int argc, char **argv) {
     t_mra mra;
-    char *rom_filename;
+    char *rom_filename = NULL;
+    char *arc_filename = NULL;
     char *mra_filename;
     char *mra_basename;
-    char *arc_filename;
     char *mra_path;
     char *output_dir = ".";
     t_string_list *dirs = string_list_new(NULL);
@@ -66,7 +66,7 @@ void main(int argc, char **argv) {
     // put ':' in the starting of the
     // string so that program can
     //distinguish between '?' and ':'
-    while ((opt = getopt(argc, argv, ":vlhr:a:O:Az:")) != -1) {
+    while ((opt = getopt(argc, argv, ":vlhAo:a:O:z:")) != -1) {
         switch (opt) {
             case 'v':
                 verbose = -1;
@@ -83,10 +83,16 @@ void main(int argc, char **argv) {
             case 'O':
                 output_dir = strndup(optarg, 1024);
                 break;
+            case 'o':
+                rom_filename = strndup(optarg, 1024);
+                break;
+            case 'a':
+                arc_filename = strndup(optarg, 1024);
+                break;
+
             case 'h':
                 print_usage();
                 exit(0);
-
             case ':':
                 printf("option needs a value\n");
                 print_usage();
@@ -113,7 +119,7 @@ void main(int argc, char **argv) {
     if (trace > 0)
         printf("mra: %s\n", mra_filename);
 
-    mra_path = get_path(mra_filename);  
+    mra_path = get_path(mra_filename);
     string_list_add(dirs, mra_path);
 
     if (mra_load(mra_filename, &mra)) {
@@ -121,9 +127,13 @@ void main(int argc, char **argv) {
     }
 
     mra_basename = get_basename(mra_filename, 1);
-    rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
-    rom_filename = get_filename(output_dir, rom_basename, "rom");
-    
+    if (!rom_filename) {
+        rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
+        rom_filename = get_filename(output_dir, rom_basename, "rom");
+    } else {
+        rom_basename = get_basename(rom_filename, 1);
+    }
+
     if (verbose) {
         printf("Parsing %s to %s\n", mra_filename, rom_filename);
         if (dirs->n_elements) {
@@ -144,7 +154,9 @@ void main(int argc, char **argv) {
     } else {
         if (create_arc) {
             if (trace > 0) printf("create_arc set...\n");
-            arc_filename = get_filename(output_dir, mra.name ? mra.name : mra_basename, "arc");
+            if (!arc_filename) {
+                arc_filename = get_filename(output_dir, mra.name ? mra.name : mra_basename, "arc");
+            }
             if (verbose) {
                 printf("Creating ARC file %s\n", arc_filename);
             }
