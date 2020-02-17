@@ -57,6 +57,10 @@ samples/*.rom
 samples/*.ROM
 samples/*.zip
 
+# Temporary tests files
+tests/logs
+tests/tmp
+
 # Generated at build time
 src/sha1.c
 

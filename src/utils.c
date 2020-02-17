@@ -41,7 +41,6 @@ char *dos_clean_basename(char *filename, int uppercase) {
             *p = '_';
         }
     }
-    printf("filename: %s, clean_name: %s\n", filename, clean_name);
 
     return clean_name;
 }
@@ -57,13 +56,12 @@ char *get_path(char *filename) {
             last_slash = p;
         p++;
     }
-    // Return '.' if no '/' was found in filename
+
     if (last_slash) {
         *last_slash = '\0';
-    } else {
-        strncpy(path, ".", 2);
+        return path;
     }
-    return path;
+    return NULL;
 }
 
 char *get_basename(char *filename, int strip_extension) {
