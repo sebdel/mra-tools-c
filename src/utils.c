@@ -29,9 +29,14 @@ char *dos_clean_basename(char *filename, int uppercase) {
     char *clean_name = (char *)malloc(8 + 1);
     int i;
 
-    memcpy(clean_name, filename, 5);                                    // str_left(filename, 5)
-    memcpy(clean_name + 5, filename + strnlen(filename, 1024) - 3, 3);  // str_right(filename, 3)
-    clean_name[8] = '\0';
+    if(strnlen(filename, 1024) > 8) {
+        memcpy(clean_name, filename, 5);                                    // str_left(filename, 5)
+        memcpy(clean_name + 5, filename + strnlen(filename, 1024) - 3, 3);  // str_right(filename, 3)
+        clean_name[8] = '\0';
+    } else {
+        strcpy(clean_name, filename);
+    }
+
     if (uppercase)
         clean_name = str_toupper(clean_name);
 
