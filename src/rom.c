@@ -143,6 +143,32 @@ int write_part(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
     }
 }
 
+/*
+    The pattern
+
+    This is a key concept for advanced byte swapping (interleaving parts, manipulating endianness, etc...)
+
+    First, the patterns are defined within the context of the group. A group has a width attribute defining the length of a value (in bits).
+    All parts inside the group have a pattern that define how they willl contribute to rebuilding the value.
+    Each character in the pattern attribute means "read 1 byte from this part at that offset". So, the number of chars in the pattern
+    defines how many bytes are provided on each pass. So, the total number of chars in patterns in a group must be equal to the group width / 8.
+    
+    Note1: If group width is not specified, it's set to 8 by default.
+           If a pattern is not specified it actually means pattern="0" (ie. read 1 byte at a time).
+
+    Examples:
+    <group width="16">
+        <part name="file1" />
+        <part name="file2" />
+    </group>
+    Will write a stream of 16 bits words, with file1 providing bytes at even offsets and file2 providing bytes at odd offsets.
+
+    <group width="32">
+        <part name="file1" pattern="01" />
+        <part name="file2" pattern="10" />
+    </group>
+    Will write a stream of 32 bits long words, reading 16 bits from each file, byte-swapping file2.
+*/
 int parse_pattern(char *pattern, int **byte_offsets, int *n_src_bytes) {
     if (!pattern) {
         if (trace > 0) printf("pattern not set, defaulting to \"0\" (8 bits)\n");

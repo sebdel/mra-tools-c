@@ -25,6 +25,11 @@ int read_patch(XMLNode *node, t_patch *patch) {
     }
 }
 
+char *get_pattern_from_map(char *map) {
+    printf("%s:%d: error: map conversion not implemented (map: %s)\n", __FILE__, __LINE__, map);
+    return strndup(map, 256);
+}
+
 int read_part(XMLNode *node, t_part *part) {
     int j;
 
@@ -49,6 +54,8 @@ int read_part(XMLNode *node, t_part *part) {
             part->p.length = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
         } else if (strncmp(node->attributes[j].name, "pattern", 8) == 0) {
             part->p.pattern = strndup(node->attributes[j].value, 256);
+        } else if (strncmp(node->attributes[j].name, "map", 4) == 0) {
+            part->p.pattern = get_pattern_from_map(node->attributes[j].value);
         } else {
             printf("warning: unknown attribute for regular part: %s\n", node->attributes[j].name);
         }
@@ -79,12 +86,14 @@ t_part *read_group(XMLNode *node, t_part *part) {
     for (j = 0; j < node->n_attributes; j++) {
         if (strncmp(node->attributes[j].name, "width", 6) == 0) {
             part->g.width = atoi(strndup(node->attributes[j].value, 256));
+        } else if (strncmp(node->attributes[j].name, "output", 7) == 0) {
+            part->g.width = atoi(strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "repeat", 7) == 0) {
             part->g.repeat = atoi(strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "interleaved", 12) == 0) {
             part->g.is_interleaved = atoi(strndup(node->attributes[j].value, 256));
         } else {
-            printf("warning: unknown attribute for group: %s\n", node->attributes[j].name);
+            printf("warning: unsupported attribute for group: %s\n", node->attributes[j].name);
         }
     }
     if (node->text != NULL) {
@@ -98,22 +107,36 @@ t_part *read_group(XMLNode *node, t_part *part) {
 
 int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
     int i;
+    char *part_types[] = {"part", "group", "interleave"};
 
-    if (strncmp(node->tag, "part", 5) == 0) {
+    for (i = 0; i < 3; i++)
+        if (strncmp(node->tag, part_types[i], 20) == 0)
+            break;
+
+    if (i < 3) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
-        read_part(node, (*parts) + (*n_parts) - 1);
-    } else if (strncmp(node->tag, "group", 5) == 0) {
-        (*n_parts)++;
-        *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
-        t_part *group = read_group(node, (*parts) + (*n_parts) - 1);
-        for (i = 0; i < node->n_children; i++) {
-            read_parts(node->children[i], &(group->g.parts), &(group->g.n_parts));
+
+        switch (i) {
+            case 0:  // part
+                read_part(node, (*parts) + (*n_parts) - 1);
+                break;
+            case 1:  // group
+            case 2:  // interleave
+            {
+                t_part *group = read_group(node, (*parts) + (*n_parts) - 1);
+                for (i = 0; i < node->n_children; i++) {
+                    read_parts(node->children[i], &(group->g.parts), &(group->g.n_parts));
+                }
+            } break;
+            default:  // won't happen
+                break;
         }
     } else if (node->tag_type != TAG_COMMENT) {
-        printf("warning: unexpected token: %s\n", node->tag);
+        printf("warning: unexpected token in rom node: %s\n", node->tag);
         return -1;
     }
+
     return 0;
 }
 
@@ -283,28 +306,27 @@ int mra_dump(t_mra *mra) {
         printf("dip_switch[%d]: %s,%s,%s\n", i, mra->switches[i].bits, mra->switches[i].name, mra->switches[i].ids);
     }
 
-    printf("nb roms: %d\n", mra->n_roms);
     for (i = 0; i < mra->n_roms; i++) {
         int j;
         t_rom *rom = mra->roms + i;
 
-        printf("rom[%d]:\n", i);
+        printf("\nrom[%d]:\n", i);
         printf("  index: %d\n", rom->index);
         if (rom->md5) printf("  md5: %s\n", rom->md5);
-        printf("  ============\n");
+        if (rom->type.n_elements) printf("  ============\n");
         for (j = 0; j < rom->type.n_elements; j++) {
             printf("  type[%d]: %s\n", j, rom->type.elements[j]);
         }
-        printf("  ============\n");
+        if (rom->zip.n_elements) printf("  ============\n");
         for (j = 0; j < rom->zip.n_elements; j++) {
             printf("  zip[%d]: %s\n", j, rom->zip.elements[j]);
         }
-        printf("  ============\n");
+        if (rom->n_parts) printf("  ============\n");
         for (j = 0; j < rom->n_parts; j++) {
             printf("  part[%d]:\n", j);
             dump_part(rom->parts + j);
         }
-        printf("  ============\n");
+        if (rom->n_patches) printf("  ============\n");
         for (j = 0; j < rom->n_patches; j++) {
             printf("  patch[%d]:\n", j);
             printf("    offset: %u (0x%08x)\n", rom->patches[j].offset, rom->patches[j].offset);

@@ -47,10 +47,10 @@ echo
 echo "Result files (visualize with hexdump -Cv)..."
 ls -l tests/results
 
-if [[ `git status --porcelain` ]]; then
+if [[ `git status --porcelain tests/results` ]]; then
   # Changes
   echo "Output files with errors:"
-  git status --porcelain
+  git status --porcelain tests/results
   exit 1
 else
   rm -rf tests/logs
