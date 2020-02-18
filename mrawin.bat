@@ -7,7 +7,7 @@ move *.mra "%~dp0mra\"
 move *.zip "%~dp0mame\"
 cd "%~dp0mra\"
 for %%A in (*.mra) do "%~dp0mra.exe" -A -z "%~dp0mame" -O "%~dp0copytoMiST" "%%~dpnxA" 2> "%~dp0log\%%~nA.txt"
-forfiles /p "%~dp0log" /m *.txt /c "cmd /c if @fsize EQU 0 del @path"
+forfiles /p "%~dp0log" /m *.txt /c "cmd /c if @fsize equ 0 del @path"
 cd %~dp0copytoMiST
 setlocal enableDelayedExpansion
 for %%f in (*.rom) do (
