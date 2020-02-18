@@ -6,6 +6,7 @@
   <manufacturer>Seb, Inc.</manufacturer>
   <category>Tests</category>
   <rbf>test_arc</rbf>
+  <setname>romname</setname>
   <switches default="FF,FF,C9">
     <dip bits="5" name="Soft Reset"/>
     <dip bits="5,6" name="Error Test"/>

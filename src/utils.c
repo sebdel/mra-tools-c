@@ -36,6 +36,7 @@ char *dos_clean_basename(char *filename, int uppercase) {
     } else {
         strcpy(clean_name, filename);
     }
+
     if (uppercase)
         clean_name = str_toupper(clean_name);
 
