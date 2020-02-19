@@ -1,0 +1,44 @@
+<misterromdescription>
+	<name>Amidar (Scramble hardware)</name>
+	<mameversion>0216</mameversion>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1982</year>
+	<manufacturer>Konami</manufacturer>
+	<category>Maze</category>
+	<category>Maze / Qix</category>
+	<setname>amidars</setname>
+	<rbf>scramble</rbf>
+	<buttons names="Jump,-,-,-,Start 1P,Start 2P,Coin" default="A,Start,Select,R"/>
+	<switches default="FF,FF,F1">
+		<dip bits="8,9" name="Lives" ids="255(Cheat),5,4,3"/>
+		<dip bits="17"  name="Coinage" ids="1c/1cr,2c/1cr"/>
+		<dip bits="18"  name="Bonus Life" ids="30K 70K,50K 80K"/>
+		<dip bits="19"  name="Cabinet" ids="Upright,Cocktail"/>
+	</switches>
+	<rom index="1">
+		<part>01</part>
+	</rom>
+	<rom index="0" zip="amidar.zip|amidars.zip" md5="22506edd9fb15fc2f5608c0174217753" type="merged|split|nonmerged">
+		<part crc="24b79547" name="am2d"/>
+		<part crc="4c64161e" name="am2e"/>
+		<part crc="b3987a72" name="am2f"/>
+		<part crc="29873461" name="am2h"/>
+		<part crc="0fdd54d8" name="am2j"/>
+		<part crc="5382f7ed" name="am2l"/>
+		<part crc="1d7109e9" name="am2m"/>
+		<part crc="c9163ac6" name="am2p"/>
+		<part crc="24b79547" name="am2d"/>
+		<part crc="4c64161e" name="am2e"/>
+		<part crc="b3987a72" name="am2f"/>
+		<part crc="29873461" name="am2h"/>
+		<part crc="0fdd54d8" name="am2j"/>
+		<part crc="5382f7ed" name="am2l"/>
+		<part crc="1d7109e9" name="am2m"/>
+		<part crc="c9163ac6" name="am2p"/>
+		<part crc="8ca7b750" name="amidarus.5c"/>
+		<part crc="9b5bdc0a" name="amidarus.5d"/>
+		<part crc="3029f94f" repeat="4" name="2716.a5"/>
+		<part crc="2082ad0a" repeat="4" name="2716.a6"/>
+		<part crc="f940dcc3" name="amidar.clr"/>
+	</rom>
+</misterromdescription>
