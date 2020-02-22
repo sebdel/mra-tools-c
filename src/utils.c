@@ -29,9 +29,14 @@ char *dos_clean_basename(char *filename, int uppercase) {
     char *clean_name = (char *)malloc(8 + 1);
     int i;
 
-    memcpy(clean_name, filename, 5);                                    // str_left(filename, 5)
-    memcpy(clean_name + 5, filename + strnlen(filename, 1024) - 3, 3);  // str_right(filename, 3)
-    clean_name[8] = '\0';
+    if(strnlen(filename, 1024) > 8) {
+        memcpy(clean_name, filename, 5);                                    // str_left(filename, 5)
+        memcpy(clean_name + 5, filename + strnlen(filename, 1024) - 3, 3);  // str_right(filename, 3)
+        clean_name[8] = '\0';
+    } else {
+        strcpy(clean_name, filename);
+    }
+
     if (uppercase)
         clean_name = str_toupper(clean_name);
 
@@ -180,8 +185,9 @@ t_string_list *string_list_new(char *element) {
 }
 
 char *string_list_add(t_string_list *list, char *element) {
-    char *token = element;
-
+    char *elementCopy = strndup(element, 1024); // because strtok modifies the analysed string
+    char *token = elementCopy;
+    
     while (token = strtok(token, "|")) {
         list->n_elements++;
         list->elements = (char **)realloc(list->elements, sizeof(char *) * list->n_elements);
@@ -190,5 +196,6 @@ char *string_list_add(t_string_list *list, char *element) {
         token = NULL;
     }
 
+    free(elementCopy);
     return list->elements[list->n_elements - 1];
 }

@@ -121,6 +121,17 @@ void main(int argc, char **argv) {
     char *mra_path = get_path(mra_filename);
     string_list_add(dirs, mra_path ? mra_path : ".");
 
+    if (verbose) {
+        if (dirs->n_elements) {
+            int i;
+            printf("zip include dirs: ");
+            for (i = 0; i < dirs->n_elements; i++) {
+                printf("%s%s/", i ? ", " : "", dirs->elements[i]);
+            }
+            printf("\n");
+        }
+    }
+
     if (mra_load(mra_filename, &mra)) {
         exit(-1);
     }
@@ -134,18 +145,6 @@ void main(int argc, char **argv) {
     } else {
         rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
         rom_filename = get_filename(output_dir ? output_dir : ".", rom_basename, "rom");
-    }
-
-    if (verbose) {
-        printf("Parsing %s to %s\n", mra_filename, rom_filename);
-        if (dirs->n_elements) {
-            int i;
-            printf("zip include dirs: ");
-            for (i = 0; i < dirs->n_elements; i++) {
-                printf("%s%s/", i ? ", " : "", dirs->elements[i]);
-            }
-            printf("\n");
-        }
     }
 
     if (trace > 0) printf("MRA loaded...\n");
