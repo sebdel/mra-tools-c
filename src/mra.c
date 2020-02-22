@@ -26,8 +26,20 @@ int read_patch(XMLNode *node, t_patch *patch) {
 }
 
 char *get_pattern_from_map(char *map) {
-    printf("%s:%d: error: map conversion not implemented (map: %s)\n", __FILE__, __LINE__, map);
-    return strndup(map, 256);
+    int i, j;
+    int n = strnlen(map, 256);
+    char *pattern = (char *)malloc(n + 1);
+
+    for (i = n - 1, j = 0; i >= 0; i--) {
+        if (map[i] != '0') {
+            pattern[j++] = map[i] - 1;
+        }
+    }
+    pattern[j] = '\0';
+
+    printf("warning map conversion is experimental. map=0x%s => pattern=\"%s\"\n", map, pattern);
+
+    return pattern;
 }
 
 int read_part(XMLNode *node, t_part *part) {
