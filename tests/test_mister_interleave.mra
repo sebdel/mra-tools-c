@@ -1,0 +1,17 @@
+<misterromdescription>
+	<name>Test Mister Interleave Node</name>
+	<mameversion>1234</mameversion>
+	<mratimestamp>202001230000</mratimestamp>
+	<year>2020</year>
+	<manufacturer>Seb, Inc.</manufacturer>
+	<category>Tests</category>
+	<rbf>test_interleave</rbf>
+	<rom index="0" zip="tests.zip" md5="7804ee8bc7df5bfb925a8b36a99fc750" type="merged|nonmerged">
+		<part name="s16.dat" />
+    <interleave output="32">
+  		<part name="01.dat" map="0021" />
+  		<part name="s16.dat" map="1200" />
+    </interleave>
+    <part name="s16.dat" />
+	</rom>
+</misterromdescription>

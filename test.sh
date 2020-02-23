@@ -19,6 +19,9 @@ echo
 echo "Test interleaving...(expected: no warnings)"
 ./mra tests/test_interleaved_part.mra -O tests/results
 echo
+echo "Test Mister interleaving...(expected: no warnings)"
+./mra tests/test_mister_interleave.mra -O tests/results
+echo
 echo "Test endianess...(expected: no warnings)"
 ./mra tests/test_endianess.mra -O tests/results
 echo
