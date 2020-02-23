@@ -37,7 +37,7 @@ char *get_pattern_from_map(char *map) {
     }
     pattern[j] = '\0';
 
-    printf("warning map conversion is experimental. map=0x%s => pattern=\"%s\"\n", map, pattern);
+    if (trace > 0) printf("map=0x%s => pattern=\"%s\"\n", map, pattern);
 
     return pattern;
 }
@@ -163,7 +163,9 @@ void read_rom(XMLNode *node, t_rom *rom) {
         } else if (strncmp(node->attributes[j].name, "zip", 4) == 0) {
             string_list_add(&rom->zip, strndup(node->attributes[j].value, 256));
         } else if (strncmp(node->attributes[j].name, "md5", 4) == 0) {
-            rom->md5 = strndup(node->attributes[j].value, 256);
+            if (strncmp(node->attributes[j].value, "none", 256) != 0) {
+                rom->md5 = strndup(node->attributes[j].value, 256);
+            }
         } else if (strncmp(node->attributes[j].name, "type", 5) == 0) {
             string_list_add(&rom->type, strndup(node->attributes[j].value, 256));
         }
