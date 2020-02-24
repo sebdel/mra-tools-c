@@ -16,6 +16,7 @@ char *strndup( const char *s1, size_t n);
 
 char *str_toupper(char *src);
 char *str_trimleft(char *src);
+char *replace_backslash(char *path);
 
 int parse_hex_string(char *hexstr, unsigned char **data, size_t *length);
 void sprintf_md5(char *dest, unsigned char *md5);

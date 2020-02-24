@@ -24,8 +24,16 @@ char *strndup(const char *s1, size_t n) {
 };
 #endif
 
+char *replace_backslash(char *path) {
+    char *p = path;
+    while (p = strchr(p, '\\')) {
+        *p++ = '/';
+    }
+    return path;
+}
+
 char *dos_clean_basename(char *filename, int uppercase) {
-    char bad_chars[] = " ()[]{}.!@%^*~<>|:?'\"";
+    char bad_chars[] = " /\\()[]{}.!@%^*~<>|:?'\"";
     char *clean_name = (char *)malloc(8 + 1);
     int i;
 

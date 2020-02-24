@@ -19,4 +19,4 @@ check:
 
 clean:
 	find . -type f -name '*.o' -exec rm {} +
-	rm -f mra
+	rm -f mra.exe

@@ -77,16 +77,16 @@ void main(int argc, char **argv) {
                 create_arc = -1;
                 break;
             case 'z':
-                string_list_add(dirs, optarg);
+                string_list_add(dirs, replace_backslash(optarg));
                 break;
             case 'O':
-                output_dir = strndup(optarg, 1024);
+                output_dir = replace_backslash(strndup(optarg, 1024));
                 break;
             case 'o':
-                rom_filename = strndup(optarg, 1024);
+                rom_filename = replace_backslash(strndup(optarg, 1024));
                 break;
             case 'a':
-                arc_filename = strndup(optarg, 1024);
+                arc_filename = replace_backslash(strndup(optarg, 1024));
                 break;
 
             case 'h':
@@ -109,7 +109,7 @@ void main(int argc, char **argv) {
         exit(-1);
     }
 
-    mra_filename = strndup(argv[optind], 1024);
+    mra_filename = replace_backslash(strndup(argv[optind], 1024));
     if (!file_exists(mra_filename)) {
         printf("error: file not found (%s)\n", mra_filename);
         exit(-1);
@@ -119,7 +119,10 @@ void main(int argc, char **argv) {
         printf("mra: %s\n", mra_filename);
 
     char *mra_path = get_path(mra_filename);
-    string_list_add(dirs, mra_path ? mra_path : ".");
+    if (mra_path) {
+        string_list_add(dirs, mra_path);
+    }
+    string_list_add(dirs, ".");
 
     if (verbose) {
         if (dirs->n_elements) {
