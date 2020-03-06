@@ -195,7 +195,9 @@ t_string_list *string_list_new(char *element) {
 char *string_list_add(t_string_list *list, char *element) {
     char *elementCopy = strndup(element, 1024); // because strtok modifies the analysed string
     char *token = elementCopy;
-    
+
+    if (!token || !*token) return NULL;
+
     while (token = strtok(token, "|")) {
         list->n_elements++;
         list->elements = (char **)realloc(list->elements, sizeof(char *) * list->n_elements);
