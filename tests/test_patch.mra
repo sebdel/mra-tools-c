@@ -2,7 +2,7 @@
 	<name>Test Patch</name>
 	<category>Tests</category>
 	<rbf>test_patch</rbf>
-	<rom index="0" md5="f09f35a5637839458e462e6350ecbce4">
+	<rom index="0" zip="" md5="f09f35a5637839458e462e6350ecbce4">
 		<part repeat="0x80">00</part>
 		<patch offset="16">01 01 01 01</patch>
 		<patch offset="0x20">02 02 02 02</patch>
