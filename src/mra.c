@@ -61,8 +61,9 @@ int read_part(XMLNode *node, t_part *part) {
         } else if (strncmp(node->attributes[j].name, "offset", 7) == 0) {
             // offset can be decimal or hexa with 0x prefix
             part->p.offset = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
-        } else if (strncmp(node->attributes[j].name, "length", 7) == 0) {
-            // length can be decimal or hexa with 0x prefix
+        } else if (strncmp(node->attributes[j].name, "length", 7) == 0 ||
+                   strncmp(node->attributes[j].name, "size", 5) == 0) {
+            // length/size can be decimal or hexa with 0x prefix
             part->p.length = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
         } else if (strncmp(node->attributes[j].name, "pattern", 8) == 0) {
             part->p.pattern = strndup(node->attributes[j].value, 256);
