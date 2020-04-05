@@ -166,7 +166,7 @@ void main(int argc, char **argv) {
             } else {
                 arc_filename = get_filename(output_dir ? output_dir : ".", mra.name ? mra.name : mra_basename, "arc");
             }
-
+            make_fat32_compatible( arc_filename );
             if (verbose) {
                 printf("Creating ARC file %s\n", arc_filename);
             }

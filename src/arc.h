@@ -4,5 +4,6 @@
 #include "mra.h"
 
 int write_arc(t_mra *mra, char *filename);
+void make_fat32_compatible( char *filename );
 
 #endif

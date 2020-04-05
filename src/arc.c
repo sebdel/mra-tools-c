@@ -84,3 +84,11 @@ int write_arc(t_mra *mra, char *filename) {
     fclose(out);
     return 0;
 }
+
+void make_fat32_compatible( char *filename ) {
+    int k;
+    for( k=0; filename[k]; k++ ) {
+        if( filename[k] == ':' ) filename[k] = '_';
+        if( filename[k] == '?' ) filename[k] = '_';
+    }
+}
