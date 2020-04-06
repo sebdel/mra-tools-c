@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  mra:
+    build: .
+    image: mra
+    volumes:
+      - $ROMS:/roms
+      - $MRAS:/mras
+    environment:
+      - ROMS=$ROMS
