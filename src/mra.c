@@ -197,8 +197,23 @@ void read_dip_switch(XMLNode *node, t_dip_switch *dip_switch) {
     }
 }
 
-int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches) {
+int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches, int *switches_default ) {
     int i;
+    int dip_default=~0;
+
+    // Look for default attribute
+    for( i=0; i < node->n_attributes; i++ ) {
+        XMLAttribute *attr = &node->attributes[i];
+        if( strncmp( attr->name, "default", 8) ==0 ) {
+            int a,b,c,n; // up to three values
+            n = sscanf( attr->value, "%X,%X,%X", &a,&b,&c );
+            if( n-- >0 ) dip_default &= (a|0xffff00);
+            if( n-- >0 ) dip_default &= ((b<<8)|0xff00ff);
+            if( n-- >0 ) dip_default &= ((c<<16)|0x00ffff);
+            break;
+        }
+    }
+    *switches_default = dip_default;
 
     for (i = 0; i < node->n_children; i++) {
         XMLNode *child = node->children[i];
@@ -248,7 +263,7 @@ void read_root(XMLNode *root, t_mra *mra) {
         } else if (strncmp(node->tag, "category", 9) == 0) {
             string_list_add(&mra->categories, node->text);
         } else if (strncmp(node->tag, "switches", 9) == 0) {
-            read_switches(node, &mra->switches, &mra->n_switches);
+            read_switches(node, &mra->switches, &mra->n_switches, &mra->switches_default );
         }
     }
 }
