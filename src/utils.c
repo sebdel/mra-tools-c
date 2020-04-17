@@ -209,3 +209,11 @@ char *string_list_add(t_string_list *list, char *element) {
     free(elementCopy);
     return list->elements[list->n_elements - 1];
 }
+
+void make_fat32_compatible( char *filename ) {
+    int k;
+    for( k=0; filename[k]; k++ ) {
+        if( filename[k] == ':' ) filename[k] = '_';
+        if( filename[k] == '?' ) filename[k] = '_';
+    }
+}
