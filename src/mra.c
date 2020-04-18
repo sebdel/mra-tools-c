@@ -205,11 +205,12 @@ int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches, int *
     for( i=0; i < node->n_attributes; i++ ) {
         XMLAttribute *attr = &node->attributes[i];
         if( strncmp( attr->name, "default", 8) ==0 ) {
-            int a,b,c,n; // up to three values
-            n = sscanf( attr->value, "%X,%X,%X", &a,&b,&c );
-            if( n-- >0 ) dip_default &= (a|0xffff00);
-            if( n-- >0 ) dip_default &= ((b<<8)|0xff00ff);
-            if( n-- >0 ) dip_default &= ((c<<16)|0x00ffff);
+            int a,b,c,d,n; // up to three values
+            n = sscanf( attr->value, "%X,%X,%X,%X", &a,&b,&c,&d );
+            if( n-- >0 ) dip_default &= (a      |0xffffff00);
+            if( n-- >0 ) dip_default &= ((b<<8) |0xffff00ff);
+            if( n-- >0 ) dip_default &= ((c<<16)|0xff00ffff);
+            if( n-- >0 ) dip_default &= ((d<<24)|0x00ffffff);
             break;
         }
     }

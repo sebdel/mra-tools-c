@@ -73,7 +73,7 @@ int write_arc(t_mra *mra, char *filename) {
     fwrite(buffer, 1, n, out);
 
     if( mra->n_switches ) {
-        n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=%X\n", mra->switches_default );
+        n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=0x%X\n", mra->switches_default );
         fwrite(buffer, 1, n, out);
     }
     for (i = 0; i < mra->n_switches; i++) {
