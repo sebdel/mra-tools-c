@@ -73,6 +73,7 @@ typedef struct s_mra {
     
     t_dip_switch *switches;
     int n_switches;
+    int switches_default;
     
     t_rom *roms;
     int n_roms;
