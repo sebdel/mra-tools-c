@@ -1,8 +1,9 @@
+#include "mra.h"
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "mra.h"
 #include "utils.h"
 
 int read_patch(XMLNode *node, t_patch *patch) {
@@ -197,20 +198,20 @@ void read_dip_switch(XMLNode *node, t_dip_switch *dip_switch) {
     }
 }
 
-int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches, int *switches_default ) {
+int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches, int *switches_default) {
     int i;
-    int dip_default=~0;
+    int dip_default = ~0;
 
     // Look for default attribute
-    for( i=0; i < node->n_attributes; i++ ) {
+    for (i = 0; i < node->n_attributes; i++) {
         XMLAttribute *attr = &node->attributes[i];
-        if( strncmp( attr->name, "default", 8) ==0 ) {
-            int a,b,c,d,n; // up to three values
-            n = sscanf( attr->value, "%X,%X,%X,%X", &a,&b,&c,&d );
-            if( n-- >0 ) dip_default &= (a      |0xffffff00);
-            if( n-- >0 ) dip_default &= ((b<<8) |0xffff00ff);
-            if( n-- >0 ) dip_default &= ((c<<16)|0xff00ffff);
-            if( n-- >0 ) dip_default &= ((d<<24)|0x00ffffff);
+        if (strncmp(attr->name, "default", 8) == 0) {
+            int a, b, c, d, n;  // up to three values
+            n = sscanf(attr->value, "%X,%X,%X,%X", &a, &b, &c, &d);
+            if (n-- > 0) dip_default &= (a | 0xffffff00);
+            if (n-- > 0) dip_default &= ((b << 8) | 0xffff00ff);
+            if (n-- > 0) dip_default &= ((c << 16) | 0xff00ffff);
+            if (n-- > 0) dip_default &= ((d << 24) | 0x00ffffff);
             break;
         }
     }
@@ -264,7 +265,7 @@ void read_root(XMLNode *root, t_mra *mra) {
         } else if (strncmp(node->tag, "category", 9) == 0) {
             string_list_add(&mra->categories, node->text);
         } else if (strncmp(node->tag, "switches", 9) == 0) {
-            read_switches(node, &mra->switches, &mra->n_switches, &mra->switches_default );
+            read_switches(node, &mra->switches, &mra->n_switches, &mra->switches_default);
         }
     }
 }
@@ -336,6 +337,7 @@ int mra_dump(t_mra *mra) {
     for (i = 0; i < mra->n_switches; i++) {
         printf("dip_switch[%d]: %s,%s,%s\n", i, mra->switches[i].bits, mra->switches[i].name, mra->switches[i].ids);
     }
+    printf("default switches: 0x%08x\n", mra->switches_default);
 
     for (i = 0; i < mra->n_roms; i++) {
         int j;
