@@ -2,7 +2,7 @@
 RBF=TEST_ARC
 MOD=10
 NAME=CUSTOM NAME
-DEFAULT=0xFFC9FFFF
+DEFAULT=0xFFFFFFC9
 CONF="T5,Soft Reset"
 CONF="(null),Error Test"
 CONF="OF,Cabinet,Cocktail,Upright"
