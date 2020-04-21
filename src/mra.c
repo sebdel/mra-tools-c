@@ -207,8 +207,8 @@ int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches,
     // Look for base attribute
     for( i=0; i < node->n_attributes; i++ ) {
         XMLAttribute *attr = &node->attributes[i];
-        if( strncmp( attr->name, "mist-base", 10) ==0 ) {
-            sscanf( attr->value, "%X", switches_base ); // hex for consistency with the default statement
+        if( strncmp( attr->name, "base", 10) ==0 ) {
+            *switches_base = strtol( attr->value, NULL, 0 );
         }
     }
 
@@ -253,9 +253,18 @@ void read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
     }
 }
 
+char *parse_rbf_name( XMLNode *node ) {
+    for( int i=0; i < node->n_attributes; i++ ) {
+        XMLAttribute *attr = &node->attributes[i];
+        if( strcmp( attr->name, "alt" ) == 0 ) {
+            return strndup( attr->value, 9 );
+        }
+    }
+    return strndup(node->text, 1024);
+}
+
 void read_root(XMLNode *root, t_mra *mra) {
     int i;
-    static int rbfset=0; // This prevents rbf from overwritting mist-rbf
 
     for (i = 0; i < root->n_children; i++) {
         XMLNode *node = root->children[i];
@@ -272,11 +281,8 @@ void read_root(XMLNode *root, t_mra *mra) {
             mra->year = strndup(node->text, 1024);
         } else if (strncmp(node->tag, "manufacturer", 13) == 0) {
             mra->manufacturer = strndup(node->text, 1024);
-        } else if (strncmp(node->tag, "rbf", 4) == 0 && !rbfset) {
-            mra->rbf = strndup(node->text, 1024);
-        } else if (strncmp(node->tag, "mist-rbf", 9) == 0) {
-            mra->rbf = strndup(node->text, 1024);
-            rbfset = 1;
+        } else if (strncmp(node->tag, "rbf", 4) == 0 ) {            
+            mra->rbf = parse_rbf_name(node);
         } else if (strncmp(node->tag, "category", 9) == 0) {
             string_list_add(&mra->categories, node->text);
         } else if (strncmp(node->tag, "switches", 9) == 0) {

@@ -40,7 +40,7 @@ int write_arc(t_mra *mra, char *filename) {
     FILE *out;
     char buffer[MAX_LINE_LENGTH + 1];
     int i, n;
-    int mod = -1;
+    int mod = 0; // force MOD to always be printed out
 
     /* let's be strict about mod:
         it has to be a single byte in a single part in a ROM with index = "1".
