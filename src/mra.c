@@ -197,21 +197,32 @@ void read_dip_switch(XMLNode *node, t_dip_switch *dip_switch) {
     }
 }
 
-int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches, int *switches_default ) {
+int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches,
+        int *switches_default, int *switches_base ) {
     int i;
     int dip_default=~0;
+    *switches_base = 0;
 
-    // Look for default attribute
+    // Look for base attribute
+    for( i=0; i < node->n_attributes; i++ ) {
+        XMLAttribute *attr = &node->attributes[i];
+        if( strncmp( attr->name, "mist-base", 10) ==0 ) {
+            sscanf( attr->value, "%X", switches_base ); // hex for consistency with the default statement
+        }
+    }
+
+    // Next look for default attribute. Note that we need the switches_base result
     for( i=0; i < node->n_attributes; i++ ) {
         XMLAttribute *attr = &node->attributes[i];
         if( strncmp( attr->name, "default", 8) ==0 ) {
             int a,b,c,d,n; // up to three values
             n = sscanf( attr->value, "%X,%X,%X,%X", &a,&b,&c,&d );
             if( n-- >0 ) dip_default &= (a      |0xffffff00);
-            if( n-- >0 ) dip_default &= ((b<<8) |0xffff00ff);
-            if( n-- >0 ) dip_default &= ((c<<16)|0xff00ffff);
-            if( n-- >0 ) dip_default &= ((d<<24)|0x00ffffff);
-            break;
+            if( n-- >0 ) dip_default = (dip_default<<8) | b;
+            if( n-- >0 ) dip_default = (dip_default<<8) | c;
+            if( n-- >0 ) dip_default = (dip_default<<8) | d;
+            dip_default <<= *switches_base;
+            // if we were to fill the gap with 1's: dip_default |= ~((~0)<<*switches_base);
         }
     }
     *switches_default = dip_default;
@@ -243,6 +254,7 @@ void read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
 
 void read_root(XMLNode *root, t_mra *mra) {
     int i;
+    static int rbfset=0; // This prevents rbf from overwritting mist-rbf
 
     for (i = 0; i < root->n_children; i++) {
         XMLNode *node = root->children[i];
@@ -259,12 +271,15 @@ void read_root(XMLNode *root, t_mra *mra) {
             mra->year = strndup(node->text, 1024);
         } else if (strncmp(node->tag, "manufacturer", 13) == 0) {
             mra->manufacturer = strndup(node->text, 1024);
-        } else if (strncmp(node->tag, "rbf", 4) == 0) {
+        } else if (strncmp(node->tag, "rbf", 4) == 0 && !rbfset) {
             mra->rbf = strndup(node->text, 1024);
+        } else if (strncmp(node->tag, "mist-rbf", 9) == 0) {
+            mra->rbf = strndup(node->text, 1024);
+            rbfset = 1;
         } else if (strncmp(node->tag, "category", 9) == 0) {
             string_list_add(&mra->categories, node->text);
         } else if (strncmp(node->tag, "switches", 9) == 0) {
-            read_switches(node, &mra->switches, &mra->n_switches, &mra->switches_default );
+            read_switches(node, &mra->switches, &mra->n_switches, &mra->switches_default, &mra->switches_base );
         }
     }
 }
