@@ -3,8 +3,7 @@
     <setname>lwings</setname>
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
-    <rbf>jtsectionz</rbf>
-    <mist-rbf>jtsz</mist-rbf>
+    <rbf alt="jtsz">jtsectionz</rbf>
     <rom index="0" zip="lwings.zip" md5="none">
         <!-- 32-byte Header -->
         <part> 00 00 00 00 00 00 00 00 </part>
@@ -48,7 +47,7 @@
     </rom>
     <!-- enable vertical screen -->
     <rom index="1"><part> 1 </part></rom>
-    <switches mist-base="10" default="FF,FE">
+    <switches base="16" default="FF,FE">
         <!-- DSWA -->
         <dip name="Test mode" bits="0" ids="On,Off"></dip>
         <dip name="Flip Screen" bits="1" ids="On,Off"></dip>

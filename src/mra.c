@@ -183,10 +183,10 @@ void read_rom(XMLNode *node, t_rom *rom) {
     }
 }
 
-void read_dip_switch(XMLNode *node, t_dip_switch *dip_switch) {
+void read_dip_switch(XMLNode *node, t_dip *dip_switch) {
     int i;
 
-    memset(dip_switch, 0, sizeof(t_dip_switch));
+    memset(dip_switch, 0, sizeof(t_dip));
     for (i = 0; i < node->n_attributes; i++) {
         if (strncmp(node->attributes[i].name, "bits", 5) == 0) {
             dip_switch->bits = strndup(node->attributes[i].value, 256);
@@ -198,42 +198,34 @@ void read_dip_switch(XMLNode *node, t_dip_switch *dip_switch) {
     }
 }
 
-int read_switches(XMLNode *node, t_dip_switch **switches, int *n_switches,
-        int *switches_default, int *switches_base ) {
+int read_switches(XMLNode *node, t_switches *switches) {
     int i;
-    int dip_default=~0;
-    *switches_base = 0;
 
-    // Look for base attribute
-    for( i=0; i < node->n_attributes; i++ ) {
+    memset(switches, 0, sizeof(t_switches));
+    switches->defaults = ~0;
+
+    // Read all attributes
+    for (i = 0; i < node->n_attributes; i++) {
         XMLAttribute *attr = &node->attributes[i];
-        if( strncmp( attr->name, "mist-base", 10) ==0 ) {
-            sscanf( attr->value, "%X", switches_base ); // hex for consistency with the default statement
+        if (strncmp(attr->name, "base", 10) == 0) {
+            switches->base = strtol(strndup(attr->value, 256), NULL, 0);
+        } else if (strncmp(attr->name, "default", 8) == 0) {
+            int a, b, c, d, n;  // up to three values
+            n = sscanf(attr->value, "%X,%X,%X,%X", &a, &b, &c, &d);
+            if (n-- > 0) switches->defaults &= (a | 0xffffff00);
+            if (n-- > 0) switches->defaults = (switches->defaults << 8) | b;
+            if (n-- > 0) switches->defaults = (switches->defaults << 8) | c;
+            if (n-- > 0) switches->defaults = (switches->defaults << 8) | d;
         }
     }
 
-    // Next look for default attribute. Note that we need the switches_base result
-    for( i=0; i < node->n_attributes; i++ ) {
-        XMLAttribute *attr = &node->attributes[i];
-        if( strncmp( attr->name, "default", 8) ==0 ) {
-            int a,b,c,d,n; // up to three values
-            n = sscanf( attr->value, "%X,%X,%X,%X", &a,&b,&c,&d );
-            if( n-- >0 ) dip_default &= (a      |0xffffff00);
-            if( n-- >0 ) dip_default = (dip_default<<8) | b;
-            if( n-- >0 ) dip_default = (dip_default<<8) | c;
-            if( n-- >0 ) dip_default = (dip_default<<8) | d;
-            dip_default <<= *switches_base;
-            // if we were to fill the gap with 1's: dip_default |= ~((~0)<<*switches_base);
-        }
-    }
-    *switches_default = dip_default;
-
+    // Read DIPs
     for (i = 0; i < node->n_children; i++) {
         XMLNode *child = node->children[i];
         if (strncmp(child->tag, "dip", 4) == 0) {
-            (*n_switches)++;
-            *switches = (t_dip_switch *)realloc(*switches, sizeof(t_dip_switch) * (*n_switches));
-            read_dip_switch(child, (*switches) + (*n_switches) - 1);
+            switches->n_dips++;
+            switches->dips = (t_dip *)realloc(switches->dips, sizeof(t_dip) * (switches->n_dips));
+            read_dip_switch(child, switches->dips + switches->n_dips - 1);
         }
     }
     return 0;
@@ -253,9 +245,20 @@ void read_roms(XMLNode *node, t_rom **roms, int *n_roms) {
     }
 }
 
+void read_rbf(XMLNode *node, t_rbf *rbf) {
+    memset(rbf, 0, sizeof(t_rbf));
+
+    for (int i = 0; i < node->n_attributes; i++) {
+        XMLAttribute *attr = &node->attributes[i];
+        if (strcmp(attr->name, "alt") == 0) {
+            rbf->alt_name = strndup(attr->value, 9);
+        }
+    }
+    rbf->name = strndup(node->text, 1024);
+}
+
 void read_root(XMLNode *root, t_mra *mra) {
     int i;
-    static int rbfset=0; // This prevents rbf from overwritting mist-rbf
 
     for (i = 0; i < root->n_children; i++) {
         XMLNode *node = root->children[i];
@@ -272,15 +275,12 @@ void read_root(XMLNode *root, t_mra *mra) {
             mra->year = strndup(node->text, 1024);
         } else if (strncmp(node->tag, "manufacturer", 13) == 0) {
             mra->manufacturer = strndup(node->text, 1024);
-        } else if (strncmp(node->tag, "rbf", 4) == 0 && !rbfset) {
-            mra->rbf = strndup(node->text, 1024);
-        } else if (strncmp(node->tag, "mist-rbf", 9) == 0) {
-            mra->rbf = strndup(node->text, 1024);
-            rbfset = 1;
+        } else if (strncmp(node->tag, "rbf", 4) == 0) {
+            read_rbf(node, &mra->rbf);
         } else if (strncmp(node->tag, "category", 9) == 0) {
             string_list_add(&mra->categories, node->text);
         } else if (strncmp(node->tag, "switches", 9) == 0) {
-            read_switches(node, &mra->switches, &mra->n_switches, &mra->switches_default, &mra->switches_base );
+            read_switches(node, &mra->switches);
         }
     }
 }
@@ -344,15 +344,16 @@ int mra_dump(t_mra *mra) {
     if (mra->setname) printf("setname: %s\n", mra->setname);
     if (mra->year) printf("year: %s\n", mra->year);
     if (mra->manufacturer) printf("manufacturer: %s\n", mra->manufacturer);
-    if (mra->rbf) printf("rbf: %s\n", mra->rbf);
+    if (mra->rbf.name) printf("rbf name: %s\n", mra->rbf.name);
+    if (mra->rbf.alt_name) printf("rbf alternative name: %s\n", mra->rbf.alt_name);
     for (i = 0; i < mra->categories.n_elements; i++) {
         printf("category[%d]: %s\n", i, mra->categories.elements[i]);
     }
-    printf("nb switches: %d\n", mra->n_switches);
-    for (i = 0; i < mra->n_switches; i++) {
-        printf("dip_switch[%d]: %s,%s,%s\n", i, mra->switches[i].bits, mra->switches[i].name, mra->switches[i].ids);
+    printf("switches: default=0x%08X, base=%d\n", mra->switches.defaults, mra->switches.base);
+    printf("nb dips: %d\n", mra->switches.n_dips);
+    for (i = 0; i < mra->switches.n_dips; i++) {
+        printf("  dip[%d]: %s,%s,%s\n", i, mra->switches.dips[i].bits, mra->switches.dips[i].name, mra->switches.dips[i].ids);
     }
-    printf("default switches: 0x%08x\n", mra->switches_default);
 
     for (i = 0; i < mra->n_roms; i++) {
         int j;
