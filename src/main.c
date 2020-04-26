@@ -30,6 +30,7 @@ void print_usage() {
     printf("\t-O directory\tset the output directory. By default, ROM and ARC files are created in the current directory.\n");
     printf("\t-a filename\tset the output ARC file name. Overrides the internal generation of the filename.\n");
     printf("\t-A\t\tcreate ARC file. This is done in addition to creating the ROM file.\n");
+    printf("\t-s\t\tskip ROM creation. This is useful if only the ARC file is required.\n");
 }
 
 void print_version() {
@@ -46,6 +47,7 @@ void main(int argc, char **argv) {
     t_string_list *dirs = string_list_new(NULL);
     int i, res;
     int dump_mra = 0;
+    int dump_rom = -1;
     int create_arc = 0;
 
     if (trace > 0) {
@@ -65,7 +67,7 @@ void main(int argc, char **argv) {
     // put ':' in the starting of the
     // string so that program can
     //distinguish between '?' and ':'
-    while ((opt = getopt(argc, argv, ":vlhAo:a:O:z:")) != -1) {
+    while ((opt = getopt(argc, argv, ":vlhAo:a:O:z:s")) != -1) {
         switch (opt) {
             case 'v':
                 verbose = -1;
@@ -88,7 +90,9 @@ void main(int argc, char **argv) {
             case 'a':
                 arc_filename = replace_backslash(strndup(optarg, 1024));
                 break;
-
+            case 's':
+                dump_rom = 0;
+                break;
             case 'h':
                 print_usage();
                 exit(0);
@@ -176,11 +180,13 @@ void main(int argc, char **argv) {
                 exit(-1);
             }
         }
-        if (trace > 0) printf("creating ROM...\n");
-        res = write_rom(&mra, dirs, rom_filename);
-        if (res != 0) {
-            printf("Writing ROM failed with error code: %d\n", res);
-            exit(-1);
+        if( dump_rom ) {
+            if (trace > 0) printf("creating ROM...\n");
+            res = write_rom(&mra, dirs, rom_filename);
+            if (res != 0) {
+                printf("Writing ROM failed with error code: %d\n", res);
+                exit(-1);
+            }
         }
     }
     if (verbose) {
