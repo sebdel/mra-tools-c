@@ -1,14 +1,15 @@
+#include "arc.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "arc.h"
 #include "globals.h"
 #include "utils.h"
 
 #define MAX_LINE_LENGTH 256
 
-char *format_bits(t_dip_switch *dip, int base) {
+char *format_bits(t_dip *dip, int base) {
     char buffer[256] = "O";
     int n = 1;
     char *token = dip->bits;
@@ -16,7 +17,7 @@ char *format_bits(t_dip_switch *dip, int base) {
     // Parse bits first
     while (token = strtok(token, ",")) {
         char c = atoi(token) + (char)base;
-        if( c > 31 ) {
+        if (c > 31) {
             printf("error while parsing dip switch: required bit position exceeds 31.\n");
             return NULL;
         }
@@ -40,7 +41,7 @@ int write_arc(t_mra *mra, char *filename) {
     FILE *out;
     char buffer[MAX_LINE_LENGTH + 1];
     int i, n;
-    int mod = 0; // force MOD to always be printed out
+    int mod = 0;
 
     /* let's be strict about mod:
         it has to be a single byte in a single part in a ROM with index = "1".
@@ -62,11 +63,15 @@ int write_arc(t_mra *mra, char *filename) {
     n = snprintf(buffer, MAX_LINE_LENGTH, "[ARC]\n");
     if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
     fwrite(buffer, 1, n, out);
-    if (mra->rbf) {
-        n = snprintf(buffer, MAX_LINE_LENGTH, "RBF=%s\n", str_toupper(mra->rbf));
-        if (strnlen( mra->rbf, 32 )>8) printf("warning: RBF file name may be too long for MiST\n");
+    // Write rbf
+    if (mra->rbf.name) {
+        char *rbf = str_toupper(mra->rbf.alt_name ? mra->rbf.alt_name : mra->rbf.name);
+        if (strnlen(rbf, 32) > 8) printf("warning: RBF file name may be too long for MiST\n");
+
+        n = snprintf(buffer, MAX_LINE_LENGTH, "RBF=%s\n", rbf);
         if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
         fwrite(buffer, 1, n, out);
+
         if (mod != -1) {
             n = snprintf(buffer, MAX_LINE_LENGTH, "MOD=%d\n", mod);
             if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
@@ -77,15 +82,16 @@ int write_arc(t_mra *mra, char *filename) {
     if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
     fwrite(buffer, 1, n, out);
 
-    if( mra->n_switches ) {
-        n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=0x%X\n", mra->switches_default );
+    if (mra->switches.n_dips) {
+        n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=0x%08X\n", mra->switches.defaults << mra->switches.base);
         fwrite(buffer, 1, n, out);
     }
-    for (i = 0; i < mra->n_switches; i++) {
-        if (mra->switches[i].ids) {
-            n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(mra->switches + i, mra->switches_base), mra->switches[i].name, mra->switches[i].ids);
+    for (i = 0; i < mra->switches.n_dips; i++) {
+        t_dip *dip = mra->switches.dips + i;
+        if (dip->ids) {
+            n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name, dip->ids);
         } else {
-            n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(mra->switches + i, mra->switches_base), mra->switches[i].name);
+            n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name);
         }
         if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
         fwrite(buffer, 1, n, out);

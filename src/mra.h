@@ -51,12 +51,25 @@ typedef struct s_rom {
     int n_patches;
 } t_rom;
 
-typedef struct s_dip_switch
+typedef struct s_dip
 {
     char *bits;
     char *name;
     char *ids;
-} t_dip_switch;
+} t_dip;
+
+typedef struct s_switches
+{
+    t_dip *dips;
+    int n_dips;
+    int defaults;
+    int base;
+} t_switches;
+
+typedef struct s_rbf {
+    char *name;
+    char *alt_name;
+} t_rbf;
 
 typedef struct s_mra {
     XMLDoc _xml_doc;
@@ -67,14 +80,11 @@ typedef struct s_mra {
     char *setname;
     char *year;
     char *manufacturer;
-    char *rbf;
 
+    t_rbf rbf;
     t_string_list categories;
-    
-    t_dip_switch *switches;
-    int n_switches;
-    int switches_default, switches_base;
-    
+    t_switches switches;
+  
     t_rom *roms;
     int n_roms;
 } t_mra;
