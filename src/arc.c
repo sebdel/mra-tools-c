@@ -37,6 +37,20 @@ char *format_bits(t_dip *dip, int base) {
     return strdup(buffer);
 }
 
+int find_substr( const char* fullstr, const char *substr ) {
+    for( int i=0; fullstr[i]; i++ ) {
+        int found=1;
+        for( int j=0; fullstr[i+j] && substr[j]; j++ ) {
+            if( tolower(fullstr[i+j]) != substr[j] ) {
+                found=0;
+                break;
+            }
+        }
+        if(found) return 1;
+    }
+    return 0;
+}
+
 int write_arc(t_mra *mra, char *filename) {
     FILE *out;
     char buffer[MAX_LINE_LENGTH + 1];
@@ -88,13 +102,15 @@ int write_arc(t_mra *mra, char *filename) {
     }
     for (i = 0; i < mra->switches.n_dips; i++) {
         t_dip *dip = mra->switches.dips + i;
-        if (dip->ids) {
-            n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name, dip->ids);
-        } else {
-            n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name);
+        if( !find_substr( dip->name, "coin" ) && !find_substr( dip->name, "unused") ) {
+            if (dip->ids) {
+                n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name, dip->ids);
+            } else {
+                n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name);
+            }
+            if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
+            fwrite(buffer, 1, n, out);
         }
-        if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
-        fwrite(buffer, 1, n, out);
     }
     fclose(out);
     return 0;
