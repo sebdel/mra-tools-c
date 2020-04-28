@@ -8,6 +8,7 @@
 #include "utils.h"
 
 #define MAX_LINE_LENGTH 256
+#define MAX_CONTENT_LENGTH 25
 
 char *format_bits(t_dip *dip, int base) {
     char buffer[256] = "O";
@@ -37,16 +38,18 @@ char *format_bits(t_dip *dip, int base) {
     return strdup(buffer);
 }
 
-int find_substr( const char* fullstr, const char *substr ) {
-    for( int i=0; fullstr[i]; i++ ) {
-        int found=1;
-        for( int j=0; fullstr[i+j] && substr[j]; j++ ) {
-            if( tolower(fullstr[i+j]) != substr[j] ) {
-                found=0;
-                break;
-            }
-        }
-        if(found) return 1;
+int check_ids_len( t_dip* dip ) {
+    int nlen;
+    char copy[MAX_LINE_LENGTH];
+    char *tok;
+
+    nlen = strnlen( dip->name, MAX_LINE_LENGTH );
+    strncpy( copy, dip->ids, MAX_LINE_LENGTH );
+    tok = strtok( copy, "," );
+    while( tok ) {
+        int j = strlen(tok);
+        if( nlen+j > MAX_CONTENT_LENGTH ) return 1;
+        tok = strtok( NULL, "," );
     }
     return 0;
 }
@@ -102,13 +105,21 @@ int write_arc(t_mra *mra, char *filename) {
     }
     for (i = 0; i < mra->switches.n_dips; i++) {
         t_dip *dip = mra->switches.dips + i;
-        if( !find_substr( dip->name, "coin" ) && !find_substr( dip->name, "unused") ) {
+        if( !strcasestr( dip->name, "coin" ) && !strcasestr( dip->name, "unused") ) {
+            if( check_ids_len(dip) ) {
+                printf("warning: dip_content too long for MiST:\n\t%s\t%s\n\t\t%s\n", mra->name, dip->name, dip->ids);
+                continue;
+            }
             if (dip->ids) {
                 n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name, dip->ids);
+                strnlen( dip->ids, MAX_LINE_LENGTH );
             } else {
                 n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name);
             }
-            if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
+            if (n >= MAX_LINE_LENGTH) {
+                printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
+                continue;
+            }
             fwrite(buffer, 1, n, out);
         }
     }
