@@ -1298,7 +1298,7 @@ TagType XML_parse_1string(const SXML_CHAR* str, XMLNode* xmlnode)
 		n = nn + 1;
 	}
 	
-	sx_fprintf(stderr, C2SX("\nWE SHOULD NOT BE HERE!\n[%s]\n\n"), str);
+	sx_fprintf(stderr, C2SX("\nMalformed xml tag: must be '<tag (attribName=\"attribValue\")* [/]>' or '</tag>':\n[%s]\n\n"), str);
 	
 parse_err:
 	(void)XMLNode_free(xmlnode);
@@ -1638,7 +1638,8 @@ int DOMXMLDoc_doc_end(SAX_Data* sd)
 			case PARSE_ERR_UNEXPECTED_NODE_END:	msg = C2SX("UNEXPECTED_NODE_END"); break;
 			default:							msg = C2SX("UNKNOWN"); break;
 		}
-		sx_fprintf(stderr, C2SX("%s:%d: An error was found (%s(%d)), loading aborted...\n"), sd->name, dom->line_error, msg, dom->error);
+		// Skip it, it's redundant, we already have an error message at this stage.
+		// sx_fprintf(stderr, C2SX("%s:%d: An error was found (%s(%d)), loading aborted...\n"), sd->name, dom->line_error, msg, dom->error);
 		dom->current = NULL;
 		(void)XMLDoc_free(dom->doc);
 		dom->doc = NULL;
