@@ -6,7 +6,7 @@
 	<manufacturer>Seb, Inc.</manufacturer>
 	<category>Tests</category>
 	<rbf>test_multi_zip</rbf>
-	<rom index="0" zip="tests.zip|tests2.zip|test3.zip" md5="952044609aec0be0acea3c8027419110" type="merged|nonmerged">
+	<rom index="0" zip="toto.zip|tests.zip|tests2.zip|test3.zip" md5="952044609aec0be0acea3c8027419110" type="merged|nonmerged">
 		<part crc="79802302" />
 		<part crc="52a028b7" />
 		<part crc="4bfc8ad0" />

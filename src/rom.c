@@ -320,7 +320,7 @@ int write_rom(t_mra *mra, t_string_list *dirs, char *rom_filename) {
         zip_filename = get_zip_filename(rom->zip.elements[i], dirs);
         if (!zip_filename) {
             printf("warning: zip file not found: %s\n", rom->zip.elements[i]);
-            break;
+            continue;
         }
         if (verbose) {
             printf("Uncompressing zip file: %s\n", zip_filename);
