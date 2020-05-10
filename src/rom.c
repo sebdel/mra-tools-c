@@ -219,7 +219,7 @@ int write_group(FILE *out, MD5_CTX *md5_ctx, t_part *part) {
         res = get_data(p_part, data + i, size + i);
         // apply offset and length attribute
         if (p_part->p.offset + p_part->p.length > size[i]) {
-            printf("%s:%d: error: part offset and length exceeds data siz\n", __FILE__, __LINE__);
+            printf("%s:%d: error: part offset and length exceeds data size\n", __FILE__, __LINE__);
             return -2;
         }
         data[i] += p_part->p.offset;
