@@ -15,6 +15,7 @@ char *strndup( const char *s1, size_t n);
 #endif
 
 char *str_toupper(char *src);
+char *str_tolower(char *src);
 char *str_trimleft(char *src);
 char *replace_backslash(char *path);
 

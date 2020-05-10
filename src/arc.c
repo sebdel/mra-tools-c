@@ -29,7 +29,7 @@ char *format_bits(t_dip *dip, int base) {
 
     if (!dip->ids) {
         if (n - 1 > 1) {
-            printf("error while parsing dip switch: number of bits > 1 but no ids defined.\n");
+            printf("error while parsing \"%s\" dip switch: number of bits > 1 but no ids defined.\n", dip->name);
             return NULL;
         }
         buffer[0] = 'T';
@@ -38,18 +38,18 @@ char *format_bits(t_dip *dip, int base) {
     return strdup(buffer);
 }
 
-int check_ids_len( t_dip* dip ) {
+int check_ids_len(t_dip *dip) {
     int nlen;
     char copy[MAX_LINE_LENGTH];
     char *tok;
 
-    nlen = strnlen( dip->name, MAX_LINE_LENGTH );
-    strncpy( copy, dip->ids, MAX_LINE_LENGTH );
-    tok = strtok( copy, "," );
-    while( tok ) {
+    nlen = strnlen(dip->name, MAX_LINE_LENGTH);
+    strncpy(copy, dip->ids, MAX_LINE_LENGTH);
+    tok = strtok(copy, ",");
+    while (tok) {
         int j = strlen(tok);
-        if( nlen+j > MAX_CONTENT_LENGTH ) return 1;
-        tok = strtok( NULL, "," );
+        if (nlen + j > MAX_CONTENT_LENGTH) return 1;
+        tok = strtok(NULL, ",");
     }
     return 0;
 }
@@ -105,14 +105,14 @@ int write_arc(t_mra *mra, char *filename) {
     }
     for (i = 0; i < mra->switches.n_dips; i++) {
         t_dip *dip = mra->switches.dips + i;
-        if( !strcasestr( dip->name, "coin" ) && !strcasestr( dip->name, "unused") ) {
-            if( check_ids_len(dip) ) {
-                printf("warning: dip_content too long for MiST:\n\t%s\t%s\n\t\t%s\n", mra->name, dip->name, dip->ids);
-                continue;
-            }
+        if (!strstr(str_tolower(dip->name), "coin") && !strstr(str_tolower(dip->name), "unused")) {
             if (dip->ids) {
+                if (check_ids_len(dip)) {
+                    printf("warning: dip_content too long for MiST:\n\t%s\t%s\n\t\t%s\n", mra->name, dip->name, dip->ids);
+                    continue;
+                }
                 n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name, dip->ids);
-                strnlen( dip->ids, MAX_LINE_LENGTH );
+                strnlen(dip->ids, MAX_LINE_LENGTH);
             } else {
                 n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name);
             }
@@ -121,6 +121,8 @@ int write_arc(t_mra *mra, char *filename) {
                 continue;
             }
             fwrite(buffer, 1, n, out);
+        } else {
+            printf("warning: \"%s\" dip setting skipped (coin or unused)\n", dip->name);
         }
     }
     fclose(out);

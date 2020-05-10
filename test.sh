@@ -28,7 +28,7 @@ echo
 echo "Test groups...(expected: 1 error)"
 ./mra tests/test_groups.mra -O tests/results
 echo
-echo "Test ARC file...(expected: 1 error)"
+echo "Test ARC file...(expected: 1 error, 1 warning)"
 ./mra tests/test_arc.mra -A -O tests/results
 echo
 echo "Test Selection by CRC...(expected: no warnings)"

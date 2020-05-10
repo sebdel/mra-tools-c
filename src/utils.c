@@ -140,6 +140,16 @@ char *str_toupper(char *src) {
     return dest;
 }
 
+char *str_tolower(char *src) {
+    char *dest = strndup(src, 256);
+    char *p = dest;
+    while (*p) {
+        char c = *p;
+        *p++ = tolower(c);
+    }
+    return dest;
+}
+
 char *str_trimleft(char *src) {
     char *p;
     for (p = src; *p && isspace(*p); p++)
