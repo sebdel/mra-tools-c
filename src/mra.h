@@ -20,6 +20,7 @@ typedef struct s_part {
             uint32_t offset;
             uint32_t length;
             uint8_t *pattern;
+            int _map_index;    // only used for "interleave maps" to "group patterns" conversion
             uint8_t *data;
             size_t data_length;
         } p;

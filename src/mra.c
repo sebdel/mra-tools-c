@@ -26,24 +26,28 @@ int read_patch(XMLNode *node, t_patch *patch) {
     }
 }
 
-char *get_pattern_from_map(char *map) {
+void get_pattern_from_map(char *map, uint8_t **pattern, int *map_index) {
     int i, j;
     int n = strnlen(map, 256);
-    char *pattern = (char *)malloc(n + 1);
+    char first_found = 0;
+
+    *pattern = (char *)malloc(n + 1);
 
     for (i = n - 1, j = 0; i >= 0; i--) {
         if (map[i] != '0') {
-            pattern[j++] = map[i] - 1;
+            if (!first_found) {
+                first_found = -1;
+                (*map_index) = n - i - 1;
+            }
+            (*pattern)[j++] = map[i] - 1;
         }
     }
-    pattern[j] = '\0';
+    (*pattern)[j] = '\0';
 
-    if (trace > 0) printf("map=0x%s => pattern=\"%s\"\n", map, pattern);
-
-    return pattern;
+    if (trace > 0) printf("map=0x%s => pattern=\"%s\"\n", map, *pattern);
 }
 
-int read_part(XMLNode *node, t_part *part) {
+int read_part(XMLNode *node, t_part *part, int parent_index) {
     int j;
 
     memset(part, 0, sizeof(t_part));
@@ -68,8 +72,9 @@ int read_part(XMLNode *node, t_part *part) {
             part->p.length = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
         } else if (strncmp(node->attributes[j].name, "pattern", 8) == 0) {
             part->p.pattern = strndup(node->attributes[j].value, 256);
+            part->p._map_index = parent_index;
         } else if (strncmp(node->attributes[j].name, "map", 4) == 0) {
-            part->p.pattern = get_pattern_from_map(node->attributes[j].value);
+            get_pattern_from_map(node->attributes[j].value, &(part->p.pattern), &(part->p._map_index));
         } else {
             printf("warning: unknown attribute for regular part: %s\n", node->attributes[j].name);
         }
@@ -119,9 +124,15 @@ t_part *read_group(XMLNode *node, t_part *part) {
     return part;
 }
 
+static int cmp_part_map(const void *p1, const void *p2) {
+
+    return ((t_part *)p1)->p._map_index - ((t_part *)p2)->p._map_index;
+}
+
 int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
     int i;
     char *part_types[] = {"part", "group", "interleave"};
+    t_part *part;
 
     for (i = 0; i < 3; i++)
         if (strncmp(node->tag, part_types[i], 20) == 0)
@@ -130,18 +141,20 @@ int read_parts(XMLNode *node, t_part **parts, int *n_parts) {
     if (i < 3) {
         (*n_parts)++;
         *parts = (t_part *)realloc(*parts, sizeof(t_part) * (*n_parts));
+        part = (*parts) + (*n_parts) - 1;
 
         switch (i) {
             case 0:  // part
-                read_part(node, (*parts) + (*n_parts) - 1);
+                read_part(node, part, (*n_parts) - 1);
                 break;
             case 1:  // group
             case 2:  // interleave
             {
-                t_part *group = read_group(node, (*parts) + (*n_parts) - 1);
+                t_part *group = read_group(node, part);
                 for (i = 0; i < node->n_children; i++) {
                     read_parts(node->children[i], &(group->g.parts), &(group->g.n_parts));
                 }
+                qsort(group->g.parts, group->g.n_parts, sizeof(t_part), cmp_part_map);
             } break;
             default:  // won't happen
                 break;
@@ -331,7 +344,10 @@ void dump_part(t_part *part) {
         if (part->p.crc32) printf("    crc32: %08x\n", part->p.crc32);
         if (part->p.name) printf("    name: %s\n", part->p.name);
         if (part->p.zip) printf("    zip: %s\n", part->p.zip);
-        if (part->p.pattern) printf("    pattern: %s\n", part->p.pattern);
+        if (part->p.pattern) {
+            printf("    pattern: %s\n", part->p.pattern);
+            printf("    _map_index: %d\n", part->p._map_index);
+        }
         if (part->p.repeat) printf("    repeat: %u (0x%04x)\n", part->p.repeat, part->p.repeat);
         if (part->p.offset) printf("    offset: %u (0x%04x)\n", part->p.offset, part->p.offset);
         if (part->p.length) printf("    length: %u (0x%04x)\n", part->p.length, part->p.length);
