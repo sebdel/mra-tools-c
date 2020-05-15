@@ -215,7 +215,6 @@ int read_switches(XMLNode *node, t_switches *switches) {
     int i;
 
     memset(switches, 0, sizeof(t_switches));
-    switches->defaults = ~0;
 
     // Read all attributes
     for (i = 0; i < node->n_attributes; i++) {
@@ -223,6 +222,7 @@ int read_switches(XMLNode *node, t_switches *switches) {
         if (strncmp(attr->name, "base", 10) == 0) {
             switches->base = strtol(strndup(attr->value, 256), NULL, 0);
         } else if (strncmp(attr->name, "default", 8) == 0) {
+            switches->defaults = ~0;
             int a, b, c, d, n;  // up to three values
             n = sscanf(attr->value, "%X,%X,%X,%X", &a, &b, &c, &d);
             if (n-- > 0) switches->defaults &= (a | 0xffffff00);

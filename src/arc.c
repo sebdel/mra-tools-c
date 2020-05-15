@@ -107,7 +107,7 @@ int write_arc(t_mra *mra, char *filename) {
     if (n >= MAX_LINE_LENGTH) printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);
     fwrite(buffer, 1, n, out);
 
-    if (mra->switches.n_dips) {
+    if (mra->switches.n_dips && mra->switches.defaults) {
         n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=0x%08X\n", mra->switches.defaults << mra->switches.base);
         fwrite(buffer, 1, n, out);
     }
