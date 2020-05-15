@@ -10,9 +10,17 @@
 #define MAX_LINE_LENGTH 256
 #define MAX_CONTENT_LENGTH 25
 
-char *format_bits(t_dip *dip, int base) {
+char *format_bits(t_dip *dip, int base, int page_id) {
     char buffer[256] = "O";
-    int n = 1;
+    int start = 1;
+    int n;
+
+    if (page_id >= 1 && page_id <= 9) {
+        snprintf(buffer, 256, "P%dO", page_id);
+        start = 3;
+    }
+    n = start;
+
     char *token = dip->bits;
 
     // Parse bits first
@@ -28,11 +36,11 @@ char *format_bits(t_dip *dip, int base) {
     buffer[n] = '\0';
 
     if (!dip->ids) {
-        if (n - 1 > 1) {
+        if (n - 1 > start) {
             printf("error while parsing \"%s\" dip switch: number of bits > 1 but no ids defined.\n", dip->name);
             return NULL;
         }
-        buffer[0] = 'T';
+        buffer[start - 1] = 'T';
     }
 
     return strdup(buffer);
@@ -103,6 +111,11 @@ int write_arc(t_mra *mra, char *filename) {
         n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=0x%08X\n", mra->switches.defaults << mra->switches.base);
         fwrite(buffer, 1, n, out);
     }
+    if (mra->switches.page_id && mra->switches.page_name) {
+        n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"P%d,%s\"\n", mra->switches.page_id, mra->switches.page_name);
+        fwrite(buffer, 1, n, out);
+    }
+
     for (i = 0; i < mra->switches.n_dips; i++) {
         t_dip *dip = mra->switches.dips + i;
         if (!strstr(str_tolower(dip->name), "coin") && !strstr(str_tolower(dip->name), "unused")) {
@@ -111,10 +124,10 @@ int write_arc(t_mra *mra, char *filename) {
                     printf("warning: dip_content too long for MiST:\n\t%s\t%s\n\t\t%s\n", mra->name, dip->name, dip->ids);
                     continue;
                 }
-                n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name, dip->ids);
+                n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits(dip, mra->switches.base, mra->switches.page_id), dip->name, dip->ids);
                 strnlen(dip->ids, MAX_LINE_LENGTH);
             } else {
-                n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(dip, mra->switches.base), dip->name);
+                n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s\"\n", format_bits(dip, mra->switches.base, mra->switches.page_id), dip->name);
             }
             if (n >= MAX_LINE_LENGTH) {
                 printf("%s:%d: warning: line was truncated while writing in ARC file!\n", __FILE__, __LINE__);

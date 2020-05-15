@@ -64,6 +64,8 @@ typedef struct s_switches
     int n_dips;
     int defaults;
     int base;
+    int page_id;
+    char *page_name;
 } t_switches;
 
 typedef struct s_rbf {

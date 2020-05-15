@@ -216,6 +216,10 @@ int read_switches(XMLNode *node, t_switches *switches) {
             if (n-- > 0) switches->defaults = (switches->defaults << 8) | b;
             if (n-- > 0) switches->defaults = (switches->defaults << 8) | c;
             if (n-- > 0) switches->defaults = (switches->defaults << 8) | d;
+        } else if (strncmp(attr->name, "page_id", 8) == 0) {
+            switches->page_id = strtol(strndup(attr->value, 256), NULL, 0);
+        } else if (strncmp(attr->name, "page_name", 10) == 0) {
+            switches->page_name = strndup(attr->value, 26);
         }
     }
 
