@@ -31,6 +31,9 @@ echo
 echo "Test ARC file...(expected: 1 error, 1 warning)"
 ./mra tests/test_arc.mra -A -O tests/results
 echo
+echo "Test ARC file pages...(expected: 1 warning)"
+./mra tests/test_arc_page.mra -A -O tests/results
+echo
 echo "Test ARC file standalone...(expected: no warnings)"
 ./mra tests/test_arc_no_rom.mra -s -A -O tests/results
 echo
