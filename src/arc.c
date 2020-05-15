@@ -118,7 +118,7 @@ int write_arc(t_mra *mra, char *filename) {
 
     for (i = 0; i < mra->switches.n_dips; i++) {
         t_dip *dip = mra->switches.dips + i;
-        if (!strstr(str_tolower(dip->name), "coin") && !strstr(str_tolower(dip->name), "unused")) {
+        if (!strstr(str_tolower(dip->name), "unused")) {
             if (dip->ids) {
                 if (check_ids_len(dip)) {
                     printf("warning: dip_content too long for MiST:\n\t%s\t%s\n\t\t%s\n", mra->name, dip->name, dip->ids);
@@ -135,7 +135,7 @@ int write_arc(t_mra *mra, char *filename) {
             }
             fwrite(buffer, 1, n, out);
         } else {
-            printf("warning: \"%s\" dip setting skipped (coin or unused)\n", dip->name);
+            printf("warning: \"%s\" dip setting skipped (unused)\n", dip->name);
         }
     }
     fclose(out);
