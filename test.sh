@@ -37,6 +37,9 @@ echo
 echo "Test ARC file standalone...(expected: no warnings)"
 ./mra tests/test_arc_no_rom.mra -s -A -O tests/results
 echo
+echo "Test ARC file w/o default switches...(expected: no warnings)"
+./mra tests/test_arc_no_defaults.mra -s -A -O tests/results
+echo
 echo "Test Selection by CRC...(expected: no warnings)"
 ./mra tests/test_select_by_crc.mra -O tests/results
 echo
