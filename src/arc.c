@@ -9,6 +9,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define MAX_CONTENT_LENGTH 25
+#define MAX_CONF_OPT_LENGTH 128
 
 char *format_bits(t_dip *dip, int base, int page_id) {
     char buffer[256] = "O";
@@ -48,14 +49,18 @@ char *format_bits(t_dip *dip, int base, int page_id) {
 
 int check_ids_len(t_dip *dip) {
     int nlen;
+    int tlen;
     char copy[MAX_LINE_LENGTH];
     char *tok;
 
     nlen = strnlen(dip->name, MAX_LINE_LENGTH);
     strncpy(copy, dip->ids, MAX_LINE_LENGTH);
     tok = strtok(copy, ",");
+    tlen = nlen;
     while (tok) {
         int j = strlen(tok);
+        tlen += j+1;
+        if (tlen > MAX_CONF_OPT_LENGTH) return 1;
         if (nlen + j > MAX_CONTENT_LENGTH) return 1;
         tok = strtok(NULL, ",");
     }
