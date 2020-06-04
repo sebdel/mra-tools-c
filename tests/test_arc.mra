@@ -1,5 +1,5 @@
 <misterromdescription>
-  <name>Test ARC Creation</name>
+  <name>Test ARC creation &amp; escaped chars</name>
   <mameversion>1234</mameversion>
   <mratimestamp>202001230000</mratimestamp>
   <year>2020</year>
