@@ -1347,7 +1347,9 @@ TagType XML_parse_1string(const SXML_CHAR* str, XMLNode* xmlnode)
 		}
 	}
 	
-	sx_fprintf(stderr, C2SX("\nWE SHOULD NOT BE HERE!\n[%s]\n\n"), str);
+	// sx_fprintf(stderr, C2SX("\nWE SHOULD NOT BE HERE!\n[%s]\n\n"), str);
+	sx_fprintf(stderr, C2SX("\nMalformed xml tag: must be '<tag (attribName=\"attribValue\")* [/]>' or '</tag>':\n[%s]\n\n"), str);
+
 	
 parse_err:
 	(void)XMLNode_free(xmlnode);
