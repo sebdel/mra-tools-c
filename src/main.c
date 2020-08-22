@@ -167,10 +167,13 @@ void main(int argc, char **argv) {
                 if (output_dir) {
                     arc_filename = get_filename(output_dir, get_basename(arc_filename, 1), "arc");
                 }
+                make_fat32_compatible(arc_filename, 0);
             } else {
-                arc_filename = get_filename(output_dir ? output_dir : ".", mra.name ? mra.name : mra_basename, "arc");
+                char *arc_mra_filename = strdup(mra.name ? mra.name : mra_basename);
+                make_fat32_compatible(arc_mra_filename, 1);
+                arc_filename = get_filename(output_dir ? output_dir : ".", arc_mra_filename, "arc");
+                free(arc_mra_filename);
             }
-            make_fat32_compatible( arc_filename );
             if (verbose) {
                 printf("Creating ARC file %s\n", arc_filename);
             }

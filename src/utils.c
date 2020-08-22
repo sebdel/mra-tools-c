@@ -220,10 +220,32 @@ char *string_list_add(t_string_list *list, char *element) {
     return list->elements[list->n_elements - 1];
 }
 
-void make_fat32_compatible( char *filename ) {
+char *trim(char *str)
+{
+  char *end;
+
+  if (!str) return str;
+
+  while (isspace((unsigned char)*str)) str++;
+
+  if (*str == 0) return str;
+
+  end = str + strlen(str) - 1;
+  while (end > str && isspace((unsigned char)*end)) end--;
+
+  end[1] = '\0';
+
+  return str;
+}
+
+void make_fat32_compatible(char *filename, int stripslashes) {
     int k;
-    for( k=0; filename[k]; k++ ) {
-        if( filename[k] == ':' ) filename[k] = '_';
-        if( filename[k] == '?' ) filename[k] = '_';
+
+    for (k = 0; filename[k]; k++) {
+        if (filename[k] == ':') filename[k] = '_';
+        if (filename[k] == '?') filename[k] = '_';
+        if ((stripslashes) && (filename[k] == '/')) filename[k] = '_';
+        if (filename[k] < ' ') filename[k] = ' ';
+        trim(filename);
     }
 }
