@@ -301,7 +301,7 @@ static char *get_zip_filename(char *filename, t_string_list *dirs) {
 int write_rom(t_mra *mra, t_string_list *dirs, char *rom_filename) {
     char *zip_filename;
     t_rom *rom;
-    int rom_index;
+    int rom_index=0;
     int i, res;
 
     // Look for first ROM with index 0
