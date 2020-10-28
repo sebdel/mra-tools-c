@@ -51,7 +51,8 @@ int read_part(XMLNode *node, t_part *part, int parent_index) {
     int j;
 
     memset(part, 0, sizeof(t_part));
-
+    part->p._map_index = parent_index;
+    
     for (j = 0; j < node->n_attributes; j++) {
         if (strncmp(node->attributes[j].name, "crc", 4) == 0) {
             // CRC is read as hexa no matter what
@@ -72,7 +73,6 @@ int read_part(XMLNode *node, t_part *part, int parent_index) {
             part->p.length = strtoul(strndup(node->attributes[j].value, 256), NULL, 0);
         } else if (strncmp(node->attributes[j].name, "pattern", 8) == 0) {
             part->p.pattern = strndup(node->attributes[j].value, 256);
-            part->p._map_index = parent_index;
         } else if (strncmp(node->attributes[j].name, "map", 4) == 0) {
             get_pattern_from_map(node->attributes[j].value, &(part->p.pattern), &(part->p._map_index));
         } else {
