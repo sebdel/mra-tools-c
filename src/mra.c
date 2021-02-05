@@ -222,13 +222,12 @@ int read_switches(XMLNode *node, t_switches *switches) {
         if (strncmp(attr->name, "base", 10) == 0) {
             switches->base = strtol(strndup(attr->value, 256), NULL, 0);
         } else if (strncmp(attr->name, "default", 8) == 0) {
-            switches->defaults = ~0;
-            int a, b, c, d, n;  // up to three values
+            int a, b, c, d, n;  // up to four values
             n = sscanf(attr->value, "%X,%X,%X,%X", &a, &b, &c, &d);
-            if (n-- > 0) switches->defaults &= (a | 0xffffff00);
-            if (n-- > 0) switches->defaults = (switches->defaults << 8) | b;
-            if (n-- > 0) switches->defaults = (switches->defaults << 8) | c;
-            if (n-- > 0) switches->defaults = (switches->defaults << 8) | d;
+            if (n-- > 0) switches->defaults |= (a & 0xff);
+            if (n-- > 0) switches->defaults |= ((b & 0xff) << 8);
+            if (n-- > 0) switches->defaults |= ((c & 0xff) << 16);
+            if (n-- > 0) switches->defaults |= ((d & 0xff) << 24);
         } else if (strncmp(attr->name, "page_id", 8) == 0) {
             switches->page_id = strtol(strndup(attr->value, 256), NULL, 0);
         } else if (strncmp(attr->name, "page_name", 10) == 0) {
@@ -369,7 +368,7 @@ int mra_dump(t_mra *mra) {
     for (i = 0; i < mra->categories.n_elements; i++) {
         printf("category[%d]: %s\n", i, mra->categories.elements[i]);
     }
-    printf("switches: default=0x%08X, base=%d\n", mra->switches.defaults, mra->switches.base);
+    printf("switches: default=0x%llX, base=%d\n", mra->switches.defaults, mra->switches.base);
     printf("nb dips: %d\n", mra->switches.n_dips);
     for (i = 0; i < mra->switches.n_dips; i++) {
         printf("  dip[%d]: %s,%s,%s\n", i, mra->switches.dips[i].bits, mra->switches.dips[i].name, mra->switches.dips[i].ids);

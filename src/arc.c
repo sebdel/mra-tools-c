@@ -27,11 +27,11 @@ char *format_bits(t_dip *dip, int base, int page_id) {
     // Parse bits first
     while (token = strtok(token, ",")) {
         char c = atoi(token) + (char)base;
-        if (c > 31) {
-            printf("error while parsing dip switch: required bit position exceeds 31.\n");
+        if (c > 61) {
+            printf("error while parsing dip switch: required bit position exceeds 61.\n");
             return NULL;
         }
-        buffer[n++] = (c < 10) ? ('0' + c) : 'A' + c - 10;
+        buffer[n++] = (c < 10) ? ('0' + c) : (c < 36) ? ('A' + c - 10) : ('a' + c - 36);
         token = NULL;
     }
     buffer[n] = '\0';
@@ -113,7 +113,7 @@ int write_arc(t_mra *mra, char *filename) {
     fwrite(buffer, 1, n, out);
 
     if (mra->switches.n_dips && mra->switches.defaults) {
-        n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=0x%08X\n", mra->switches.defaults << mra->switches.base);
+        n = snprintf(buffer, MAX_LINE_LENGTH, "DEFAULT=0x%llX\n", mra->switches.defaults << mra->switches.base);
         fwrite(buffer, 1, n, out);
     }
     if (mra->switches.page_id && mra->switches.page_name) {
