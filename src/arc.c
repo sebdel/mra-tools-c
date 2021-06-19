@@ -129,7 +129,7 @@ int write_arc(t_mra *mra, char *filename) {
         if (!strstr(str_tolower(dip->name), "unused")) {
             if (dip->ids) {
                 if (check_ids_len(dip)) {
-                    printf("warning: dip_content too long for MiST (%s):\n\t%s\t%s\n\t\t%s\n", mra->name, dip->name, dip->ids, mra->setname);
+                    printf("warning (%s): dip_content too long for MiST (%s):\n\t%s\t%s\n\n", mra->setname, mra->name, dip->name, dip->ids);
                     continue;
                 }
                 n = snprintf(buffer, MAX_LINE_LENGTH, "CONF=\"%s,%s,%s\"\n", format_bits( mra, dip ), dip->name, dip->ids);

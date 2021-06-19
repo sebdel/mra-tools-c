@@ -127,9 +127,8 @@ void main(int argc, char **argv) {
             printf("error: file not found (%s)\n", mra_filename);
             exit(-1);
         }
-        printf("Parsing %s\n", mra_filename);
 
-        if (trace > 0)
+        if (trace > 0 )
             printf("mra: %s\n", mra_filename);
 
         char *mra_path = get_path(mra_filename);
