@@ -377,10 +377,12 @@ int write_rom(t_mra *mra, t_string_list *dirs, char *rom_filename) {
         printf("%s\t%s\n", md5_string, rom_filename);
     }
     if (rom->md5) {
-        if (strncmp(rom->md5, md5_string, 33)) {
-            printf("warning: md5 mismatch! (found: %s, expected: %s)\n", md5_string, rom->md5);
-        } else if (verbose) {
-            printf("MD5s match! (%s)\n", rom->md5);
+        if( strncmp(rom->md5,"None",5)!=0 ) {
+            if (strncmp(rom->md5, md5_string, 33)) {
+                printf("warning: md5 mismatch! (found: %s, expected: %s)\n", md5_string, rom->md5);
+            } else if (verbose) {
+                printf("MD5s match! (%s)\n", rom->md5);
+            }
         }
     }
     return 0;

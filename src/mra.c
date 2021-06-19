@@ -322,6 +322,7 @@ int mra_load(char *filename, t_mra *mra) {
 
     read_root(root, mra);
     read_roms(root, &mra->roms, &mra->n_roms);
+    XMLDoc_free(doc);
 
     return 0;
 }
