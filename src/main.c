@@ -38,7 +38,6 @@ void print_version() {
 }
 
 void main(int argc, char **argv) {
-    t_mra mra;
     char *rom_filename = NULL;
     char *arc_filename = NULL;
     char *output_dir = NULL;
@@ -113,83 +112,98 @@ void main(int argc, char **argv) {
         exit(-1);
     }
 
-    mra_filename = replace_backslash(strndup(argv[optind], 1024));
-    if (!file_exists(mra_filename)) {
-        printf("error: file not found (%s)\n", mra_filename);
-        exit(-1);
+    if( argc-optind > 1 ) {
+        free( rom_filename );
+        free( arc_filename );
+        rom_filename = NULL;
+        arc_filename = NULL;
     }
 
-    if (trace > 0)
-        printf("mra: %s\n", mra_filename);
+    for( int name_idx=optind; name_idx<argc; name_idx++) {
+        t_mra mra;
 
-    char *mra_path = get_path(mra_filename);
-    if (mra_path) {
-        string_list_add(dirs, mra_path);
-    }
-    string_list_add(dirs, ".");
-
-    if (verbose) {
-        if (dirs->n_elements) {
-            int i;
-            printf("zip include dirs: ");
-            for (i = 0; i < dirs->n_elements; i++) {
-                printf("%s%s/", i ? ", " : "", dirs->elements[i]);
-            }
-            printf("\n");
+        mra_filename = replace_backslash(strndup(argv[name_idx], 1024));
+        if (!file_exists(mra_filename)) {
+            printf("error: file not found (%s)\n", mra_filename);
+            exit(-1);
         }
-    }
+        printf("Parsing %s\n", mra_filename);
 
-    if (mra_load(mra_filename, &mra)) {
-        exit(-1);
-    }
+        if (trace > 0)
+            printf("mra: %s\n", mra_filename);
 
-    mra_basename = get_basename(mra_filename, 1);
-    if (rom_filename) {
-        rom_basename = get_basename(rom_filename, 1);
-        if (output_dir) {
-            rom_filename = get_filename(output_dir, rom_basename, "rom");
+        char *mra_path = get_path(mra_filename);
+        if (mra_path) {
+            string_list_add(dirs, mra_path);
         }
-    } else {
-        rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
-        rom_filename = get_filename(output_dir ? output_dir : ".", rom_basename, "rom");
-    }
+        string_list_add(dirs, ".");
 
-    if (trace > 0) printf("MRA loaded...\n");
-
-    if (dump_mra) {
-        if (trace > 0) printf("dumping MRA content...\n");
-        mra_dump(&mra);
-    } else {
-        if (create_arc) {
-            if (trace > 0) printf("create_arc set...\n");
-
-            if (arc_filename) {
-                if (output_dir) {
-                    arc_filename = get_filename(output_dir, get_basename(arc_filename, 1), "arc");
+        if (verbose) {
+            if (dirs->n_elements) {
+                int i;
+                printf("zip include dirs: ");
+                for (i = 0; i < dirs->n_elements; i++) {
+                    printf("%s%s/", i ? ", " : "", dirs->elements[i]);
                 }
-                make_fat32_compatible(arc_filename, 0);
-            } else {
-                char *arc_mra_filename = strdup(mra.name ? mra.name : mra_basename);
-                make_fat32_compatible(arc_mra_filename, 1);
-                arc_filename = get_filename(output_dir ? output_dir : ".", arc_mra_filename, "arc");
-                free(arc_mra_filename);
-            }
-            if (verbose) {
-                printf("Creating ARC file %s\n", arc_filename);
-            }
-            res = write_arc(&mra, arc_filename);
-            if (res != 0) {
-                printf("Writing ARC file failed with error code: %d\n. Retry without -A if you still want to create the ROM file.\n", res);
-                exit(-1);
+                printf("\n");
             }
         }
-        if( dump_rom ) {
-            if (trace > 0) printf("creating ROM...\n");
-            res = write_rom(&mra, dirs, rom_filename);
-            if (res != 0) {
-                printf("Writing ROM failed with error code: %d\n", res);
-                exit(-1);
+
+        if (mra_load(mra_filename, &mra)) {
+            exit(-1);
+        }
+
+        mra_basename = get_basename(mra_filename, 1);
+        if (rom_filename) {
+            rom_basename = get_basename(rom_filename, 1);
+            if (output_dir) {
+                rom_filename = get_filename(output_dir, rom_basename, "rom");
             }
+        } else {
+            rom_basename = dos_clean_basename(mra.setname ? mra.setname : mra_basename, 0);
+            rom_filename = get_filename(output_dir ? output_dir : ".", rom_basename, "rom");
+        }
+
+        if (trace > 0) printf("MRA loaded...\n");
+
+        if (dump_mra) {
+            if (trace > 0) printf("dumping MRA content...\n");
+            mra_dump(&mra);
+        } else {
+            if (create_arc) {
+                if (trace > 0) printf("create_arc set...\n");
+
+                if (arc_filename) {
+                    if (output_dir) {
+                        arc_filename = get_filename(output_dir, get_basename(arc_filename, 1), "arc");
+                    }
+                    make_fat32_compatible(arc_filename, 0);
+                } else {
+                    char *arc_mra_filename = strdup(mra.name ? mra.name : mra_basename);
+                    make_fat32_compatible(arc_mra_filename, 1);
+                    arc_filename = get_filename(output_dir ? output_dir : ".", arc_mra_filename, "arc");
+                    free(arc_mra_filename);
+                }
+                if (verbose) {
+                    printf("Creating ARC file %s\n", arc_filename);
+                }
+                res = write_arc(&mra, arc_filename);
+                if (res != 0) {
+                    printf("Writing ARC file failed with error code: %d\n. Retry without -A if you still want to create the ROM file.\n", res);
+                    exit(-1);
+                }
+                arc_filename = NULL;
+            }
+            if( dump_rom ) {
+                if (trace > 0) printf("creating ROM...\n");
+                res = write_rom(&mra, dirs, rom_filename);
+                if (res != 0) {
+                    printf("Writing ROM failed with error code: %d\n", res);
+                    exit(-1);
+                }
+            }
+            free( rom_filename );
+            rom_filename = NULL;
         }
     }
     if (verbose) {
