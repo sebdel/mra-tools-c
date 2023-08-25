@@ -9,7 +9,7 @@ Pre-compiled binaries for linux and windows 64bits are available under the relea
 
 ## How to build
 ```bash
-git clone https:\\https://github.com/sebdel/mra-tools-c.git
+git clone https://github.com/sebdel/mra-tools-c.git
 make
 ```
 
@@ -23,7 +23,7 @@ make -f makefile.windows
 
 In some platforms such as MacOS the tool needs to be used inside a linux container. Just clone the repo:
 ```bash
-git clone https:\\https://github.com/sebdel/mra-tools-c.git
+git clone https://github.com/sebdel/mra-tools-c.git
 ```
 
 Copy all MRA files and zipped files in two directories and then:
